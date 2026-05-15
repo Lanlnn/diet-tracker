@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(java -version)",
+      "Bash(mvn -version)",
+      "Bash(mysql --version)",
+      "Bash(net start *)",
+      "Bash(tasklist *)",
+      "Bash(mysql *)",
+      "Bash(mvn clean *)",
+      "Bash(java -jar target/diet-tracker-backend-1.0.0.jar)",
+      "Bash(curl -s http://localhost:8080/api/foods/categories)"
     ]
   }
 }
