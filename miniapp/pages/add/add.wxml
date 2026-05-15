@@ -1,0 +1,95 @@
+<wxs src="../../utils/format.wxs" module="fmt" />
+<view class="container">
+  <view class="card">
+    <view class="form-item">
+      <text class="form-label">日期</text>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="picker">{{date}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">餐次</text>
+      <picker mode="selector" range="{{mealTypeOptions}}" range-key="label" bindchange="onMealTypeChange">
+        <view class="picker">{{mealTypeOptions[mealTypeIndex].label}}</view>
+      </picker>
+    </view>
+
+    <!-- 切换按钮 -->
+    <view class="toggle-bar">
+      <view class="toggle-btn {{!customMode ? 'active' : ''}}" bindtap="toggleCustom" data-mode="picker">
+        <text>从列表选择</text>
+      </view>
+      <view class="toggle-btn {{customMode ? 'active' : ''}}" bindtap="toggleCustom" data-mode="custom">
+        <text>自定义食物</text>
+      </view>
+    </view>
+
+    <!-- 从列表选择模式 -->
+    <block wx:if="{{!customMode}}">
+      <view class="form-item">
+        <text class="form-label">食物分类</text>
+        <picker mode="selector" range="{{categories}}" range-key="name" bindchange="onCategoryChange">
+          <view class="picker">{{categories[categoryIndex] ? categories[categoryIndex].name : '请选择'}}</view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">食物</text>
+        <picker mode="selector" range="{{foods}}" range-key="name" bindchange="onFoodChange">
+          <view class="picker">{{selectedFood ? selectedFood.name : '请选择'}}</view>
+        </picker>
+      </view>
+
+      <view wx:if="{{selectedFood}}" class="nutrition-preview">
+        <text>热量: {{fmt.mulFixed(selectedFood.calories, quantity, 0)}} kcal</text>
+        <text>蛋白质: {{fmt.mulFixed(selectedFood.protein, quantity, 1)}}g</text>
+        <text>脂肪: {{fmt.mulFixed(selectedFood.fat, quantity, 1)}}g</text>
+        <text>碳水: {{fmt.mulFixed(selectedFood.carbs, quantity, 1)}}g</text>
+      </view>
+    </block>
+
+    <!-- 自定义食物模式 -->
+    <block wx:if="{{customMode}}">
+      <view class="form-item">
+        <text class="form-label">食物名称 <text class="required">*</text></text>
+        <input class="custom-input" type="text" placeholder="例如：三明治" value="{{customFoodName}}" bindinput="onCustomNameInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">单位</text>
+        <input class="custom-input" type="text" placeholder="份" value="{{customUnit}}" bindinput="onCustomUnitInput" />
+      </view>
+
+      <view class="nutrition-grid">
+        <view class="nutri-item">
+          <text class="nutri-label">热量 (kcal)</text>
+          <input class="nutri-input" type="digit" placeholder="可选" value="{{customCalories}}" bindinput="onCustomCaloriesInput" />
+        </view>
+        <view class="nutri-item">
+          <text class="nutri-label">蛋白质 (g)</text>
+          <input class="nutri-input" type="digit" placeholder="可选" value="{{customProtein}}" bindinput="onCustomProteinInput" />
+        </view>
+        <view class="nutri-item">
+          <text class="nutri-label">脂肪 (g)</text>
+          <input class="nutri-input" type="digit" placeholder="可选" value="{{customFat}}" bindinput="onCustomFatInput" />
+        </view>
+        <view class="nutri-item">
+          <text class="nutri-label">碳水 (g)</text>
+          <input class="nutri-input" type="digit" placeholder="可选" value="{{customCarbs}}" bindinput="onCustomCarbsInput" />
+        </view>
+      </view>
+    </block>
+
+    <!-- 数量 -->
+    <view class="form-item" style="margin-top: 20rpx">
+      <text class="form-label">数量（{{customMode ? customUnit : (selectedFood ? selectedFood.unit : '份')}}）</text>
+      <view class="qty-control">
+        <text class="qty-btn" bindtap="decreaseQty">-</text>
+        <input class="qty-input" type="number" value="{{quantity}}" bindinput="onQtyInput" />
+        <text class="qty-btn" bindtap="increaseQty">+</text>
+      </view>
+    </view>
+
+    <button class="btn-primary submit-btn" bindtap="submitRecord">提交记录</button>
+  </view>
+</view>

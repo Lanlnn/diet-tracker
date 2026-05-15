@@ -1,0 +1,14 @@
+function fixed(val, digits) {
+  if (val === undefined || val === null) return '0';
+  return val.toFixed(digits);
+}
+
+function mulFixed(a, b, digits) {
+  if (!a || !b) return '0';
+  return (a * b).toFixed(digits);
+}
+
+module.exports = {
+  fixed: fixed,
+  mulFixed: mulFixed
+};

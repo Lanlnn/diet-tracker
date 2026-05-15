@@ -1,0 +1,53 @@
+<wxs src="../../utils/format.wxs" module="fmt" />
+<view class="container">
+  <view class="date-nav">
+    <text class="nav-btn" bindtap="prevDay">‹</text>
+    <view class="date-picker" bindtap="showPicker">
+      <text>{{displayDate}}</text>
+      <text class="weekday">{{weekday}}</text>
+    </view>
+    <text class="nav-btn" bindtap="nextDay">›</text>
+  </view>
+
+  <view class="summary-card card">
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="summary-num">{{stats.totalCalories}}</text>
+        <text class="summary-label">卡路里</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-num">{{stats.totalProtein}}g</text>
+        <text class="summary-label">蛋白质</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-num">{{stats.totalFat}}g</text>
+        <text class="summary-label">脂肪</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-num">{{stats.totalCarbs}}g</text>
+        <text class="summary-label">碳水</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{records.length === 0}}" class="empty-state">
+    <text>这一天还没有饮食记录 📭</text>
+  </view>
+
+  <view wx:for="{{groupedRecords}}" wx:key="type" class="meal-section" wx:if="{{item.records.length > 0}}">
+    <view class="meal-header">
+      <text class="tag {{item.tagClass}}">{{item.label}}</text>
+      <text class="meal-calories">{{item.totalCalories}} kcal</text>
+    </view>
+    <view wx:for="{{item.records}}" wx:for-item="r" wx:key="id" class="food-row">
+      <view class="food-info">
+        <text class="food-name">{{r.foodItem.name}}</text>
+        <text class="food-qty">{{r.quantity}}{{r.unit}}</text>
+      </view>
+      <view class="food-actions">
+        <text class="food-cal">{{fmt.mulFixed(r.foodItem.calories, r.quantity, 0)}}kcal</text>
+        <text class="delete-btn" data-id="{{r.id}}" bindtap="deleteRecord">删除</text>
+      </view>
+    </view>
+  </view>
+</view>

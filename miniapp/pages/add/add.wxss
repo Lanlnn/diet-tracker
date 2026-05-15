@@ -1,0 +1,133 @@
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.required {
+  color: #F44336;
+}
+
+.picker {
+  font-size: 32rpx;
+  color: #333;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #eee;
+}
+
+/* 切换按钮 */
+.toggle-bar {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 40rpx;
+  padding: 6rpx;
+  margin-bottom: 30rpx;
+}
+
+.toggle-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 34rpx;
+  font-size: 26rpx;
+  color: #999;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: #fff;
+  color: #4CAF50;
+  font-weight: bold;
+  box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.15);
+}
+
+/* 自定义输入框 */
+.custom-input {
+  font-size: 32rpx;
+  color: #333;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #eee;
+}
+
+/* 营养网格 */
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.nutri-item {
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 16rpx;
+}
+
+.nutri-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.nutri-input {
+  font-size: 30rpx;
+  color: #333;
+  padding: 8rpx 0;
+  width: 100%;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10rpx;
+}
+
+.qty-btn {
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 36rpx;
+  color: #333;
+}
+
+.qty-input {
+  width: 120rpx;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: bold;
+  margin: 0 30rpx;
+  border-bottom: 2rpx solid #4CAF50;
+}
+
+.nutrition-preview {
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.nutrition-preview text {
+  font-size: 26rpx;
+  color: #666;
+  background: #fff;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 20rpx;
+}

@@ -1,0 +1,48 @@
+<view class="container">
+  <view class="card">
+    <view class="section-title">本周热量统计</view>
+    <view class="week-chart" wx:if="{{weeklyData.length > 0}}">
+      <view wx:for="{{weeklyData}}" wx:key="date" class="bar-wrapper">
+        <view class="bar-container">
+          <view class="bar" style="height: {{item.height}}%"></view>
+        </view>
+        <view class="bar-info">
+          <text class="bar-cal">{{item.calories}}</text>
+          <text class="bar-day">{{item.dayLabel}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{weeklyData.length === 0}}" class="empty-state">
+      <text>本周暂无数据</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">本周营养汇总</view>
+    <view wx:if="{{weeklyTotal.avgCalories > 0}}">
+      <view class="nutrient-row">
+        <text class="nutrient-label">日均热量</text>
+        <text class="nutrient-value">{{weeklyTotal.avgCalories}} kcal</text>
+      </view>
+      <view class="nutrient-row">
+        <text class="nutrient-label">日均蛋白质</text>
+        <text class="nutrient-value">{{weeklyTotal.avgProtein}}g</text>
+      </view>
+      <view class="nutrient-row">
+        <text class="nutrient-label">日均脂肪</text>
+        <text class="nutrient-value">{{weeklyTotal.avgFat}}g</text>
+      </view>
+      <view class="nutrient-row">
+        <text class="nutrient-label">日均碳水</text>
+        <text class="nutrient-value">{{weeklyTotal.avgCarbs}}g</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">营养建议 💡</view>
+    <view class="tip-list">
+      <text wx:for="{{tips}}" wx:key="index" class="tip-item">{{item}}</text>
+    </view>
+  </view>
+</view>

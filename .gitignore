@@ -1,0 +1,25 @@
+# Java
+target/
+*.class
+*.jar
+*.war
+*.original
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Windows
+Thumbs.db
+*.bak
+
+# 小程序
+miniapp/project.private.config.json
+miniapp/node_modules/
+
+# 日志
+*.log
