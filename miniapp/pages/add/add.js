@@ -33,16 +33,21 @@ Page({
 
   loadCategories() {
     api.getCategories().then(categories => {
-      this.setData({ categories });
-      if (categories.length > 0) {
+      this.setData({ categories: categories || [] });
+      if (categories && categories.length > 0) {
         this.loadFoods(categories[0].id);
       }
+    }).catch(() => {
+      wx.showToast({ title: '加载分类失败', icon: 'none' });
     });
   },
 
   loadFoods(categoryId) {
     api.getFoods(categoryId).then(foods => {
+      foods = foods || [];
       this.setData({ foods, selectedFood: foods.length > 0 ? foods[0] : null });
+    }).catch(() => {
+      this.setData({ foods: [], selectedFood: null });
     });
   },
 

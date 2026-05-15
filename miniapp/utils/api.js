@@ -1,14 +1,20 @@
-// 真机调试时改为电脑的局域网 IP，如 http://192.168.x.x:8080/api
-const BASE_URL = 'http://10.112.71.7:8080/api';
+// 开发者工具模拟器用 localhost，真机调试时改为电脑的局域网 IP
+const BASE_URL = 'http://192.168.1.100:8080/api';
 
 function request(url, method = 'GET', data = {}) {
   return new Promise((resolve, reject) => {
     wx.request({
       url: BASE_URL + url,
       method,
-      data,
+      data: (method === 'POST' || method === 'PUT') && typeof data === 'object' ? JSON.stringify(data) : data,
       header: { 'Content-Type': 'application/json' },
-      success: res => resolve(res.data),
+      success: res => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res.data);
+        } else {
+          reject(new Error('请求失败: ' + res.statusCode));
+        }
+      },
       fail: err => {
         wx.showToast({ title: '网络错误', icon: 'none' });
         reject(err);

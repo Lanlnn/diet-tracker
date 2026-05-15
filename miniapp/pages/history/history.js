@@ -31,11 +31,11 @@ Page({
   loadRecords() {
     const date = this.data.currentDate;
     Promise.all([
-      api.getRecords(date),
-      api.getDailyStats(date)
+      api.getRecords(date).catch(() => []),
+      api.getDailyStats(date).catch(() => ({}))
     ]).then(([records, stats]) => {
-      const groupedRecords = this.groupByMealType(records);
-      this.setData({ records, groupedRecords, stats });
+      const groupedRecords = this.groupByMealType(records || []);
+      this.setData({ records: records || [], groupedRecords, stats: stats || {} });
     });
   },
 

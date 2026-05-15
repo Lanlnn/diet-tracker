@@ -34,11 +34,11 @@ Page({
   loadData() {
     const today = util.getToday();
     Promise.all([
-      api.getRecords(today),
-      api.getDailyStats(today)
+      api.getRecords(today).catch(() => []),
+      api.getDailyStats(today).catch(() => ({}))
     ]).then(([records, stats]) => {
-      const mealTypes = this.groupByMealType(records);
-      this.setData({ records, mealTypes, stats });
+      const mealTypes = this.groupByMealType(records || []);
+      this.setData({ records: records || [], mealTypes, stats: stats || {} });
     });
   },
 

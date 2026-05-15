@@ -29,7 +29,11 @@ Page({
     const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
     // 获取这周每天的统计数据
-    const promises = weekDates.map(date => api.getDailyStats(date));
+    const promises = weekDates.map(date =>
+      api.getDailyStats(date).catch(() => ({
+        totalCalories: 0, totalProtein: 0, totalFat: 0, totalCarbs: 0
+      }))
+    );
     Promise.all(promises).then(results => {
       let totalCalories = 0, totalProtein = 0, totalFat = 0, totalCarbs = 0;
       let daysWithData = 0;
