@@ -10,7 +10,20 @@
       "Bash(mysql *)",
       "Bash(mvn clean *)",
       "Bash(java -jar target/diet-tracker-backend-1.0.0.jar)",
-      "Bash(curl -s http://localhost:8080/api/foods/categories)"
+      "Bash(curl -s http://localhost:8080/api/foods/categories)",
+      "Bash(timeout 30 mvn spring-boot:run -q)",
+      "Bash(timeout 45 mvn spring-boot:run)",
+      "Bash(mvn spring-boot:run)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s http://localhost:8080/food/categories)",
+      "Bash(curl -s http://localhost:8080/api/foods)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/foods/categories)",
+      "Bash(ipconfig)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://192.168.1.100:8080/api/foods/categories)",
+      "Bash(curl -s http://192.168.1.100:8080/api/foods/categories)",
+      "Bash(echo \"Backend PID: $!\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Categories loaded: {len\\(d\\)} items'\\); [print\\(f'  - {c[\\\\\"name\\\\\"]}'\\) for c in d]\")",
+      "Bash(python3 *)"
     ]
   }
 }
