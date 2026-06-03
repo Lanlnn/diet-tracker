@@ -18,7 +18,7 @@
     <description>饮食记录小程序后端</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>

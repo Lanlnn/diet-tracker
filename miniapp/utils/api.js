@@ -1,5 +1,5 @@
 // 开发者工具模拟器用 localhost，真机调试时改为电脑的局域网 IP
-const BASE_URL = 'http://192.168.1.100:8080/api';
+const BASE_URL = 'https://tigercloud.asia/api';
 
 function request(url, method = 'GET', data = {}) {
   return new Promise((resolve, reject) => {

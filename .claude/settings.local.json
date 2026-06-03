@@ -30,7 +30,8 @@
       "Bash(ps -p 6652 -o pid,comm)",
       "Bash(taskkill //F //PID 6652)",
       "Read(//c/Program Files \\(x86\\)/Tencent/**)",
-      "Read(//c/Program Files/Tencent/**)"
+      "Read(//c/Program Files/Tencent/**)",
+      "Bash(sshpass -p '@na6021023' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@8.133.176.179 'java -version 2>&1')"
     ]
   }
 }
