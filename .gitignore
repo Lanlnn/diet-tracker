@@ -21,5 +21,8 @@ Thumbs.db
 miniapp/project.private.config.json
 miniapp/node_modules/
 
+# Claude
+.claude/settings.local.json
+
 # 日志
 *.log
