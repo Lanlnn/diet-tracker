@@ -26,3 +26,6 @@ miniapp/node_modules/
 
 # 日志
 *.log
+
+# Codex workspace config
+.codex/
