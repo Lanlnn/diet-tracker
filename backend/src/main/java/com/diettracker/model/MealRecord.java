@@ -32,6 +32,9 @@ public class MealRecord {
     @Column(name = "record_time")
     private LocalDateTime recordTime;
 
+    @Column(name = "user_id", length = 100)
+    private String userId;
+
     @Column(length = 500)
     private String note;
 
@@ -71,8 +74,12 @@ public class MealRecord {
     public void setUnit(String unit) { this.unit = unit; }
     public LocalDateTime getRecordTime() { return recordTime; }
     public void setRecordTime(LocalDateTime recordTime) { this.recordTime = recordTime; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

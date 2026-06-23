@@ -1,45 +1,93 @@
-// 开发者工具模拟器用 localhost，真机调试时改为电脑的局域网 IP
 const BASE_URL = 'https://tigercloud.asia/api';
+let currentToken = '';
 
-function request(url, method = 'GET', data = {}) {
+function setToken(t) {
+  currentToken = t;
+}
+
+function getToken() {
+  return currentToken;
+}
+
+function request(url, method, data) {
+  if (method === undefined) method = 'GET';
+  if (data === undefined) data = {};
   return new Promise((resolve, reject) => {
+    const header = { 'Content-Type': 'application/json' };
+    if (currentToken) {
+      header['Authorization'] = 'Bearer ' + currentToken;
+    }
     wx.request({
       url: BASE_URL + url,
-      method,
+      method: method,
       data: (method === 'POST' || method === 'PUT') && typeof data === 'object' ? JSON.stringify(data) : data,
-      header: { 'Content-Type': 'application/json' },
+      header: header,
       success: res => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);
+        } else if (res.statusCode === 401) {
+          // Token expired → 自动重登录后重试一次
+          handle401(url, method, data, resolve, reject);
         } else {
-          reject(new Error('请求失败: ' + res.statusCode));
+          reject(new Error('Request failed: ' + res.statusCode));
         }
       },
       fail: err => {
-        wx.showToast({ title: '网络错误', icon: 'none' });
+        wx.showToast({ title: 'Network error', icon: 'none' });
         reject(err);
       }
     });
   });
 }
 
+/** 401 重试：重新登录后用新 token 重发原请求 */
+function handle401(url, method, data, resolve, reject) {
+  const app = getApp();
+  if (!app || !app.reLogin) {
+    reject(new Error('Unauthorized'));
+    return;
+  }
+
+  app.reLogin()
+    .then(() => {
+      // 用新 token 重试
+      const header = { 'Content-Type': 'application/json' };
+      if (currentToken) {
+        header['Authorization'] = 'Bearer ' + currentToken;
+      }
+      wx.request({
+        url: BASE_URL + url,
+        method: method,
+        data: (method === 'POST' || method === 'PUT') && typeof data === 'object' ? JSON.stringify(data) : data,
+        header: header,
+        success: retryRes => {
+          if (retryRes.statusCode >= 200 && retryRes.statusCode < 300) {
+            resolve(retryRes.data);
+          } else {
+            reject(new Error('Request failed after re-login: ' + retryRes.statusCode));
+          }
+        },
+        fail: err => reject(err)
+      });
+    })
+    .catch(err => {
+      wx.showToast({ title: 'Re-login failed', icon: 'none' });
+      reject(err);
+    });
+}
+
 module.exports = {
-  // 食物分类
-  getCategories: () => request('/foods/categories'),
-  getFoods: (categoryId) => request('/foods' + (categoryId ? '?categoryId=' + categoryId : '')),
-  // 自定义食物
-  addFoodItem: (data) => request('/foods', 'POST', data),
-  searchFood: (keyword) => request('/foods/search?keyword=' + encodeURIComponent(keyword)),
-
-  // 饮食记录
-  addRecord: (data) => request('/records', 'POST', data),
-  getRecords: (date) => request('/records?date=' + date),
-  getRecordsByRange: (start, end) => request('/records/range?start=' + start + '&end=' + end),
-  deleteRecord: (id) => request('/records/' + id, 'DELETE'),
-
-  // 统计
-  getDailyStats: (date) => request('/records/stats/daily?date=' + date),
-  getWeeklyStats: (date) => request('/records/stats/weekly?date=' + date),
-
-  BASE_URL
+  setToken: setToken,
+  getToken: getToken,
+  getCategories: function() { return request('/foods/categories'); },
+  getFoods: function(categoryId) { return request('/foods' + (categoryId ? '?categoryId=' + categoryId : '')); },
+  addFoodItem: function(data) { return request('/foods', 'POST', data); },
+  searchFood: function(keyword) { return request('/foods/search?keyword=' + encodeURIComponent(keyword)); },
+  addRecord: function(data) { return request('/records', 'POST', data); },
+  getRecords: function(date) { return request('/records?date=' + date); },
+  getRecordsByRange: function(start, end) { return request('/records/range?start=' + start + '&end=' + end); },
+  deleteRecord: function(id) { return request('/records/' + id, 'DELETE'); },
+  getDailyStats: function(date) { return request('/records/stats/daily?date=' + date); },
+  getWeeklyStats: function(date) { return request('/records/stats/weekly?date=' + date); },
+  BASE_URL: BASE_URL
 };

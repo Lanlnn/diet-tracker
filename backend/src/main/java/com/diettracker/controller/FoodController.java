@@ -28,25 +28,27 @@ public class FoodController {
     }
 
     @GetMapping
-    public List<FoodItem> getFoods(@RequestParam(required = false) Long categoryId) {
+    public List<FoodItem> getFoods(
+            @RequestParam(required = false) Long categoryId,
+            @RequestAttribute("userId") String userId) {
         if (categoryId != null) {
-            return service.getFoodsByCategory(categoryId);
+            return service.getFoodsByCategory(categoryId, userId);
         }
-        return service.getAllFoods();
+        return service.getAllFoods(userId);
     }
 
     @GetMapping("/search")
-    public List<FoodItem> searchFood(@RequestParam String keyword) {
-        return service.searchFood(keyword);
+    public List<FoodItem> searchFood(@RequestParam String keyword, @RequestAttribute("userId") String userId) {
+        return service.searchFood(keyword, userId);
     }
 
     @PostMapping
-    public ResponseEntity<FoodItem> addFood(@RequestBody FoodItem foodItem) {
+    public ResponseEntity<FoodItem> addFood(@RequestBody FoodItem foodItem, @RequestAttribute("userId") String userId) {
         log.info(">>> 收到添加食物请求: name='{}', unit='{}', calories={}, protein={}, fat={}, carbs={}, category={}",
                 foodItem.getName(), foodItem.getUnit(), foodItem.getCalories(),
                 foodItem.getProtein(), foodItem.getFat(), foodItem.getCarbs(),
                 foodItem.getCategory());
-        FoodItem saved = service.addFoodItem(foodItem);
+        FoodItem saved = service.addFoodItem(foodItem, userId);
         log.info(">>> 保存后: id={}, name='{}'", saved.getId(), saved.getName());
         return ResponseEntity.ok(saved);
     }

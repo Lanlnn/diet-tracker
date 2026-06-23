@@ -21,38 +21,47 @@ public class MealRecordController {
     }
 
     @PostMapping
-    public ResponseEntity<MealRecord> addRecord(@RequestBody MealRecord record) {
-        MealRecord saved = service.addRecord(record);
+    public ResponseEntity<MealRecord> addRecord(
+            @RequestBody MealRecord record,
+            @RequestAttribute("userId") String userId) {
+        MealRecord saved = service.addRecord(record, userId);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping
-    public List<MealRecord> getRecords(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return service.getRecordsByDate(date);
+    public List<MealRecord> getRecords(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestAttribute("userId") String userId) {
+        return service.getRecordsByDate(date, userId);
     }
 
     @GetMapping("/range")
     public List<MealRecord> getRecordsByRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return service.getRecordsByDateRange(start, end);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestAttribute("userId") String userId) {
+        return service.getRecordsByDateRange(start, end, userId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecord(@PathVariable Long id) {
-        service.deleteRecord(id);
+    public ResponseEntity<Void> deleteRecord(
+            @PathVariable Long id,
+            @RequestAttribute("userId") String userId) {
+        service.deleteRecord(id, userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/stats/daily")
     public Map<String, Object> getDailyStats(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return service.getDailyStats(date);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestAttribute("userId") String userId) {
+        return service.getDailyStats(date, userId);
     }
 
     @GetMapping("/stats/weekly")
     public Map<String, Object> getWeeklyStats(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return service.getWeeklyStats(date);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestAttribute("userId") String userId) {
+        return service.getWeeklyStats(date, userId);
     }
 }
