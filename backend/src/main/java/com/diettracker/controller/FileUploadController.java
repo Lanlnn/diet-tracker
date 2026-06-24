@@ -54,12 +54,14 @@
          String newName = UUID.randomUUID().toString() + ext;
  
          try {
-             byte[] bytes = file.getBytes();
-             Path target = uploadPath.resolve(newName);
-             Files.write(target, bytes);
-             String url = baseUrl + "/uploads/avatars/" + newName;
-             log.info("Avatar uploaded: {} -> {}", originalName, url);
-             return ResponseEntity.ok(Map.of("url", url));
+            byte[] bytes = file.getBytes();
+            Path target = uploadPath.resolve(newName);
+            Files.write(target, bytes);
+             // 从 uploadDir 提取 URL 路径（如 "uploads/avatars" -> "/uploads/avatars"）
+             String urlPath = "/" + uploadDir.replace("\\", "/").replaceAll("^/+", "").replaceAll("/+$", "");
+             String url = baseUrl + urlPath + "/" + newName;
+            log.info("Avatar uploaded: {} -> {}", originalName, url);
+            return ResponseEntity.ok(Map.of("url", url));
          } catch (IOException e) {
              log.error("File upload failed", e);
              return ResponseEntity.status(500).body(Map.of("error", "Upload failed"));
