@@ -1,11 +1,41 @@
 <wxs src="../../utils/format.wxs" module="fmt" />
 <view class="container">
   <view class="header-card">
-    <text class="date-text">{{today}}</text>
-    <text class="greeting">{{greeting}}</text>
+     <view class="profile-row">
+       <view class="avatar-wrap">
+         <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
+         <view wx:else class="avatar-placeholder">{{nickname ? nickname.slice(0,1) : '微'}}</view>
+       </view>
+       <view class="profile-info">
+         <text class="nickname">{{nickname || '微信用户'}}</text>
+         <text class="date-text">{{today}}</text>
+         <text class="greeting">{{greeting}}</text>
+       </view>
+     </view>
   </view>
 
-  <view class="summary-card card">
+   <!-- 首次使用：获取微信头像和昵称 -->
+   <view wx:if="{{needsWechatInfo && !nickname}}" class="wechat-info-card card">
+     <view class="wechat-info-row">
+       <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+         <image wx:if="{{avatarUrl}}" class="wechat-avatar" src="{{avatarUrl}}" mode="aspectFill" />
+         <view wx:else class="wechat-avatar-placeholder">+</view>
+       </button>
+       <view class="wechat-info-fields">
+         <text class="wechat-info-label">微信头像</text>
+           <input class="nickname-input" type="nickname" placeholder="点此获取微信昵称" bindinput="onNicknameInput" />
+         <text class="wechat-info-hint">点击头像和昵称自动获取微信信息</text>
+           <view class="manual-section">
+             <view class="manual-divider">或手动填写（开发者工具测试用）</view>
+             <input class="manual-input" type="text" placeholder="输入昵称" bindinput="onManualNicknameInput" maxlength="20" />
+             <input class="manual-input" type="text" placeholder="头像URL（可选）" bindinput="onManualAvatarInput" />
+           </view>
+       </view>
+     </view>
+     <view class="wechat-save-btn" bindtap="onSaveWechatInfo">使用微信信息</view>
+   </view>
+
+ <view class="summary-card card">
     <view class="summary-row">
       <view class="summary-item">
         <text class="summary-num">{{stats.totalCalories}}</text>

@@ -31,7 +31,7 @@ public class AuthFilter implements Filter {
         String path = req.getRequestURI();
 
         // Skip auth for login and seed endpoints
-        if (path.equals("/api/auth/login") || path.equals("/api/setup/seed")) {
+         if (path.equals("/api/auth/login") || path.equals("/api/setup/seed") || "OPTIONS".equals(req.getMethod())) {
             chain.doFilter(request, response);
             return;
         }

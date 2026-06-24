@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.diettracker.config.JwtUtil;
+ import com.diettracker.model.User;
+ import com.diettracker.repository.UserRepository;
 import java.util.LinkedHashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
@@ -20,9 +22,11 @@ public class AuthService {
 
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+     private final UserRepository userRepository;
 
-    public AuthService(JwtUtil jwtUtil) {
+     public AuthService(JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+         this.userRepository = userRepository;
         this.restTemplate = new RestTemplate();
         this.restTemplate.getMessageConverters().add(
             new org.springframework.http.converter.StringHttpMessageConverter());
@@ -46,12 +50,23 @@ public class AuthService {
 
         log.info("WeChat response: {}", wxResp);
 
-        Map<String, Object> result = new LinkedHashMap<>();
         if (wxResp != null && wxResp.containsKey("openid")) {
             String openid = (String) wxResp.get("openid");
             String token = jwtUtil.generateToken(openid);
+
+             // Auto-create user if not exists
+             User user = userRepository.findById(openid).orElseGet(() -> {
+                 User newUser = new User();
+                 newUser.setOpenid(openid);
+                 return userRepository.save(newUser);
+             });
+
+             Map<String, Object> result = new LinkedHashMap<>();
             result.put("token", token);
             result.put("openid", openid);
+             result.put("nickname", user.getNickname() != null ? user.getNickname() : "");
+             result.put("avatarUrl", user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
+             return result;
         } else {
             String errMsg = "WeChat login failed";
             if (wxResp != null) {
@@ -59,6 +74,5 @@ public class AuthService {
             }
             throw new RuntimeException(errMsg);
         }
-        return result;
     }
 }

@@ -89,5 +89,30 @@ module.exports = {
   deleteRecord: function(id) { return request('/records/' + id, 'DELETE'); },
   getDailyStats: function(date) { return request('/records/stats/daily?date=' + date); },
   getWeeklyStats: function(date) { return request('/records/stats/weekly?date=' + date); },
+  getProfile: function() { return request('/auth/profile', 'GET'); },
+  updateProfile: function(data) { return request('/auth/profile', 'PUT', data); },
+   uploadAvatar: function(filePath) {
+     return new Promise((resolve, reject) => {
+       const header = { 'Authorization': 'Bearer ' + currentToken };
+       wx.uploadFile({
+         url: BASE_URL + '/upload/avatar',
+         filePath: filePath,
+         name: 'file',
+         header: header,
+         success: res => {
+           if (res.statusCode === 200) {
+             try {
+               resolve(JSON.parse(res.data));
+             } catch (e) {
+               reject(new Error('Invalid response'));
+             }
+          } else {
+             reject(new Error('Upload failed: ' + res.statusCode));
+           }
+         },
+         fail: err => reject(err)
+       });
+     });
+   },
   BASE_URL: BASE_URL
 };
