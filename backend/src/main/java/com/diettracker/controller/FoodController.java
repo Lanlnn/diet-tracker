@@ -1,7 +1,7 @@
 package com.diettracker.controller;
 
-import com.diettracker.model.FoodCategory;
-import com.diettracker.model.FoodItem;
+import com.diettracker.entity.FoodCategory;
+import com.diettracker.entity.FoodItem;
 import com.diettracker.service.MealRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

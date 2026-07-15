@@ -1,4 +1,4 @@
-package com.diettracker.config;
+package com.diettracker.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

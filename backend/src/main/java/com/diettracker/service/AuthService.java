@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.diettracker.config.JwtUtil;
- import com.diettracker.model.User;
+import com.diettracker.security.JwtUtil;
+import com.diettracker.entity.User;
  import com.diettracker.repository.UserRepository;
 import java.util.LinkedHashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;

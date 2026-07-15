@@ -1,8 +1,8 @@
 package com.diettracker.service;
 
-import com.diettracker.model.FoodCategory;
-import com.diettracker.model.FoodItem;
-import com.diettracker.model.MealRecord;
+import com.diettracker.entity.FoodCategory;
+import com.diettracker.entity.FoodItem;
+import com.diettracker.entity.MealRecord;
 import com.diettracker.repository.FoodCategoryRepository;
 import com.diettracker.repository.FoodItemRepository;
 import com.diettracker.repository.MealRecordRepository;

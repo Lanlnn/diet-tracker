@@ -17,11 +17,4 @@ function getWeekStart(date) {
   return formatDate(d);
 }
 
-const MEAL_TYPE_MAP = {
-  breakfast: { label: '早餐', class: 'tag-breakfast' },
-  lunch: { label: '午餐', class: 'tag-lunch' },
-  dinner: { label: '晚餐', class: 'tag-dinner' },
-  snack: { label: '加餐', class: 'tag-snack' }
-};
-
-module.exports = { formatDate, getToday, getWeekStart, MEAL_TYPE_MAP };
+module.exports = { formatDate, getToday, getWeekStart };

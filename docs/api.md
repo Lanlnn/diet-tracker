@@ -1,7 +1,10 @@
 # API 接口文档
 
+> 本文记录当前原型接口，不代表优化版最终契约。优化版新增或调整接口时，必须与 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 和后端 DTO 同步更新。
+
 > 基础路径：`http://localhost:8080/api`
 > 请求头：`Content-Type: application/json`
+> 除登录接口外，业务接口请求头需要：`Authorization: Bearer <token>`
 
 ---
 

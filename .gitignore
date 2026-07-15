@@ -12,6 +12,7 @@ target/
 .idea/
 *.iml
 .vscode/
+.DS_Store
 
 # Windows
 Thumbs.db
@@ -20,9 +21,6 @@ Thumbs.db
 # 小程序
 miniapp/project.private.config.json
 miniapp/node_modules/
-
-# Claude
-.claude/settings.local.json
 
 # 日志
 *.log

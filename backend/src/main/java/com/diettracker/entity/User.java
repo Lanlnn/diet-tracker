@@ -1,4 +1,4 @@
- package com.diettracker.model;
+ package com.diettracker.entity;
  
  import jakarta.persistence.*;
  import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package com.diettracker.controller;
 
-import com.diettracker.model.MealRecord;
+import com.diettracker.entity.MealRecord;
 import com.diettracker.service.MealRecordService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-<wxs src="../../utils/format.wxs" module="fmt" />
+<wxs src="../../shared/format.wxs" module="fmt" />
 <view class="container">
   <view class="header-card">
      <view class="profile-row">

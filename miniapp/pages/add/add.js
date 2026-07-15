@@ -1,15 +1,11 @@
-const api = require('../../utils/api');
-const util = require('../../utils/util');
+const api = require('../../services');
+const date = require('../../shared/date');
+const { MEAL_TYPE_OPTIONS } = require('../../shared/meal-types');
 
 Page({
   data: {
-    date: util.getToday(),
-    mealTypeOptions: [
-      { label: '早餐', value: 'breakfast' },
-      { label: '午餐', value: 'lunch' },
-      { label: '晚餐', value: 'dinner' },
-      { label: '加餐', value: 'snack' }
-    ],
+    date: date.getToday(),
+    mealTypeOptions: MEAL_TYPE_OPTIONS,
     mealTypeIndex: 0,
     categories: [],
     categoryIndex: 0,

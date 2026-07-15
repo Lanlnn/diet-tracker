@@ -1,4 +1,4 @@
-package com.diettracker.config;
+package com.diettracker.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,5 +1,6 @@
-const api = require('../../utils/api');
-const util = require('../../utils/util');
+const api = require('../../services');
+const date = require('../../shared/date');
+const { MEAL_TYPE_MAP } = require('../../shared/meal-types');
  const app = getApp();
 
 Page({
@@ -29,7 +30,7 @@ Page({
     else greeting = '晚上好 🌆';
 
     this.setData({
-      today: util.formatDate(now),
+      today: date.formatDate(now),
       greeting
     });
   },
@@ -101,7 +102,7 @@ Page({
   },
 
   loadData() {
-    const today = util.getToday();
+    const today = date.getToday();
     Promise.all([
       api.getRecords(today).catch(() => []),
       api.getDailyStats(today).catch(() => ({}))
@@ -117,7 +118,6 @@ Page({
       if (groups[r.mealType]) groups[r.mealType].push(r);
     });
 
-    const MEAL_TYPE_MAP = util.MEAL_TYPE_MAP;
     return Object.keys(MEAL_TYPE_MAP).map(type => {
       const items = groups[type] || [];
       const totalCalories = items.reduce((sum, r) =>

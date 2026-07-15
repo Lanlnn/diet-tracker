@@ -1,4 +1,4 @@
-const api = require('./utils/api');
+const api = require('./services');
 
 App({
   globalData: {
@@ -45,17 +45,14 @@ App({
     wx.login({
       success(res) {
         if (res.code) {
-          wx.request({
-            url: api.BASE_URL + '/auth/login',
-            method: 'POST',
-            data: { code: res.code },
-            success(resp) {
+          api.login(res.code)
+            .then(data => {
               // 判空保护：后端返回异常时不覆盖已有 token
-                if (resp.data && resp.data.token) {
-                  const token = resp.data.token;
-                  const openid = resp.data.openid;
-                   const nickname = resp.data.nickname || '';
-                   const avatarUrl = resp.data.avatarUrl || '';
+                if (data && data.token) {
+                  const token = data.token;
+                  const openid = data.openid;
+                   const nickname = data.nickname || '';
+                   const avatarUrl = data.avatarUrl || '';
                   wx.setStorageSync('token', token);
                    wx.setStorageSync('nickname', nickname);
                    wx.setStorageSync('avatarUrl', avatarUrl);
@@ -67,24 +64,23 @@ App({
                   console.log('Login success, openid:', openid);
                   that._loginReady = true;
                 } else {
-                console.error('Login failed: invalid response', resp.data);
+                console.error('Login failed: invalid response', data);
                 that._loginReady = 'failed';
                 wx.showToast({ title: '登录失败', icon: 'none' });
               }
               that._flushLoginCallbacks();
 
                // 登录成功后，如果用户还没有昵称，自动获取微信信息
-               if (resp.data && resp.data.token && !resp.data.nickname) {
+               if (data && data.token && !data.nickname) {
                  that._fetchWechatInfo();
                }
-            },
-            fail(err) {
+            })
+            .catch(err => {
               console.error('Login request failed:', err);
               that._loginReady = 'failed';
               wx.showToast({ title: '网络错误', icon: 'none' });
               that._flushLoginCallbacks();
-            }
-          });
+            });
         } else {
           console.error('wx.login failed, no code');
           that._loginReady = 'failed';
@@ -127,16 +123,13 @@ App({
       wx.login({
         success(res) {
           if (res.code) {
-            wx.request({
-              url: api.BASE_URL + '/auth/login',
-              method: 'POST',
-              data: { code: res.code },
-              success(resp) {
-                if (resp.data && resp.data.token) {
-                  const token = resp.data.token;
-                  const openid = resp.data.openid;
-                   const nickname = resp.data.nickname || '';
-                   const avatarUrl = resp.data.avatarUrl || '';
+            api.login(res.code)
+              .then(data => {
+                if (data && data.token) {
+                  const token = data.token;
+                  const openid = data.openid;
+                   const nickname = data.nickname || '';
+                   const avatarUrl = data.avatarUrl || '';
                   wx.setStorageSync('token', token);
                    wx.setStorageSync('nickname', nickname);
                    wx.setStorageSync('avatarUrl', avatarUrl);
@@ -155,9 +148,8 @@ App({
                 } else {
                   reject(new Error('Re-login failed: invalid response'));
                 }
-              },
-              fail(err) { reject(err); }
-            });
+              })
+              .catch(reject);
           } else {
             reject(new Error('wx.login failed'));
           }

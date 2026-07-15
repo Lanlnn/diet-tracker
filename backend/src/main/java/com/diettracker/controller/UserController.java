@@ -1,6 +1,6 @@
  package com.diettracker.controller;
  
- import com.diettracker.model.User;
+ import com.diettracker.entity.User;
  import com.diettracker.repository.UserRepository;
  import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;

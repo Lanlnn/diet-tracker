@@ -19,26 +19,26 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "images/home.png",
-        "selectedIconPath": "images/home_active.png"
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home_active.png"
       },
       {
         "pagePath": "pages/add/add",
         "text": "记录",
-        "iconPath": "images/add.png",
-        "selectedIconPath": "images/add_active.png"
+        "iconPath": "assets/tabbar/add.png",
+        "selectedIconPath": "assets/tabbar/add_active.png"
       },
       {
         "pagePath": "pages/history/history",
         "text": "历史",
-        "iconPath": "images/history.png",
-        "selectedIconPath": "images/history_active.png"
+        "iconPath": "assets/tabbar/history.png",
+        "selectedIconPath": "assets/tabbar/history_active.png"
       },
       {
         "pagePath": "pages/stats/stats",
         "text": "统计",
-        "iconPath": "images/stats.png",
-        "selectedIconPath": "images/stats_active.png"
+        "iconPath": "assets/tabbar/stats.png",
+        "selectedIconPath": "assets/tabbar/stats_active.png"
       }
     ]
   },

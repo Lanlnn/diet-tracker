@@ -1,5 +1,5 @@
-const api = require('../../utils/api');
-const util = require('../../utils/util');
+const api = require('../../services');
+const date = require('../../shared/date');
 
 Page({
   data: {
@@ -13,7 +13,7 @@ Page({
   },
 
   loadWeeklyStats() {
-    const today = util.formatDate(new Date());
+    const today = date.formatDate(new Date());
     const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const weekDays = [];
     const d = new Date();
@@ -22,7 +22,7 @@ Page({
     for (let i = 0; i < 7; i++) {
       const wd = new Date(d);
       wd.setDate(d.getDate() + mondayOffset + i);
-      weekDays.push(util.formatDate(wd));
+      weekDays.push(date.formatDate(wd));
     }
 
     api.getWeeklyStats(today).then(resp => {
