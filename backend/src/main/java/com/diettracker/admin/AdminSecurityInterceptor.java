@@ -32,7 +32,7 @@ public class AdminSecurityInterceptor implements HandlerInterceptor {
         if (audit != null) {
             String reason = auditReason(request);
             if (reason == null || reason.trim().length() < 2 || reason.length() > 200) {
-                throw new ApiException(HttpStatus.BAD_REQUEST, "AUDIT_REASON_REQUIRED", "写操作必须填写 2-200 字审计原因");
+                throw new ApiException(HttpStatus.BAD_REQUEST, "AUDIT_REASON_REQUIRED", "管理操作必须填写 2-200 字审计原因");
             }
         }
         return true;

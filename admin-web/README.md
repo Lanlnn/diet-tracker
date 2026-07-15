@@ -23,7 +23,6 @@ ADMIN_API_TARGET=http://127.0.0.1:19090 npm run dev
 
 ```bash
 export ADMIN_JWT_SECRET='至少 32 字符的随机密钥'
-export ADMIN_USER_REF_SECRET='至少 32 字符的随机密钥'
 export ADMIN_BOOTSTRAP_USERNAME='admin'
 export ADMIN_BOOTSTRAP_PASSWORD='至少 12 字符的高强度密码'
 export ADMIN_BOOTSTRAP_DISPLAY_NAME='系统管理员'

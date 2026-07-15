@@ -1,6 +1,7 @@
 package com.diettracker.repository;
 
 import com.diettracker.entity.MealRecord;
+import com.diettracker.admin.dto.AdminMealDiagnosticResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,6 +33,15 @@ public interface MealRecordRepository extends JpaRepository<MealRecord, Long> {
 
     // Filter by user
     List<MealRecord> findByUserIdAndMealDateOrderByRecordTimeAsc(String userId, LocalDate mealDate);
+
+    @Query("SELECT new com.diettracker.admin.dto.AdminMealDiagnosticResponse(" +
+           "m.id, m.mealDate, m.mealType, m.foodNameSnapshot, m.quantity, m.unit, " +
+           "m.baseAmountSnapshot, m.baseUnitSnapshot, m.caloriesSnapshot, m.proteinSnapshot, " +
+           "m.fatSnapshot, m.carbsSnapshot, m.clientRequestId, m.recordTime, m.createdAt) " +
+           "FROM MealRecord m WHERE m.userId = :userId AND m.mealDate = :date " +
+           "ORDER BY m.recordTime ASC, m.id ASC")
+    List<AdminMealDiagnosticResponse> findSupportDiagnosticsByDate(@Param("userId") String userId,
+                                                                   @Param("date") LocalDate date);
 
     List<MealRecord> findByUserIdAndMealDateAndMealTypeOrderByRecordTimeAsc(
             String userId, LocalDate mealDate, MealRecord.MealType mealType);

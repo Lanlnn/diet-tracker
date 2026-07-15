@@ -3,6 +3,7 @@
  import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.UUID;
  
  @Entity
  @Table(name = "users")
@@ -11,6 +12,9 @@ import java.math.BigDecimal;
      @Id
      @Column(length = 100)
      private String openid;
+
+     @Column(name = "support_ref", nullable = false, unique = true, length = 36)
+     private String supportRef;
  
      @Column(length = 100)
      private String nickname;
@@ -38,6 +42,7 @@ import java.math.BigDecimal;
  
      @PrePersist
      protected void onCreate() {
+         if (supportRef == null) supportRef = "usr_" + UUID.randomUUID().toString().replace("-", "");
          createdAt = LocalDateTime.now();
          updatedAt = LocalDateTime.now();
      }
@@ -49,6 +54,9 @@ import java.math.BigDecimal;
  
      public String getOpenid() { return openid; }
      public void setOpenid(String openid) { this.openid = openid; }
+
+     public String getSupportRef() { return supportRef; }
+     public void setSupportRef(String supportRef) { this.supportRef = supportRef; }
  
      public String getNickname() { return nickname; }
      public void setNickname(String nickname) { this.nickname = nickname; }

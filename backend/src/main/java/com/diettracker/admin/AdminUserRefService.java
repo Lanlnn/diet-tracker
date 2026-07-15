@@ -1,26 +1,35 @@
 package com.diettracker.admin;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.diettracker.api.ApiException;
+import com.diettracker.entity.User;
+import com.diettracker.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.HexFormat;
+import java.util.regex.Pattern;
 
 @Service
 public class AdminUserRefService {
-    private final byte[] secret;
-    public AdminUserRefService(@Value("${admin.user-ref.secret}") String secret) {
-        this.secret = secret.getBytes(StandardCharsets.UTF_8);
-    }
+    private static final Pattern SUPPORT_REF = Pattern.compile("usr_[a-f0-9]{32}");
+    private final UserRepository users;
+
+    public AdminUserRefService(UserRepository users) { this.users = users; }
+
     public String reference(String userId) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret, "HmacSHA256"));
-            return "usr_" + HexFormat.of().formatHex(mac.doFinal(userId.getBytes(StandardCharsets.UTF_8))).substring(0, 16);
-        } catch (Exception exception) {
-            throw new IllegalStateException("Unable to create user reference", exception);
-        }
+        return users.findById(userId).map(User::getSupportRef)
+                .orElseThrow(() -> notFound());
+    }
+
+    public User resolve(String supportRef) {
+        if (!isValid(supportRef)) throw notFound();
+        return users.findBySupportRef(supportRef).orElseThrow(this::notFound);
+    }
+
+    public boolean isValid(String supportRef) {
+        return supportRef != null && SUPPORT_REF.matcher(supportRef).matches();
+    }
+
+    private ApiException notFound() {
+        return new ApiException(HttpStatus.NOT_FOUND, "SUPPORT_USER_NOT_FOUND", "未找到该脱敏用户编号");
     }
 }

@@ -8,8 +8,10 @@ import { SecurityPage } from './pages/SecurityPage.jsx'
 import { FoodsPage } from './pages/FoodsPage.jsx'
 import { CategoriesPage } from './pages/CategoriesPage.jsx'
 import { CustomFoodsPage } from './pages/CustomFoodsPage.jsx'
+import { UserDiagnosticsPage } from './pages/UserDiagnosticsPage.jsx'
 
 const foodRoles = new Set(['SUPER_ADMIN', 'FOOD_EDITOR'])
+const supportRoles = new Set(['SUPER_ADMIN', 'SUPPORT_VIEWER'])
 
 function Protected() {
   const { status } = useAuth(); const location = useLocation()
@@ -23,6 +25,6 @@ function RoleRoute({ roles, children }) {
 }
 export default function App() {
   return <Routes><Route path="/login" element={<LoginPage/>}/><Route element={<Protected/>}>
-    <Route index element={<OverviewPage/>}/><Route path="foods" element={<RoleRoute roles={foodRoles}><FoodsPage/></RoleRoute>}/><Route path="categories" element={<RoleRoute roles={foodRoles}><CategoriesPage/></RoleRoute>}/><Route path="custom-foods" element={<RoleRoute roles={new Set(['SUPER_ADMIN','FOOD_EDITOR','SUPPORT_VIEWER'])}><CustomFoodsPage/></RoleRoute>}/><Route path="security" element={<SecurityPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/>
+    <Route index element={<OverviewPage/>}/><Route path="foods" element={<RoleRoute roles={foodRoles}><FoodsPage/></RoleRoute>}/><Route path="categories" element={<RoleRoute roles={foodRoles}><CategoriesPage/></RoleRoute>}/><Route path="custom-foods" element={<RoleRoute roles={new Set(['SUPER_ADMIN','FOOD_EDITOR','SUPPORT_VIEWER'])}><CustomFoodsPage/></RoleRoute>}/><Route path="user-diagnostics" element={<RoleRoute roles={supportRoles}><UserDiagnosticsPage/></RoleRoute>}/><Route path="security" element={<SecurityPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/>
   </Route></Routes>
 }

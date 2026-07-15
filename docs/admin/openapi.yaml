@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: 轻养管理 API
-  version: 0.1.0-a0
-  description: A0 冻结、A1/A2 实现范围。所有管理 Token 的 audience 为 diet-tracker-admin。
+  version: 0.3.0-a3
+  description: A0 契约冻结及 A1-A3 实现范围。所有管理 Token 的 audience 为 diet-tracker-admin；所有用户诊断响应禁止包含 openid。
 servers:
   - url: /api/admin
 security:
@@ -110,11 +110,43 @@ paths:
       responses:
         '200': {description: 用户私有食品只读诊断, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/CustomFoodDiagnostic'}}}}}
         '403': {$ref: '#/components/responses/Forbidden'}
+  /support/users/{supportRef}:
+    get:
+      operationId: getSupportUser
+      description: 按持久化随机 supportRef 精确查询用户；仅 SUPER_ADMIN、SUPPORT_VIEWER。
+      parameters: [{$ref: '#/components/parameters/SupportRef'}, {$ref: '#/components/parameters/AuditReason'}]
+      responses:
+        '200': {description: 脱敏用户资料, content: {application/json: {schema: {$ref: '#/components/schemas/SupportUser'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /support/users/{supportRef}/today:
+    get:
+      operationId: getSupportUserToday
+      description: 直接调用 DashboardService，响应与同用户同日期的小程序 /api/dashboard/today 完全同构。
+      parameters: [{$ref: '#/components/parameters/SupportRef'}, {$ref: '#/components/parameters/Date'}, {$ref: '#/components/parameters/AuditReason'}]
+      responses:
+        '200': {description: 今日汇总, content: {application/json: {schema: {$ref: '#/components/schemas/DashboardToday'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /support/users/{supportRef}/meals:
+    get:
+      operationId: getSupportUserMeals
+      description: 仅投影 meal_record 的保存时快照列，不读取当前食品营养值。
+      parameters: [{$ref: '#/components/parameters/SupportRef'}, {$ref: '#/components/parameters/Date'}, {$ref: '#/components/parameters/AuditReason'}]
+      responses:
+        '200': {description: 历史餐次快照, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/MealDiagnostic'}}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
 components:
   securitySchemes:
     adminBearer: {type: http, scheme: bearer, bearerFormat: JWT}
   parameters:
     Id: {name: id, in: path, required: true, schema: {type: integer, format: int64}}
+    SupportRef: {name: supportRef, in: path, required: true, schema: {type: string, pattern: '^usr_[a-f0-9]{32}$'}}
+    Date: {name: date, in: query, required: true, schema: {type: string, format: date}}
     AuditReason: {name: X-Audit-Reason, in: header, required: true, description: UTF-8 文本须使用百分号编码，服务端解码后按 2-200 字校验并审计, schema: {type: string}}
   requestBodies:
     FoodCategoryInput:
@@ -154,5 +186,52 @@ components:
     FoodPage: {type: object, required: [items, page, size, total, hasNext], properties: {items: {type: array, items: {$ref: '#/components/schemas/Food'}}, page: {type: integer}, size: {type: integer}, total: {type: integer, format: int64}, hasNext: {type: boolean}}}
     FoodPreviewRequest: {type: object, required: [food, amount], properties: {food: {$ref: '#/components/schemas/FoodInput'}, amount: {type: number, minimum: 1, maximum: 10000, default: 150}}}
     NutritionPreview: {type: object, required: [amount, calories, protein, fat, carbs], properties: {amount: {type: number}, calories: {type: number}, protein: {type: number}, fat: {type: number}, carbs: {type: number}}}
-    CustomFoodDiagnostic: {type: object, required: [id, userRef, name, baseAmount, baseUnit, calories, protein, fat, carbs], properties: {id: {type: integer, format: int64}, userRef: {type: string, description: 不可逆脱敏摘要}, name: {type: string}, baseAmount: {type: number}, baseUnit: {type: string}, calories: {type: number}, protein: {type: number}, fat: {type: number}, carbs: {type: number}, updatedAt: {type: string, format: date-time}}}
+    CustomFoodDiagnostic: {type: object, required: [id, userRef, name, baseAmount, baseUnit, calories, protein, fat, carbs], properties: {id: {type: integer, format: int64}, userRef: {type: string, description: 稳定、随机、唯一的 supportRef}, name: {type: string}, baseAmount: {type: number}, baseUnit: {type: string}, calories: {type: number}, protein: {type: number}, fat: {type: number}, carbs: {type: number}, updatedAt: {type: string, format: date-time}}}
+    SupportUser:
+      type: object
+      required: [supportRef, createdAt, updatedAt]
+      properties:
+        supportRef: {type: string, pattern: '^usr_[a-f0-9]{32}$'}
+        nickname: {type: [string, 'null']}
+        goalType: {type: [string, 'null']}
+        dailyCalorieGoal: {type: [integer, 'null']}
+        currentWeight: {type: [number, 'null']}
+        targetWeight: {type: [number, 'null']}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+    DashboardToday:
+      type: object
+      required: [date, goalCalories, goalSource, intakeCalories, remainingCalories, exceededCalories, exerciseCalories, netCalories, nutrition, exercise, meals, advice]
+      properties:
+        date: {type: string, format: date}
+        goalCalories: {type: integer}
+        goalSource: {type: string, enum: [DEFAULT, USER]}
+        intakeCalories: {type: number}
+        remainingCalories: {type: number}
+        exceededCalories: {type: number}
+        exerciseCalories: {type: number}
+        netCalories: {type: number}
+        nutrition: {type: object, additionalProperties: true}
+        exercise: {type: object, additionalProperties: true}
+        meals: {type: array, items: {type: object, additionalProperties: true}}
+        advice: {type: object, additionalProperties: true}
+    MealDiagnostic:
+      type: object
+      required: [recordId, mealDate, mealType, foodName, quantity, snapshotBaseAmount, snapshotBaseUnit, snapshotCalories, snapshotProtein, snapshotFat, snapshotCarbs, recordTime, createdAt]
+      properties:
+        recordId: {type: integer, format: int64}
+        mealDate: {type: string, format: date}
+        mealType: {type: string, enum: [breakfast, lunch, dinner, snack]}
+        foodName: {type: string}
+        quantity: {type: number}
+        unit: {type: [string, 'null']}
+        snapshotBaseAmount: {type: number}
+        snapshotBaseUnit: {type: string}
+        snapshotCalories: {type: number}
+        snapshotProtein: {type: number}
+        snapshotFat: {type: number}
+        snapshotCarbs: {type: number}
+        idempotencyKey: {type: [string, 'null']}
+        recordTime: {type: string, format: date-time}
+        createdAt: {type: string, format: date-time}
     ApiError: {type: object, required: [code, message, requestId, fieldErrors], properties: {code: {type: string}, message: {type: string}, requestId: {type: string}, fieldErrors: {type: object, additionalProperties: {type: string}}}}

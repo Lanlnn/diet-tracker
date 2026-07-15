@@ -22,6 +22,20 @@ public class AdminAuditLog {
     @Column(name = "created_at", updatable = false) private LocalDateTime createdAt;
     @PrePersist void onCreate() { createdAt = LocalDateTime.now(); }
 
+    public Long getId() { return id; }
+    public Long getAdminUserId() { return adminUserId; }
+    public String getAdminUsername() { return adminUsername; }
+    public String getAdminRole() { return adminRole; }
+    public String getAction() { return action; }
+    public String getObjectType() { return objectType; }
+    public String getObjectId() { return objectId; }
+    public String getRequestId() { return requestId; }
+    public String getReason() { return reason; }
+    public String getResult() { return result; }
+    public String getBeforeSummary() { return beforeSummary; }
+    public String getAfterSummary() { return afterSummary; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
     public void setAdminUserId(Long v) { adminUserId = v; }
     public void setAdminUsername(String v) { adminUsername = v; }
     public void setAdminRole(String v) { adminRole = v; }

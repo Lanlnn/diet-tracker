@@ -38,13 +38,21 @@ class MySqlMigrationTest {
                 Integer.class);
         Integer userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         Integer userGoalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_goal", Integer.class);
+        Integer missingSupportRefs = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM users WHERE support_ref IS NULL OR support_ref NOT REGEXP '^usr_[a-f0-9]{32}$'",
+                Integer.class);
+        Integer duplicateSupportRefs = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM (SELECT support_ref FROM users GROUP BY support_ref HAVING COUNT(*) > 1) duplicates",
+                Integer.class);
 
-        assertThat(migrationVersion).isEqualTo(8);
+        assertThat(migrationVersion).isEqualTo(10);
         assertThat(categoryCount).isGreaterThanOrEqualTo(7);
         assertThat(systemFoodCount).isGreaterThanOrEqualTo(48);
         assertThat(chickenCount).isGreaterThanOrEqualTo(1);
         assertThat(userGoalTableCount).isEqualTo(1);
         assertThat(deletionAuditTableCount).isEqualTo(1);
         assertThat(userGoalCount).isEqualTo(userCount);
+        assertThat(missingSupportRefs).isZero();
+        assertThat(duplicateSupportRefs).isZero();
     }
 }
