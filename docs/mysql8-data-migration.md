@@ -41,7 +41,7 @@ export MYSQL_MIGRATION_PASSWORD='从 Secret 管理平台读取的新密码'
 export MIGRATION_CONFIRM_DATABASE='diet_tracker'
 export LEGACY_USER_ID='旧记录应归属的真实 OpenID'
 
-sh backend/scripts/migrate-legacy-mysql8.sh
+bash backend/scripts/migrate-legacy-mysql8.sh
 ```
 
 没有无主饮食记录时可不设置 `LEGACY_USER_ID`。密码也不会作为命令行参数传给 MySQL 客户端。

@@ -102,7 +102,7 @@ jobs:
           sudo apt-get install --yes default-mysql-client
           mysql --host=127.0.0.1 --user=root \
             < backend/src/test/resources/db/legacy/legacy_v0_fixture.sql
-          sh backend/scripts/migrate-legacy-mysql8.sh
+          bash backend/scripts/migrate-legacy-mysql8.sh
           test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
             diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM meal_record WHERE user_id='legacy-ci-user' AND calories_snapshot=248.00 AND base_amount_snapshot=1.00 AND base_unit_snapshot='份'")" = "1"
           test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
