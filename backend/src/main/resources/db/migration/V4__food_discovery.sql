@@ -14,11 +14,12 @@ SET base_amount = 1,
     source = CASE WHEN user_id IS NULL THEN 'LEGACY_SYSTEM' ELSE 'LEGACY_CUSTOM' END;
 
 CREATE TABLE food_favorite (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(100) NOT NULL,
-    food_item_id BIGINT NOT NULL REFERENCES food_item(id) ON DELETE CASCADE,
+    food_item_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_food_favorite_user_food UNIQUE (user_id, food_item_id)
+    CONSTRAINT uk_food_favorite_user_food UNIQUE (user_id, food_item_id),
+    CONSTRAINT fk_food_favorite_food FOREIGN KEY (food_item_id) REFERENCES food_item(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_food_favorite_user_created ON food_favorite(user_id, created_at DESC);
