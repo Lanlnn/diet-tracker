@@ -54,3 +54,12 @@ test(m8): verify date ranges and aggregate accuracy
 ```
 
 推送阶段分支，验收合并后创建 `m8-complete` 标签。
+
+## 闭环剩余
+
+M8 依赖 M7，当前不能绕过 M7 直接向 `master` 交付。完整顺序和防复发规则见 [`DEVELOPMENT-RETROSPECTIVE.md`](../DEVELOPMENT-RETROSPECTIVE.md#3-m8-闭环退出条件)。
+
+- [ ] M7 合并并创建 `m7-complete` 标签。
+- [ ] M8 变基到包含 M7 的最新 `master`，PR 中只保留 M8 范围。
+- [ ] 连接可用本地后端完成成功态、少于 3 天态、30/90 天图表视觉验收并保存截图。
+- [ ] M8 PR 的 CI 全绿，合并后创建 `m8-complete` 标签。

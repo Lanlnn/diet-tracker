@@ -2,6 +2,8 @@
 
 这份文档说明当前交付位置，以及每次开发必须经过的验证链路。
 
+M0–M8 的实际问题、固定防复发规则和 M8 闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
+
 ## 1. 当前状态
 
 - 仓库：`https://github.com/Lanlnn/diet-tracker`
@@ -13,7 +15,7 @@
 - M4 热量计算：已完成
 - M5 饮食保存与餐次详情：已完成
 - M6 今日热量总览：已完成
-- M7 运动记录与推荐：开发完成，待开发者工具视觉验收与 PR
+- M7 运动记录与推荐：待验收（尚未推送、创建 PR 和合并）
 - M8 热量与运动趋势：待联调成功态视觉验收与 PR（开发者工具编译 0 问题）
 - 下一开发阶段：M9 饮食日历（须在 M8 合并并打标后开始）
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
