@@ -12,7 +12,7 @@
 
 ### 2.0 M0–M1 本地启动
 
-当前工程基线统一为 Java 17、PostgreSQL 和 Flyway。将根目录 `.env.example` 中的变量设置到本机 shell（不要提交 `.env`），然后执行：
+当前工程基线统一为 Java 17、MySQL 8 和 Flyway。先创建 `utf8mb4` 编码的 `diet_tracker` 空库，将根目录 `.env.example` 中的变量设置到本机 shell（不要提交 `.env`），然后执行：
 
 ```bash
 cd backend
@@ -21,6 +21,8 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 微信开发者工具只导入 `miniapp/`。开发版请求 `http://127.0.0.1:8080/api`，体验版和正式版分别使用 `shared/config.js` 中的 staging/release 地址。组件预览入口位于“我的 → 组件预览”。
+
+V1–V5 是面向空 MySQL 8 库的基线迁移。已有业务数据的旧库不能直接清空或开启 `baseline-on-migrate`；必须先备份，再根据实际表结构编写一次性基线方案。
 
 ### 2.1 基准优先级
 
@@ -58,7 +60,7 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 以下事项未确认前，不进入大规模页面开发：
 
-- [ ] 数据库统一使用 PostgreSQL，并删除 MySQL 依赖和 MySQL 专用初始化脚本。
+- [x] 数据库统一使用 MySQL 8，并删除其他数据库驱动和专用 SQL。
 - [ ] Java 编译、开发和部署版本统一为同一个版本。
 - [ ] 重量类食品统一按每 100g 保存营养数据。
 - [ ] 现有按“份”保存的食品数据确定迁移或标记方案。
@@ -78,7 +80,7 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 后端：
 
-- 统一 Java 和 PostgreSQL 技术栈。
+- 统一 Java 和 MySQL 8 技术栈。
 - 拆分 `local/test/prod` 配置，仓库不保存真实密钥。
 - 引入 Flyway，建立第一版数据库迁移。
 - 引入 DTO、Jakarta Validation、统一异常和统一错误响应。
@@ -327,7 +329,7 @@ chore: 工程配置
 - 营养和热量计算：单元测试。
 - 用户数据隔离：Repository/Service 集成测试。
 - 登录、记录、编辑、删除：Controller 接口测试。
-- PostgreSQL 兼容性：测试环境使用 PostgreSQL，不使用不同语法的内存数据库替代关键查询。
+- MySQL 8 兼容性：单元与接口测试使用 H2 MySQL 兼容模式；Flyway 迁移必须另外在真实 MySQL 8 实例上执行，CI 使用 `mysql:8.0` 服务验证空库迁移和 Hibernate Schema Validation。
 
 ### 10.2 小程序
 

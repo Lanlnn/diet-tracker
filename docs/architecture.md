@@ -20,7 +20,7 @@ graph TB
         B2 --> B3[Repository 层 JPA]
     end
 
-    subgraph "PostgreSQL"
+    subgraph "MySQL 8"
         C1[(food_category)]
         C2[(food_item)]
         C3[(meal_record)]
@@ -106,7 +106,7 @@ graph TB
   Service 解析 foodItem.id → 加载 FoodItem 实体
        │
        ▼
-  Repository 保存 MealRecord 到 PostgreSQL
+  Repository 保存 MealRecord 到 MySQL 8
        │
        ▼
   返回完整 MealRecord (含 FoodItem 关联)
@@ -145,9 +145,9 @@ graph TB
         → Service (业务逻辑、数据聚合)
         → Repository (JPA 查询)
         → Entity (Hibernate 映射)
-        → PostgreSQL
+        → MySQL 8
 
-响应: → PostgreSQL
+响应: → MySQL 8
         → Entity + Hibernate 关联加载
         → JSON 序列化 (Jackson)
         → HTTP Response
@@ -175,8 +175,8 @@ TabBar 导航:
 │            │                      │ │ 后端    │ │
 │            │                      │ │ :8080  │ │
 │            │                      │ ├────────┤ │
-│            │                      │ │Postgres│ │
-│            │                      │ │ :5432  │ │
+│            │                      │ │MySQL 8 │ │
+│            │                      │ │ :3306  │ │
 └────────────┘                      │ └────────┘ │
                                     └────────────┘
 ```

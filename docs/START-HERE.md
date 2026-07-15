@@ -21,7 +21,7 @@
 
 ### 后端
 
-项目统一使用 Java 17、Spring Boot、PostgreSQL、Flyway 和 Maven Wrapper。先按 [环境变量示例](../.env.example) 配置本地变量，再运行：
+项目统一使用 Java 17、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
 
 ```bash
 cd /Users/z/Documents/微信小程序/diet-tracker/backend

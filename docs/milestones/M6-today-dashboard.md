@@ -45,7 +45,7 @@
 
 验收记录：
 
-- `DashboardApiTest` 覆盖用户隔离、餐次/首页一致、超额归零和默认目标；本地 H2 + MockMvc 三个聚合场景总计 67ms。
+- `DashboardApiTest` 覆盖用户隔离、餐次/首页一致、超额归零和默认目标；本地 H2 MySQL 兼容模式 + MockMvc 三个聚合场景总计 67ms。
 - PRD 的部署环境 P95 ≤ 800ms 仍作为上线监控门槛，不用单次本机耗时替代生产采样。
 - 视觉验收见 [`design-qa.md`](../../design-qa.md)，实现截图为 [`design/qa/m6-today-dashboard.png`](../../design/qa/m6-today-dashboard.png)。
 

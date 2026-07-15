@@ -4,7 +4,7 @@
 
 ## 当前 M0–M1 基线
 
-- Java 17、Spring Boot 3.4、PostgreSQL 与 Flyway 迁移
+- Java 17、Spring Boot 3.4、MySQL 8 与 Flyway 迁移
 - 环境变量密钥、统一 API 错误、请求 ID、DTO 校验和受限头像上传
 - 小程序唯一登录 Promise、401 互斥刷新和开发/体验/生产环境地址
 - 五项导航：今日、趋势、记录、运动、我的
@@ -31,7 +31,7 @@ diet-tracker/
 │   │   ├── entity/        # JPA 实体
 │   │   ├── security/      # JWT 与鉴权过滤器
 │   │   └── config/        # Web 配置
-│   ├── src/main/resources/db/migration/ # PostgreSQL 迁移
+│   ├── src/main/resources/db/migration/ # MySQL 8 迁移
 │   └── start.sh           # 测试并启动本地 Profile
 ├── miniapp/          # 微信小程序前端（开发者工具直接打开此目录）
 │   ├── pages/             # 5 个一级页面与饮食日历
@@ -47,12 +47,20 @@ diet-tracker/
 ## 快速启动
 
 ### 后端
+先在 MySQL 8 中创建空库：
+
+```sql
+CREATE DATABASE diet_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+```
+
 复制 `.env.example` 中的变量名到本机环境，填入已轮换的真实凭据，然后：
 
 ```bash
 cd diet-tracker/backend
 sh start.sh
 ```
+
+Flyway 会在空库执行 V1–V5。已有历史数据的 MySQL 8 库必须先备份并单独制定 baseline/迁移方案，不得直接清库或强行标记版本。
 
 ### 小程序
 微信开发者工具直接打开 `diet-tracker/miniapp`，不要打开仓库的上层目录。
@@ -63,7 +71,7 @@ sh start.sh
 |---|------|
 | 前端 | 微信小程序 |
 | 后端 | Spring Boot 3.4.4；Java 17 |
-| 数据库 | PostgreSQL 16 + Flyway |
+| 数据库 | MySQL 8 + Flyway |
 | ORM | Spring Data JPA + Hibernate |
 | 构建 | Maven 3.9.9 |
 
