@@ -61,6 +61,7 @@ test -x deploy/local/stop.sh
 test -x deploy/local/reset-data.sh
 test -x deploy/local/smoke-test.sh
 test -x deploy/local/main-flow-test.mjs
+test -x deploy/local/preview-fixture.mjs
 search '^FROM eclipse-temurin:17-jre-jammy$' backend/Dockerfile
 search '^    image: mysql:8[.]0[.]46$' deploy/local/compose.yml
 search '^      - 0[.]0[.]0[.]0:\$\{BACKEND_BIND_PORT:-8080}:8080$' deploy/local/compose.yml
@@ -71,5 +72,6 @@ bash -n deploy/local/stop.sh
 bash -n deploy/local/reset-data.sh
 bash -n deploy/local/smoke-test.sh
 node --check deploy/local/main-flow-test.mjs
+node --check deploy/local/preview-fixture.mjs
 
 echo "Release readiness checks passed"

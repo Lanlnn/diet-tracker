@@ -74,6 +74,7 @@ jobs:
           bash -n deploy/local/reset-data.sh
           bash -n deploy/local/smoke-test.sh
           node --check deploy/local/main-flow-test.mjs
+          node --check deploy/local/preview-fixture.mjs
           docker compose --env-file deploy/local/.env.local.example \
             --file deploy/local/compose.yml config --quiet
 

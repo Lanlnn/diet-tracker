@@ -52,6 +52,20 @@ curl http://192.168.3.25:8080/actuator/health
 
 首次导入时选择“不使用云服务”。若开发者工具询问是否信任并运行项目，需要由工作区所有者亲自确认；未确认前只能检查源码，不能把模拟器画面记为本轮编译证据。
 
+真实 Secret 尚未就绪、但需要检查成功态 UI 时，可以创建隔离预览数据：
+
+```bash
+node deploy/local/preview-fixture.mjs
+```
+
+把脚本输出的单行 `wx.setStorageSync(...)` 命令仅粘贴到当前项目的开发者工具 Console，确认返回 `undefined` 后再执行“普通编译”。预览身份固定为 `e1-local-ui-preview-user`，不会调用微信登录，不得写入登录验收记录。开始真实登录前执行：
+
+```javascript
+wx.removeStorageSync('token'); wx.removeStorageSync('nickname')
+```
+
+随后执行 `node deploy/local/preview-fixture.mjs --clean` 删除隔离预览账号。
+
 ## 3. 真实微信登录
 
 页面、基础食品和无需真实微信凭据的接口可以先启动。要验证 `wx.login`，复制本地配置并填写与 AppID 匹配的真实 Secret：
@@ -98,6 +112,12 @@ bash deploy/local/smoke-test.sh
 
 # 在真实本地 MySQL 上执行目标、食品、饮食、运动、首页、趋势、日历和账号删除主链路
 node deploy/local/main-flow-test.mjs
+
+# 仅为开发者工具准备成功态 UI 数据；输出合成 Token，不得作为真实微信登录证据
+node deploy/local/preview-fixture.mjs
+
+# UI 检查完成后清理合成预览账号，并在开发者工具清除 token
+node deploy/local/preview-fixture.mjs --clean
 
 # 停止服务但保留数据
 bash deploy/local/stop.sh
