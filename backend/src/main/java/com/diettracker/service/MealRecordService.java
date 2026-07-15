@@ -8,8 +8,10 @@ import com.diettracker.repository.FoodItemRepository;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.dto.CreateFoodRequest;
 import com.diettracker.dto.CreateMealRecordRequest;
+import com.diettracker.dto.UpdateMealRecordRequest;
 import com.diettracker.api.ApiException;
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -52,7 +54,12 @@ public class MealRecordService {
         return foodItemRepository.findAllFoods(userId);
     }
 
-    public MealRecord addRecord(CreateMealRecordRequest request, String userId) {
+    public MealRecord addRecord(CreateMealRecordRequest request, String userId, String clientRequestId) {
+        String requestId = normalizeRequestId(clientRequestId);
+        if (requestId != null) {
+            Optional<MealRecord> existing = mealRecordRepository.findByUserIdAndClientRequestId(userId, requestId);
+            if (existing.isPresent()) return existing.get();
+        }
         FoodItem managed = foodItemRepository.findById(request.foodItemId())
                 .filter(food -> food.getUserId() == null || userId.equals(food.getUserId()))
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "FOOD_NOT_FOUND", "食品不存在"));
@@ -65,11 +72,39 @@ public class MealRecordService {
         record.setRecordTime(request.recordTime());
         record.setNote(request.note());
         record.setUserId(userId);
-        return mealRecordRepository.save(record);
+        record.setFoodNameSnapshot(managed.getName());
+        record.setBaseAmountSnapshot(managed.getBaseAmount());
+        record.setBaseUnitSnapshot(managed.getBaseUnit());
+        record.setCaloriesSnapshot(managed.getCalories());
+        record.setProteinSnapshot(managed.getProtein());
+        record.setFatSnapshot(managed.getFat());
+        record.setCarbsSnapshot(managed.getCarbs());
+        record.setClientRequestId(requestId);
+        try {
+            return mealRecordRepository.saveAndFlush(record);
+        } catch (DataIntegrityViolationException conflict) {
+            if (requestId != null) {
+                return mealRecordRepository.findByUserIdAndClientRequestId(userId, requestId)
+                        .orElseThrow(() -> conflict);
+            }
+            throw conflict;
+        }
     }
 
-    public List<MealRecord> getRecordsByDate(LocalDate date, String userId) {
+    public List<MealRecord> getRecordsByDate(LocalDate date, MealRecord.MealType mealType, String userId) {
+        if (mealType != null) {
+            return mealRecordRepository.findByUserIdAndMealDateAndMealTypeOrderByRecordTimeAsc(userId, date, mealType);
+        }
         return mealRecordRepository.findByUserIdAndMealDateOrderByRecordTimeAsc(userId, date);
+    }
+
+    public MealRecord updateRecord(Long id, UpdateMealRecordRequest request, String userId) {
+        MealRecord record = getOwnedRecord(id, userId);
+        record.setMealType(request.mealType());
+        record.setQuantity(request.quantity());
+        record.setUnit(request.unit() == null ? record.getUnit() : request.unit());
+        record.setNote(request.note());
+        return mealRecordRepository.save(record);
     }
 
     public List<MealRecord> getRecordsByDateRange(LocalDate start, LocalDate end, String userId) {
@@ -77,11 +112,7 @@ public class MealRecordService {
     }
 
     public void deleteRecord(Long id, String userId) {
-        MealRecord record = mealRecordRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECORD_NOT_FOUND", "记录不存在"));
-        if (!userId.equals(record.getUserId())) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "无权操作该记录");
-        }
+        MealRecord record = getOwnedRecord(id, userId);
         mealRecordRepository.delete(record);
     }
 
@@ -91,11 +122,11 @@ public class MealRecordService {
         double totalCalories = 0, totalProtein = 0, totalFat = 0, totalCarbs = 0;
 
         for (MealRecord r : records) {
-            double qty = r.getQuantity().doubleValue();
-            totalCalories += r.getFoodItem().getCalories().doubleValue() * qty;
-            totalProtein += r.getFoodItem().getProtein().doubleValue() * qty;
-            totalFat += r.getFoodItem().getFat().doubleValue() * qty;
-            totalCarbs += r.getFoodItem().getCarbs().doubleValue() * qty;
+            double ratio = r.getQuantity().doubleValue() / r.getBaseAmountSnapshot().doubleValue();
+            totalCalories += r.getCaloriesSnapshot().doubleValue() * ratio;
+            totalProtein += r.getProteinSnapshot().doubleValue() * ratio;
+            totalFat += r.getFatSnapshot().doubleValue() * ratio;
+            totalCarbs += r.getCarbsSnapshot().doubleValue() * ratio;
         }
 
         stats.put("date", date.toString());
@@ -172,5 +203,23 @@ public class MealRecordService {
         foodItem.setSource("USER_CUSTOM");
         foodItem.setUserId(userId);
         return foodItemRepository.save(foodItem);
+    }
+
+    private MealRecord getOwnedRecord(Long id, String userId) {
+        MealRecord record = mealRecordRepository.findById(id)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECORD_NOT_FOUND", "记录不存在"));
+        if (!userId.equals(record.getUserId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "无权操作该记录");
+        }
+        return record;
+    }
+
+    private String normalizeRequestId(String value) {
+        if (value == null || value.isBlank()) return null;
+        String normalized = value.trim();
+        if (normalized.length() > 100) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST_ID", "请求标识不能超过 100 个字符");
+        }
+        return normalized;
     }
 }

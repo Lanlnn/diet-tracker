@@ -258,6 +258,14 @@ public class SetupService {
         r.setUnit(food.getUnit());
         r.setRecordTime(LocalDateTime.parse(date.toString() + "T" + time + ":00"));
         r.setNote(note);
+        r.setUserId("");
+        r.setFoodNameSnapshot(food.getName());
+        r.setBaseAmountSnapshot(food.getBaseAmount());
+        r.setBaseUnitSnapshot(food.getBaseUnit());
+        r.setCaloriesSnapshot(food.getCalories());
+        r.setProteinSnapshot(food.getProtein());
+        r.setFatSnapshot(food.getFat());
+        r.setCarbsSnapshot(food.getCarbs());
         mealRecordRepo.save(r);
         return 1;
     }
