@@ -65,17 +65,17 @@
     <text>今天还没有记录，去记录一下吧 📝</text>
   </view>
 
-  <view wx:for="{{mealTypes}}" wx:key="type" class="meal-section" wx:if="{{item.records.length > 0}}">
+  <view wx:for="{{mealTypes}}" wx:key="type" class="meal-section" wx:if="{{item.records.length > 0}}" data-meal="{{item.type}}" bindtap="openMeal">
     <view class="meal-header">
       <text class="tag {{item.tagClass}}">{{item.label}}</text>
       <text class="meal-calories">{{item.totalCalories}} kcal</text>
     </view>
     <view wx:for="{{item.records}}" wx:for-item="r" wx:key="id" class="food-row">
       <view class="food-info">
-        <text class="food-name">{{r.foodItem.name}}</text>
+        <text class="food-name">{{r.displayName}}</text>
         <text class="food-qty">{{r.quantity}}{{r.unit}}</text>
       </view>
-      <text class="food-cal">{{fmt.mulFixed(r.foodItem.calories, r.quantity, 0)}}kcal</text>
+      <text class="food-cal">{{r.displayCalories}}kcal</text>
     </view>
   </view>
   </block>

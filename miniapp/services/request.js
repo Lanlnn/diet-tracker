@@ -8,17 +8,17 @@ function getToken() { return currentToken; }
 function request(path, method = 'GET', data = {}, options = {}) {
   const useAuth = options.auth !== false;
   const loginReady = useAuth ? getApp().ensureLogin() : Promise.resolve();
-  return loginReady.then(() => send(path, method, data, useAuth)).catch(error => {
+  return loginReady.then(() => send(path, method, data, useAuth, options)).catch(error => {
     if (error && error.statusCode === 401 && useAuth && options.retry401 !== false) {
-      return getApp().reLogin().then(() => send(path, method, data, true));
+      return getApp().reLogin().then(() => send(path, method, data, true, options));
     }
     return Promise.reject(error);
   });
 }
 
-function send(path, method, data, useAuth) {
+function send(path, method, data, useAuth, options) {
   return new Promise((resolve, reject) => {
-    const header = { 'Content-Type': 'application/json' };
+    const header = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     if (useAuth && currentToken) header.Authorization = 'Bearer ' + currentToken;
     wx.request({
       url: BASE_URL + path,

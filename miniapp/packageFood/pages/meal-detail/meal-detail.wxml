@@ -1,0 +1,55 @@
+<view class="meal-page">
+  <view class="meal-header">
+    <view class="round-button" aria-role="button" bindtap="goBack"><image src="/assets/icons/chevron-left.svg" mode="aspectFit" /></view>
+    <text class="page-title">{{mealLabel}}</text>
+    <view class="round-button more-button" aria-role="button" bindtap="openMore"><text></text><text></text><text></text></view>
+  </view>
+
+  <state-view wx:if="{{status === 'loading'}}" state="loading" title="正在读取餐次" message="稍等一下" />
+  <state-view wx:elif="{{status === 'error'}}" state="error" title="餐次加载失败" message="{{errorMessage}}" bind:retry="loadRecords" />
+  <view wx:elif="{{status === 'empty'}}" class="empty-panel">
+    <state-view state="empty" title="这餐还没有记录" message="添加食物后会在这里汇总热量和营养。" />
+    <button class="empty-action" bindtap="continueAdding">添加食物</button>
+  </view>
+
+  <block wx:else>
+    <view class="calorie-card">
+      <view class="meal-mark"><view class="meal-mark-half"></view></view>
+      <view class="calorie-copy"><text class="record-time">{{displayTime}}</text><view><text class="calorie-number">{{total.calories}}</text><text class="calorie-unit"> 千卡</text></view></view>
+      <text class="edit-toggle" bindtap="toggleEdit">{{editMode ? '完成' : '编辑'}}</text>
+    </view>
+
+    <view class="macro-grid">
+      <view class="macro-item"><text class="macro-value">{{total.carbs}}g</text><text class="macro-label">碳水</text></view>
+      <view class="macro-item"><text class="macro-value">{{total.protein}}g</text><text class="macro-label">蛋白质</text></view>
+      <view class="macro-item"><text class="macro-value">{{total.fat}}g</text><text class="macro-label">脂肪</text></view>
+    </view>
+
+    <view class="list-heading"><text>已记录 {{records.length}} 项</text><text class="add-link" bindtap="continueAdding">添加食物</text></view>
+    <view class="food-list">
+      <view wx:for="{{records}}" wx:key="id" class="food-row {{editMode ? 'editable' : ''}}" data-id="{{item.id}}" bindtap="openEditor">
+        <view class="food-icon"><image wx:if="{{item.iconPath}}" src="{{item.iconPath}}" mode="aspectFit" /><text wx:else>{{item.initial}}</text></view>
+        <view class="food-copy"><text class="food-name">{{item.name}}</text><text class="food-meta">{{item.quantityLabel}} · {{item.basisLabel}}</text></view>
+        <view class="food-nutrition"><text class="food-calories">{{item.calories}} 千卡</text><text class="food-macro">{{item.protein >= item.carbs ? '蛋白质 ' + item.protein + 'g' : '碳水 ' + item.carbs + 'g'}}</text></view>
+        <text wx:if="{{editMode}}" class="row-chevron">›</text>
+      </view>
+    </view>
+
+    <view wx:if="{{advice}}" class="advice-card">
+      <view class="advice-icon">✦</view><view><text class="advice-title">{{advice.title}}</text><text class="advice-detail">{{advice.detail}}</text></view>
+    </view>
+    <view class="bottom-spacer"></view>
+    <view class="bottom-bar"><button class="continue-button" bindtap="continueAdding">继续添加食物</button></view>
+  </block>
+
+  <view wx:if="{{editorOpen}}" class="sheet-mask" catchtap="closeEditor">
+    <view class="edit-sheet" catchtap="stopPropagation">
+      <view class="sheet-handle"></view><text class="sheet-title">编辑饮食记录</text>
+      <view class="field"><text class="field-label">数量</text><view class="input-wrap"><input type="digit" value="{{amountInput}}" bindinput="onAmountInput" /><text class="input-unit">{{editingUnit}}</text></view><text wx:if="{{amountError}}" class="field-error">{{amountError}}</text></view>
+      <picker mode="selector" range="{{mealOptions}}" range-key="label" value="{{mealIndex}}" bindchange="onMealChange"><view class="field option-field"><text class="field-label">餐次</text><text>{{mealOptions[mealIndex].label}} ›</text></view></picker>
+      <view class="field"><text class="field-label">备注</text><input class="note-input" placeholder="选填" maxlength="500" value="{{note}}" bindinput="onNoteInput" /></view>
+      <button class="save-button" loading="{{saving}}" disabled="{{saving}}" bindtap="saveEdit">保存修改</button>
+      <button class="delete-button" disabled="{{saving}}" bindtap="confirmDelete">删除这条记录</button>
+    </view>
+  </view>
+</view>

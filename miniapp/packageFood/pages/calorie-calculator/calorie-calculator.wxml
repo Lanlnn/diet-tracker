@@ -43,9 +43,9 @@
     </picker>
     <view class="option-card note-card"><text>备注</text><input class="note-input" placeholder="选填" maxlength="500" value="{{note}}" bindinput="onNoteInput" /></view>
 
-    <text class="draft-note">确认后将保留计算草稿，饮食记录会在下一阶段正式保存。</text>
+    <text class="draft-note">确认后会保存营养快照，并进入对应餐次详情。</text>
     <view class="submit-button {{submitting || amountError ? 'disabled' : ''}}" aria-role="button" hover-class="submit-button-pressed" bindtap="submitDraft">
-      {{submitting ? '服务端复核中' : '确认' + mealOptions[mealIndex].label + ' · ' + nutrition.calories + ' 千卡'}}
+      {{submitting ? '正在保存' : '加入' + mealOptions[mealIndex].label + ' · ' + nutrition.calories + ' 千卡'}}
     </view>
   </block>
 </view>
