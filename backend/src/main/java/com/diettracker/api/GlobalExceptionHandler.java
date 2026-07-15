@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
         return response(exception.getStatus(), exception.getCode(), exception.getMessage(), request, Map.of());
     }
 
+    @ExceptionHandler(FieldValidationException.class)
+    ResponseEntity<ApiError> handleFieldValidation(FieldValidationException exception, HttpServletRequest request) {
+        return response(exception.getStatus(), exception.getCode(), exception.getMessage(), request,
+                exception.getFieldErrors());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException exception, HttpServletRequest request) {
         Map<String, String> fields = new LinkedHashMap<>();

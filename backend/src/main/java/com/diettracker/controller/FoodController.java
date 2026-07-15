@@ -6,6 +6,9 @@ import com.diettracker.dto.CreateFoodRequest;
 import com.diettracker.dto.FavoriteFoodRequest;
 import com.diettracker.dto.FoodResponse;
 import com.diettracker.dto.PageResponse;
+import com.diettracker.dto.CalculateNutritionRequest;
+import com.diettracker.dto.NutritionCalculationResponse;
+import com.diettracker.service.NutritionCalculationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,12 @@ import java.util.List;
 public class FoodController {
 
     private final FoodService service;
+    private final NutritionCalculationService nutritionCalculationService;
 
-    public FoodController(FoodService service) {
+    public FoodController(FoodService service,
+                          NutritionCalculationService nutritionCalculationService) {
         this.service = service;
+        this.nutritionCalculationService = nutritionCalculationService;
     }
 
     @GetMapping("/categories")
@@ -43,6 +49,20 @@ public class FoodController {
                                                   @RequestParam(defaultValue = "20") int size,
                                                   @RequestAttribute("userId") String userId) {
         return service.search(keyword, page, size, userId);
+    }
+
+    @GetMapping("/{foodId}")
+    public FoodResponse getFood(@PathVariable Long foodId,
+                                @RequestAttribute("userId") String userId) {
+        return service.getFood(foodId, userId);
+    }
+
+    @PostMapping("/{foodId}/calculate")
+    public NutritionCalculationResponse calculate(
+            @PathVariable Long foodId,
+            @Valid @RequestBody CalculateNutritionRequest request,
+            @RequestAttribute("userId") String userId) {
+        return nutritionCalculationService.calculate(foodId, request.amount(), userId);
     }
 
     @PostMapping
