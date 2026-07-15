@@ -1,10 +1,10 @@
 # MySQL 8 历史数据迁移手册
 
-本手册用于把项目早期、尚未由 Flyway 管理的 MySQL 8 数据库安全升级到当前 V5 结构。迁移会保留用户、食品分类、食品、饮食记录和收藏数据，不会清库。
+本手册用于把项目早期、尚未由 Flyway 管理的 MySQL 8 数据库安全升级到当前 V6 结构。迁移会保留用户、食品分类、食品、饮食记录和收藏数据，不会清库。
 
 ## 1. 两种数据库路径
 
-- 新建空库：应用启动时由 Flyway 正常执行 `V1`–`V5`，不使用本手册脚本。
+- 新建空库：应用启动时正常执行 `V1`–`V6`，不使用本手册脚本。
 - 已有旧数据且没有 `flyway_schema_history`：使用 `backend/scripts/migrate-legacy-mysql8.sh`。
 - 已有 `flyway_schema_history`：只走正常 Flyway 升级；安全脚本会主动拒绝执行。
 
@@ -17,7 +17,7 @@
 - 旧食品营养值原本按“份”保存时，转换为 `base_amount=1`、原 `unit`，来源标记为 `LEGACY_SYSTEM` 或 `LEGACY_CUSTOM`，不会误算成每 100g。
 - 为旧饮食记录回填食品名称和营养快照，历史统计不受以后食品资料修改影响。
 - 没有 `user_id` 的旧饮食记录必须显式映射到 `LEGACY_USER_ID`；脚本不会猜测用户。
-- 完成结构转换后，将数据库登记为 Flyway V5，并执行真实 MySQL Flyway 校验和 Hibernate Schema Validation。
+- 完成结构转换后，将旧结构登记为 V5，再执行 V6 基础食品增量迁移、真实 MySQL 迁移校验和 Hibernate Schema Validation。
 - 最后核对核心表迁移前后行数，任何表的行数减少都会报错并保留备份供恢复。
 
 ## 3. 执行前准备
@@ -68,7 +68,7 @@ WHERE user_id IS NULL
    OR calories_snapshot IS NULL;
 ```
 
-期望 Flyway 存在成功的 V5 baseline，`missing_snapshots` 为 0。随后使用灰度账号逐项核对食品搜索、当日餐次详情、首页热量合计以及历史日期统计。
+期望迁移历史存在成功的 V5 baseline 和 V6 增量记录，`missing_snapshots` 为 0，并且系统食品不少于 48 条。随后使用灰度账号逐项核对食品搜索、当日餐次详情、首页热量合计以及历史日期统计。
 
 ## 6. 失败恢复
 
