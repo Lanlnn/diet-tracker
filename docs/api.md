@@ -263,12 +263,14 @@ POST /foods/{foodId}/calculate
 POST /records
 ```
 
+可选请求头 `X-Idempotency-Key`（最长 100 字符）。同一用户使用相同键重试时返回已创建记录，不重复写入。
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | mealDate | string | ✅ | 日期 `2026-05-15` |
 | mealType | string | ✅ | `breakfast` / `lunch` / `dinner` / `snack` |
-| foodItem.id | int | ✅ | 食物 ID |
-| quantity | number | ✅ | 份数 |
+| foodItemId | int | ✅ | 食物 ID，只能引用系统食品或当前用户食品 |
+| quantity | number | ✅ | 食用数量 |
 | unit | string | - | 单位 |
 | recordTime | string | - | ISO 时间，不传则自动设为当前时间 |
 | note | string | - | 备注 |
@@ -278,9 +280,9 @@ POST /records
 {
   "mealDate": "2026-05-15",
   "mealType": "breakfast",
-  "foodItem": { "id": 1 },
-  "quantity": 1.0,
-  "unit": "碗"
+  "foodItemId": 1,
+  "quantity": 150,
+  "unit": "g"
 }
 
 // 响应
@@ -288,16 +290,15 @@ POST /records
   "id": 1,
   "mealDate": "2026-05-15",
   "mealType": "breakfast",
-  "foodItem": {
-    "id": 1, "name": "米饭",
-    "category": { "id": 1, "name": "主食", "icon": "rice", "sortOrder": 1 },
-    "unit": "碗",
-    "calories": 232.0, "protein": 2.6, "fat": 0.3, "carbs": 50.0,
-    "createdAt": "2026-05-15T09:37:16",
-    "updatedAt": "2026-05-15T09:37:16"
-  },
-  "quantity": 1.0,
-  "unit": "碗",
+  "quantity": 150,
+  "unit": "g",
+  "foodNameSnapshot": "米饭",
+  "baseAmountSnapshot": 100,
+  "baseUnitSnapshot": "g",
+  "caloriesSnapshot": 116,
+  "proteinSnapshot": 2.6,
+  "fatSnapshot": 0.3,
+  "carbsSnapshot": 25.9,
   "recordTime": "2026-05-15T08:00:00",
   "note": null,
   "createdAt": "2026-05-15T09:39:14",
@@ -314,8 +315,21 @@ GET /records?date=2026-05-15
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | date | string | 日期（必填） |
+| mealType | string | 餐次（选填），用于餐次详情 |
 
 响应结构与上方添加记录的响应相同，返回数组。
+
+### 编辑记录
+
+```
+PUT /records/{id}
+```
+
+```json
+{ "mealType": "dinner", "quantity": 180, "unit": "g", "note": "少油" }
+```
+
+支持修改数量、餐次、单位和备注；食品与创建时的营养基准快照保持不变。记录不存在返回 404，操作其他用户记录返回 403。
 
 ### 按日期范围查询
 
@@ -335,6 +349,8 @@ DELETE /records/{id}
 ```
 
 **成功返回 204，无响应体。**
+
+记录不存在返回 404，操作其他用户记录返回 403。日/周统计与餐次聚合均只读取记录中的营养快照，不受食品库后续修改影响。
 
 ---
 

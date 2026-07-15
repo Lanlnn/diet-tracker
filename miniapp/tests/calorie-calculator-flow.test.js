@@ -4,6 +4,9 @@ const Module = require('node:module');
 let pageDefinition;
 let resolveCalculation;
 let calculationCalls = 0;
+let recordCalls = 0;
+let savedRequest;
+let redirectedTo = '';
 const storage = {};
 const food = {
   id: 7,
@@ -26,6 +29,11 @@ const api = {
         foodId: id, amount, unit: 'g', calories: 248, protein: 46.5, fat: 5.4, carbs: 0
       });
     });
+  },
+  addRecord(payload, requestId) {
+    recordCalls += 1;
+    savedRequest = { payload, requestId };
+    return Promise.resolve({ id: 99 });
   }
 };
 
@@ -38,8 +46,9 @@ Module._load = function(request, parent, isMain) {
 global.wx = {
   getStorageSync(key) { return storage[key]; },
   setStorageSync(key, value) { storage[key] = value; },
+  removeStorageSync(key) { delete storage[key]; },
   showToast() {},
-  navigateBack() {}
+  redirectTo(options) { redirectedTo = options.url; }
 };
 global.Page = definition => { pageDefinition = definition; };
 require('../packageFood/pages/calorie-calculator/calorie-calculator');
@@ -67,6 +76,7 @@ function createPage() {
   page.onAmountInput({ detail: { value: '1.11' } });
   assert.match(page.data.amountError, /最多保留 1 位小数/);
   page.onAmountInput({ detail: { value: '150' } });
+  page.onMealChange({ detail: { value: '1' } });
 
   page.submitDraft();
   page.submitDraft();
@@ -74,12 +84,18 @@ function createPage() {
   resolveCalculation();
   await new Promise(resolve => setImmediate(resolve));
 
-  assert.equal(storage.m4PendingMealDraft.amount, 150);
-  assert.equal(storage.m4PendingMealDraft.nutrition.calories, 248);
+  assert.equal(recordCalls, 1);
+  assert.equal(savedRequest.payload.quantity, 150);
+  assert.equal(savedRequest.payload.mealType, 'lunch');
+  assert.match(savedRequest.requestId, /^meal-/);
+  assert.equal(storage.m4PendingMealDraft, undefined, '保存成功后应清理待提交草稿');
   assert.equal(page.data.submitting, false);
 
+  await new Promise(resolve => setTimeout(resolve, 450));
+  assert.match(redirectedTo, /meal-detail\?date=.*&mealType=lunch/);
+
   page.onUnload();
-  assert.equal(storage['m4CalculatorDraft:7'].amount, '150', '离开页面后应保留合理草稿状态');
+  assert.equal(storage['m4CalculatorDraft:7'], undefined, '保存成功后不应重新写入已完成草稿');
   console.log('calorie calculator flow tests passed');
 })().catch(error => {
   console.error(error);
