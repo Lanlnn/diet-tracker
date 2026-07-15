@@ -54,19 +54,20 @@ search 'DietTrackerDashboardP95TooHigh' monitoring/alerts.yml
 search 'DietTrackerFoodSearchP95TooHigh' monitoring/alerts.yml
 search 'DietTrackerAnalyticsP95TooHigh' monitoring/alerts.yml
 test -f backend/Dockerfile
-test -f deploy/staging/compose.yml
-test -f deploy/staging/nginx-staging.conf.example
-test -x deploy/staging/preflight.sh
-test -x deploy/staging/build-image.sh
-test -x deploy/staging/smoke-test.sh
+test -f deploy/local/compose.yml
+test -f deploy/local/.env.local.example
+test -x deploy/local/start.sh
+test -x deploy/local/stop.sh
+test -x deploy/local/reset-data.sh
+test -x deploy/local/smoke-test.sh
 search '^FROM eclipse-temurin:17-jre-jammy$' backend/Dockerfile
-search '^    image: mysql:8[.]0[.]46$' deploy/staging/compose.yml
-search '^      - 127[.]0[.]0[.]1:\$\{BACKEND_BIND_PORT:-18080}:8080$' deploy/staging/compose.yml
-search '^    read_only: true$' deploy/staging/compose.yml
+search '^    image: mysql:8[.]0[.]46$' deploy/local/compose.yml
+search '^      - 0[.]0[.]0[.]0:\$\{BACKEND_BIND_PORT:-8080}:8080$' deploy/local/compose.yml
+search '^    read_only: true$' deploy/local/compose.yml
 bash -n backend/scripts/check-e1-environment.sh
-bash -n backend/scripts/check-staging-readiness.sh
-bash -n deploy/staging/preflight.sh
-bash -n deploy/staging/build-image.sh
-bash -n deploy/staging/smoke-test.sh
+bash -n deploy/local/start.sh
+bash -n deploy/local/stop.sh
+bash -n deploy/local/reset-data.sh
+bash -n deploy/local/smoke-test.sh
 
 echo "Release readiness checks passed"

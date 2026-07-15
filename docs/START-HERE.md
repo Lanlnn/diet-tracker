@@ -1,100 +1,65 @@
 # 从这里开始开发
 
-这份文档说明当前交付位置，以及每次开发必须经过的验证链路。
-
-M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。M0–M10 的成果演示、跨模块对账和复盘测试统一使用 [`M0-M10-REVIEW-AND-TEST.md`](./M0-M10-REVIEW-AND-TEST.md)。当前开发必须先执行 [`体验环境与真机功能闭环`](./NEXT-DEVELOPMENT.md)。
-
 ## 1. 当前状态
 
-- 仓库：`https://github.com/Lanlnn/diet-tracker`
-- 默认分支：`master`，通过 PR 和 CI 交付
-- M0 工程与安全基线：已完成
-- M1 设计系统与五 Tab 骨架：已完成
-- M2 登录与个人资料：已完成
-- M3 食品库与搜索记录入口：已完成
-- M4 热量计算：已完成
-- M5 饮食保存与餐次详情：已完成
-- M6 今日热量总览：已完成
-- M7 运动记录与推荐：已完成
-- M8 热量与运动趋势：已完成
-- M9 饮食日历：已完成
-- M10 个人中心与发布准备：代码已合并并创建 `m10-complete` 标签；体验环境功能闭环未完成
-- 当前阶段：E1 体验环境与真机功能闭环，恢复 staging、真实微信登录、基础数据和完整用户主链路
-- 当前阻塞：`trial` 指向的 `staging.tigercloud.asia` 在 2026-07-15 核查时不可用，体验版无法完成登录和业务请求
-- 后续顺序：E1 完成后评审后台 A3，再进入 A4 埋点与产品质量数据基础
-- 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
-- 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
+- M0–M10 代码基线已完成并冻结在 `m10-complete`。
+- 当前阶段为 E1：在本地完成真实微信登录、基础食品、饮食、运动、趋势、日历、目标和双端回归。
+- 当前运行方式为电脑上的 Docker MySQL 8.0.46 + Java 17 后端，开发者工具和同一 Wi-Fi 手机访问局域网 API。
+- 阿里云、staging 域名、HTTPS、微信正式体验版灰度和生产发布均推迟到项目全部完成以后。
+- 当前尚缺真实 `WECHAT_SECRET` 的本地注入和 iOS/Android 实机验收结果；它们不影响无登录自动化与本地栈启动。
 
-E1 范围、顺序和验收以 [`NEXT-DEVELOPMENT.md`](./NEXT-DEVELOPMENT.md) 为准；历史里程碑要求仍以 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`milestones/`](./milestones/) 为准。阶段之间不得跳过依赖；每个阶段都要完成代码、自动化测试、真实接口联调、真机检查、文档和 PR。
-
-## 2. 首次启动
-
-### 后端
-
-项目统一使用 Java 17、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
+## 2. 第一次运行
 
 ```bash
-cd /Users/z/Documents/微信小程序/diet-tracker/backend
-JAVA_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null)
-"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "17[.]' || {
-  echo "未找到可用的 Java 17"
-  exit 1
-}
-JAVA_HOME="$JAVA_HOME" sh mvnw clean test
-JAVA_HOME="$JAVA_HOME" sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
+cd /Users/z/Documents/微信小程序/diet-tracker-master
+bash backend/scripts/check-e1-environment.sh
+bash deploy/local/start.sh
 ```
 
-macOS 在未安装 Java 17 时可能把 `/usr/libexec/java_home -v 17` 回退到其他唯一可用版本，因此必须保留上面的版本断言。
+健康检查：
 
-真实数据库密码、微信 Secret 和 JWT Secret 只能保存在本地或部署平台的 Secret 管理中。如果历史凭据尚未完成轮换，应先在对应平台使旧值失效；修改仓库文本不能替代轮换。
-
-如果目标库已有旧版业务数据，不要执行空库迁移或手工 baseline。请使用 [`MySQL 8 历史数据迁移手册`](./mysql8-data-migration.md) 中的脚本；它会先备份，再升级结构并核对数据行数。
-
-### 小程序
-
-微信开发者工具导入：
-
-```text
-/Users/z/Documents/微信小程序/diet-tracker/miniapp
+```bash
+curl http://127.0.0.1:8080/actuator/health
+curl http://192.168.3.25:8080/actuator/health
 ```
 
-确认 AppID 正确、编译问题面板为 0、Network 指向当前开发环境。开发时可临时关闭域名校验，生产配置不得依赖该选项。
+然后用微信开发者工具直接导入 `miniapp/`。完整配置、真实登录和真机步骤见 [本地开发手册](./LOCAL-DEVELOPMENT.md)。
 
 ## 3. 每次开发循环
 
-开始前：
+1. 从 PRD、UI 图和当前里程碑确定一个可验收范围。
+2. 先更新接口、数据迁移和页面状态约定，再实现代码。
+3. 页面必须覆盖加载、空、错误、正常和禁用状态，并与 `design/优化版/` 对照。
+4. 执行小程序测试、后端测试和本地烟测。
+5. 在开发者工具普通编译，确认问题面板为 0。
+6. 涉及用户主链路时，用同一测试账号在本地 MySQL 数据上对账。
+7. 涉及交互或兼容性时，在同一局域网 iOS/Android 真机复测。
+8. 同步更新 API、架构、阶段文档和脱敏证据。
+
+最小验证命令：
 
 ```bash
-git status --short --branch
-git switch master
-git pull --ff-only origin master
-git switch -c codex/mN-short-description
-```
-
-提交前至少执行：
-
-```bash
-cd /Users/z/Documents/微信小程序/diet-tracker
-(cd backend && sh mvnw --batch-mode test)
 node --test miniapp/tests/*.test.js
-find miniapp -name '*.js' -not -path '*/miniprogram_npm/*' -print0 | xargs -0 -n1 node --check
+find miniapp -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+(cd backend && JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home sh mvnw test)
+bash backend/scripts/check-release-readiness.sh
+bash deploy/local/smoke-test.sh
 git diff --check
 ```
 
-同时人工确认：
+## 4. E1 执行顺序
 
-- 微信开发者工具编译通过。
-- 改动页面的 loading、success、empty、error、retry 和 submitting 状态按适用范围检查。
-- UI 与 `design/优化版` 对应设计图完成整页对照。
-- 没有提交 Secret、Token、个人数据、本机构建产物或无关文件。
-- API、数据库和架构变化已同步文档与迁移。
+- E1.0：冻结本地版本、工具、端口、AppID 和数据版本。
+- E1.1：本地 MySQL、后端、开发者工具和局域网真机可达。
+- E1.2：注入本地 Secret，打通真实微信登录与基础食品。
+- E1.3：完成饮食、运动、趋势、日历、目标主链路。
+- E1.4：完成 iOS/Android 本地回归；正式体验版灰度移交未来云端阶段。
 
-## 4. PR 与阶段完成
+详细退出条件见 [E1 本地功能闭环](./NEXT-DEVELOPMENT.md)。
 
-1. 推送阶段分支并创建 Draft PR。
-2. CI 全绿后完成里程碑清单和视觉验收记录。
-3. 将 PR 标记为 Ready，合并到最新 `master`。
-4. 从合并后的 `master` 创建对应 `mN-complete` 标签并推送。
-5. 下一阶段必须从最新 `master` 新建分支。
+## 5. 提交与完成
 
-不得用“本地可运行”替代 CI、开发者工具和设计验收，也不得在阶段 PR 未合并时提前创建完成标签。
+- 不提交 `.env.local`、数据库备份、Token、openid、微信 code 或个人数据。
+- 自动化通过不等于真机通过，真机通过也不等于允许生产发布。
+- 当前阶段只有在本地功能和双端结果完整时才算完成；云端发布不是 E1 的完成条件。
+- 合并前确认 CI、文档、迁移、回滚说明和 UI 证据与同一 Git SHA 对应。

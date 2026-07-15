@@ -1,10 +1,10 @@
 # MySQL 8 历史数据迁移手册
 
-本手册用于把项目早期、尚未由 Flyway 管理的 MySQL 8 数据库安全升级到当前 V6 结构。迁移会保留用户、食品分类、食品、饮食记录和收藏数据，不会清库。
+本手册用于把项目早期、尚未由 Flyway 管理的 MySQL 8 数据库安全接管到 Flyway，并继续升级到当前 V8。当前优先在本地数据库副本演练；云端数据库迁移在项目完成后的发布阶段另行执行。
 
 ## 1. 两种数据库路径
 
-- 新建空库：应用启动时正常执行 `V1`–`V6`，不使用本手册脚本。
+- 新建空库：应用启动时正常执行 `V1`–`V8`，不使用本手册脚本。
 - 已有旧数据且没有 `flyway_schema_history`：使用 `backend/scripts/migrate-legacy-mysql8.sh`。
 - 已有 `flyway_schema_history`：只走正常 Flyway 升级；安全脚本会主动拒绝执行。
 
@@ -17,14 +17,14 @@
 - 旧食品营养值原本按“份”保存时，转换为 `base_amount=1`、原 `unit`，来源标记为 `LEGACY_SYSTEM` 或 `LEGACY_CUSTOM`，不会误算成每 100g。
 - 为旧饮食记录回填食品名称和营养快照，历史统计不受以后食品资料修改影响。
 - 没有 `user_id` 的旧饮食记录必须显式映射到 `LEGACY_USER_ID`；脚本不会猜测用户。
-- 完成结构转换后，将旧结构登记为 V5，再执行 V6 基础食品增量迁移、真实 MySQL 迁移校验和 Hibernate Schema Validation。
+- 完成结构转换后，将旧结构登记为 V5，再执行 V6 基础食品、V7 运动记录、V8 用户目标与匿名删除审计迁移，以及真实 MySQL 校验和 Hibernate Schema Validation。
 - 最后核对核心表迁移前后行数，任何表的行数减少都会报错并保留备份供恢复。
 
 ## 3. 执行前准备
 
 先安排维护窗口并停止所有会写入目标数据库的应用实例。确认本机安装了 `mysql`、`mysqldump`、Java 17，并使用具备目标库 DDL、DML、建过程和创建索引权限的迁移账号。
 
-不要从 Git 历史、聊天或旧文档复制数据库密码。应先在数据库平台轮换凭据，再通过当前 shell 或 Secret 管理平台注入。
+不要从 Git 历史、聊天或旧文档复制数据库密码。本地迁移通过当前 shell 注入；未来云端迁移使用 Secret 管理平台。
 
 检查没有归属用户的饮食记录应交给哪个真实 OpenID。若旧库没有用户字段或存在 `NULL user_id`，必须设置 `LEGACY_USER_ID`。
 
@@ -39,7 +39,7 @@ export MYSQL_MIGRATION_DATABASE='diet_tracker'
 export MYSQL_MIGRATION_USERNAME='migration_user'
 export MYSQL_MIGRATION_PASSWORD='从 Secret 管理平台读取的新密码'
 export MIGRATION_CONFIRM_DATABASE='diet_tracker'
-export LEGACY_USER_ID='旧记录应归属的真实 OpenID'
+export LEGACY_USER_ID='旧记录应归属的用户标识'
 
 bash backend/scripts/migrate-legacy-mysql8.sh
 ```
@@ -68,7 +68,7 @@ WHERE user_id IS NULL
    OR calories_snapshot IS NULL;
 ```
 
-期望迁移历史存在成功的 V5 baseline 和 V6 增量记录，`missing_snapshots` 为 0，并且系统食品不少于 48 条。随后使用灰度账号逐项核对食品搜索、当日餐次详情、首页热量合计以及历史日期统计。
+期望迁移历史存在成功的 V5 baseline 和 V6–V8 增量记录，`missing_snapshots` 为 0，并且系统食品不少于 48 条。随后使用本地测试账号逐项核对食品搜索、当日餐次详情、首页热量合计、运动、目标和历史日期统计。
 
 ## 6. 失败恢复
 
@@ -81,4 +81,4 @@ mysql --host="$MYSQL_MIGRATION_HOST" \
   --password < backend/var/backups/目标备份.sql
 ```
 
-恢复后核对核心表行数，再定位失败原因。不要手工删除某几列、约束或 `flyway_schema_history` 后继续运行生产应用。
+恢复后核对核心表行数，再定位失败原因。不要手工删除某几列、约束或 `flyway_schema_history` 后继续运行应用。

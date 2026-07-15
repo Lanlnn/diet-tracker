@@ -1,6 +1,6 @@
 # 系统架构设计
 
-> 本文描述 M10 分支的当前架构。开发阶段、质量门禁和防复发规则分别见 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
+> 本文描述 M10–E1 的当前架构。开发阶段、质量门禁和本地运行分别见 [`DEVELOPMENT.md`](./DEVELOPMENT.md)、[`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md) 与 [`LOCAL-DEVELOPMENT.md`](./LOCAL-DEVELOPMENT.md)。
 
 ## 1. 整体架构
 
@@ -54,11 +54,13 @@ graph TB
 | 后端 | Java 17、Spring Boot 3.4.4、Maven Wrapper |
 | 数据库 | MySQL 8，Flyway 管理结构；测试使用 H2 MySQL 兼容模式并由 CI 补充真实 MySQL 8 验证 |
 | 小程序开发 | 微信开发者工具只导入 `miniapp/` |
-| 开发 API | `http://127.0.0.1:8080/api` |
-| 体验/正式 API | `miniapp/shared/config.js` 按 `envVersion` 选择 |
+| 本机 API | `http://127.0.0.1:8080/api` |
+| 局域网 API | `http://192.168.3.25:8080/api`，换网络时本地覆盖 |
+| develop/trial | 当前均访问局域网本地 API |
+| release | 保留未来 HTTPS 地址；当前不部署、不验收 |
 | 统计时区 | `APP_TIME_ZONE`，默认 `Asia/Shanghai` |
 
-项目、本机和 CI 的权威 Java 版本是 18。Maven Wrapper 会拒绝其他主版本，避免测试运行时与编译目标静默漂移。
+项目、本机、容器和 CI 的权威 Java 版本是 17。MySQL 8.0.46 和后端通过 `deploy/local/compose.yml` 在电脑运行，后端监听 `0.0.0.0:8080` 供同一局域网手机访问；MySQL 不映射宿主机端口。当前架构不包含阿里云、DNS、Nginx 或 HTTPS。
 
 ## 3. 小程序信息架构
 

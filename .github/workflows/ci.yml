@@ -66,26 +66,35 @@ jobs:
         working-directory: backend
         run: sh mvnw --batch-mode package
 
-      - name: Validate staging deployment files
+      - name: Validate local development stack
         run: |
           bash -n backend/scripts/check-e1-environment.sh
-          bash -n backend/scripts/check-staging-readiness.sh
-          bash -n deploy/staging/preflight.sh
-          bash -n deploy/staging/build-image.sh
-          bash -n deploy/staging/smoke-test.sh
-          docker compose --env-file deploy/staging/.env.staging.example \
-            --file deploy/staging/compose.yml config --quiet
+          bash -n deploy/local/start.sh
+          bash -n deploy/local/stop.sh
+          bash -n deploy/local/reset-data.sh
+          bash -n deploy/local/smoke-test.sh
+          docker compose --env-file deploy/local/.env.local.example \
+            --file deploy/local/compose.yml config --quiet
 
-      - name: Build the staging runtime image
+      - name: Build the local runtime image
         run: |
           docker build \
             --build-arg GIT_SHA="$GITHUB_SHA" \
             --build-arg BUILD_TIME="1970-01-01T00:00:00Z" \
-            --tag diet-tracker-backend:ci \
+            --tag diet-tracker-backend:local \
             backend
 
-      - name: Smoke test the staging stack
-        run: SMOKE_IMAGE_TAG=ci SMOKE_BIND_PORT=18081 bash deploy/staging/smoke-test.sh
+      - name: Smoke test the local stack
+        run: |
+          cleanup() {
+            docker compose --env-file deploy/local/.env.local.example \
+              --file deploy/local/compose.yml down --volumes --remove-orphans
+          }
+          trap cleanup EXIT
+          BACKEND_BIND_PORT=18081 docker compose \
+            --env-file deploy/local/.env.local.example \
+            --file deploy/local/compose.yml up --detach --no-build
+          BACKEND_BIND_PORT=18081 bash deploy/local/smoke-test.sh deploy/local/.env.local.example
 
   backend-mysql-test:
     name: Backend tests (MySQL 8)

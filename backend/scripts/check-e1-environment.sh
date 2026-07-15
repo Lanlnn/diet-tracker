@@ -1,62 +1,50 @@
 #!/usr/bin/env bash
-set -u
+set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$repo_root"
 
 failures=0
-
 fail() {
   echo "FAIL: $1" >&2
   failures=$((failures + 1))
 }
 
-require_value() {
-  local name="$1"
-  local value="${!name:-}"
-  if [[ -z "$value" || "$value" == replace-with-* ]]; then
-    fail "${name} is not configured"
-  fi
-}
+command -v docker >/dev/null 2>&1 || fail "Docker is not installed"
+docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is unavailable"
 
-required=(
-  DB_URL DB_USERNAME DB_PASSWORD WECHAT_APPID WECHAT_SECRET JWT_SECRET
-  DELETION_AUDIT_PEPPER APP_BASE_URL UPLOAD_DIR CORS_ALLOWED_ORIGINS
-  SPRING_PROFILES_ACTIVE RATE_LIMIT_ENABLED
-)
-
-for name in "${required[@]}"; do
-  require_value "$name"
-done
+java_command=java
+if [[ -n "${JAVA_HOME:-}" && -x "$JAVA_HOME/bin/java" ]]; then
+  java_command="$JAVA_HOME/bin/java"
+elif [[ -x /opt/homebrew/opt/openjdk@17/bin/java ]]; then
+  java_command=/opt/homebrew/opt/openjdk@17/bin/java
+fi
+java_version="$($java_command -version 2>&1 | head -n 1 || true)"
+[[ "$java_version" =~ version[[:space:]]+\"17[.] ]] || fail "Java 17 is required"
 
 expected_appid="$(sed -n 's/.*"appid"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' miniapp/project.config.json | head -n 1)"
-[[ -n "$expected_appid" ]] || fail "cannot read appid from miniapp/project.config.json"
-[[ "${WECHAT_APPID:-}" == "$expected_appid" ]] || fail "WECHAT_APPID does not match miniapp/project.config.json"
+[[ "$expected_appid" == "wx8cfee49a3f7392b2" ]] || fail "miniapp AppID differs from the frozen E1 AppID"
 
-[[ "${SPRING_PROFILES_ACTIVE:-}" == "prod" ]] || fail "SPRING_PROFILES_ACTIVE must be prod"
-[[ "${RATE_LIMIT_ENABLED:-}" == "true" ]] || fail "RATE_LIMIT_ENABLED must be true"
-[[ "${DB_URL:-}" == jdbc:mysql://* ]] || fail "DB_URL must use MySQL JDBC"
-if [[ "${DB_URL:-}" == *"127.0.0.1"* || "${DB_URL:-}" == *"localhost"* ]]; then
-  fail "DB_URL must point to the independent staging MySQL instance"
-fi
+grep -q "develop: 'http://192[.]168[.]3[.]25:8080/api'" miniapp/shared/config.js || fail "develop API is not the frozen LAN address"
+grep -q "trial: 'http://192[.]168[.]3[.]25:8080/api'" miniapp/shared/config.js || fail "trial API is not the frozen LAN address"
+grep -q '^    image: mysql:8[.]0[.]46$' deploy/local/compose.yml || fail "local MySQL must be pinned to 8.0.46"
+grep -q '^      - 0[.]0[.]0[.]0:' deploy/local/compose.yml || fail "backend must listen on the LAN interface"
 
-[[ "${APP_BASE_URL:-}" == "https://staging.tigercloud.asia" ]] || fail "APP_BASE_URL must be https://staging.tigercloud.asia"
-[[ "${CORS_ALLOWED_ORIGINS:-}" != *"*"* ]] || fail "CORS_ALLOWED_ORIGINS must not contain a wildcard"
-jwt_secret="${JWT_SECRET:-}"
-deletion_audit_pepper="${DELETION_AUDIT_PEPPER:-}"
-[[ "${#jwt_secret}" -ge 32 ]] || fail "JWT_SECRET must contain at least 32 ASCII characters"
-[[ "${#deletion_audit_pepper}" -ge 32 ]] || fail "DELETION_AUDIT_PEPPER must contain at least 32 ASCII characters"
-[[ "${JWT_SECRET:-}" != "${DELETION_AUDIT_PEPPER:-}" ]] || fail "DELETION_AUDIT_PEPPER must be independent from JWT_SECRET"
+docker compose --env-file deploy/local/.env.local.example --file deploy/local/compose.yml config --quiet \
+  || fail "local compose configuration is invalid"
 
-if [[ -n "${UPLOAD_DIR:-}" ]]; then
-  [[ "$UPLOAD_DIR" == /* ]] || fail "UPLOAD_DIR must be an absolute persistent path"
-  [[ -d "$UPLOAD_DIR" ]] || fail "UPLOAD_DIR does not exist"
-  [[ -w "$UPLOAD_DIR" ]] || fail "UPLOAD_DIR is not writable by the service account"
+if [[ -f deploy/local/.env.local ]]; then
+  if grep -q 'local-placeholder-replace-with-real-secret' deploy/local/.env.local; then
+    fail "deploy/local/.env.local still contains the placeholder WECHAT_SECRET"
+  fi
+  if git ls-files --error-unmatch deploy/local/.env.local >/dev/null 2>&1; then
+    fail "deploy/local/.env.local must never be tracked"
+  fi
 fi
 
 if ((failures > 0)); then
-  echo "E1 environment check failed with ${failures} issue(s); no secret values were printed" >&2
+  echo "E1 local environment check failed with ${failures} issue(s)" >&2
   exit 1
 fi
 
-echo "E1 environment check passed; no secret values were printed"
+echo "E1 local environment check passed (Java 17, MySQL 8.0.46, AppID, LAN API and Compose)"

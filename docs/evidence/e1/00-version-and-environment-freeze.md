@@ -1,61 +1,49 @@
-# E1.0 版本与环境冻结
+# E1.0 版本与本地环境冻结
 
-- 冻结时间：2026-07-16 00:06 CST
-- 仓库：`Lanlnn/diet-tracker`
-- 基线分支：`master`
-- 基线 Git SHA：`dfa2913a1be24120b7e6def5d9138fad2ccdde45`
-- 基线标签：`m10-complete`
-- 基线 CI：GitHub Actions run `29425320940`，结论 `success`
-- E1 工作分支：`codex/experience-environment-closure`
-- 小程序 AppID：`wx8cfee49a3f7392b2`
-- 体验 API：`https://staging.tigercloud.asia/api`
-- 正式 API：`https://tigercloud.asia/api`
+记录日期：2026-07-16
 
-## 制品冻结
+策略：项目全部完成前只在本地开发和联调，不实施云端部署。
 
-| 项目 | 冻结值 | 状态 |
-| --- | --- | --- |
-| 待部署提交 | E1 分支合并后的 `master` SHA | 待 E1 PR 合并后填写 |
-| 后端制品 | 必须由待部署 SHA 构建，记录文件校验和或镜像 digest | 未构建 |
-| 构建时间 | 使用 UTC ISO-8601 | 未构建 |
-| 小程序体验版版本号 | 上传时记录 | 未上传 |
-| 小程序上传者与时间 | 微信公众平台审计记录 | 未上传 |
+## 版本
 
-在上表四项未补齐前，不得把任何现有服务器进程或体验版称为本次 E1 发布候选。
+| 项目 | 冻结值 |
+|---|---|
+| M0–M10 基线 | `dfa2913a1be24120b7e6def5d9138fad2ccdde45` / `m10-complete` |
+| E1 分支 | `codex/experience-environment-closure` |
+| Java | Homebrew OpenJDK 17.0.19；项目目标 Java 17 |
+| MySQL | Docker `mysql:8.0.46` |
+| Flyway | V1–V8 |
+| 小程序 AppID | `wx8cfee49a3f7392b2` |
+| 开发者工具 | Nightly 2.02.2607142（已知最近编译基线） |
 
-## 配置清单
+## 本地运行地址
 
-只记录来源和状态，不记录值。所有 Secret 必须由部署平台 Secret 管理注入。
+| 用途 | 地址 |
+|---|---|
+| 本机健康 | `http://127.0.0.1:8080/actuator/health` |
+| 本机 API | `http://127.0.0.1:8080/api` |
+| 当前局域网健康 | `http://192.168.3.25:8080/actuator/health` |
+| 小程序 develop/trial 标识 | `http://192.168.3.25:8080/api` |
+| 正式 release | 保留未来 HTTPS 地址，当前不部署、不验收 |
 
-| 配置 | 来源/负责人 | 当前状态 | 验证规则 |
-| --- | --- | --- | --- |
-| `DB_URL` | 体验环境部署负责人 | 未提供 | 独立 MySQL 8，不指向 localhost |
-| `DB_USERNAME` | 体验数据库负责人 | 未提供 | 最小权限账号 |
-| `DB_PASSWORD` | 体验数据库 Secret | 未提供 | 不进入仓库或构建日志 |
-| `WECHAT_APPID` | 微信小程序项目 | 已确认变量契约 | 必须等于项目 AppID |
-| `WECHAT_SECRET` | 微信公众平台管理员 | 未提供 | 与 AppID 配对，必要时先轮换 |
-| `JWT_SECRET` | 部署平台 Secret | 未提供 | 至少 32 个随机字符 |
-| `DELETION_AUDIT_PEPPER` | 部署平台独立 Secret | 未提供 | 至少 32 个随机字符且不同于 JWT |
-| `APP_BASE_URL` | 体验域名负责人 | 已冻结契约 | `https://staging.tigercloud.asia` |
-| `UPLOAD_DIR` | 服务器存储负责人 | 未提供 | 绝对持久化路径，服务账号可写 |
-| `CORS_ALLOWED_ORIGINS` | 后端部署负责人 | 未提供 | 明确白名单，不使用宽泛生产值 |
-| `SPRING_PROFILES_ACTIVE` | 后端部署负责人 | 已冻结契约 | `prod` |
-| `RATE_LIMIT_ENABLED` | 后端部署负责人 | 已冻结契约 | `true` |
+局域网地址不是永久配置。换网络后在本地存储设置 `apiBaseUrl`，不得为了临时 IP 修改未来正式 release 地址。
 
-部署前在注入真实环境变量的同一服务账号下运行：
+## 配置来源
 
-```bash
-bash backend/scripts/check-e1-environment.sh
-bash backend/scripts/check-release-readiness.sh
-```
+| 配置 | 来源 | 状态 |
+|---|---|---|
+| 数据库 URL/账号/密码 | `deploy/local/compose.yml` 的仅本地容器网络 | 已提供，不对公网暴露 MySQL |
+| `WECHAT_APPID` | `miniapp/project.config.json` | 已冻结 |
+| `WECHAT_SECRET` | Git 忽略的 `deploy/local/.env.local` | 待用户本地填写真实值 |
+| JWT / 删除审计 pepper | `.env.local` | 示例值可启动；真实登录验收前应换成本地随机值 |
+| 上传目录 | Docker `avatar-data` 卷 | 已定义 |
+| Profile | `local` | 已定义 |
 
-两个脚本只输出变量名和规则结果，不输出 Secret 值。
+## 已验证与待验证
 
-## E1.0 结论
+- 已验证：Java 17、MySQL 8.0.46、Docker 可用，AppID 与项目配置一致。
+- 已验证：此前同一代码基线的 Flyway V8、7 个分类、48 个系统食品、健康 200 和未登录 401。
+- 本轮本地 Compose 的实际启动结果记录在 `01-local-runtime.md`。
+- 待验证：真实微信 Secret、iOS/Android 同网联调和 E1.3 用户主链路。
 
-- 代码、标签、CI、AppID、目标域名和配置规则已冻结。
-- 本地质量基线已通过：Java 17 + MySQL 8.0.46 全量 38/38（无跳过）、小程序 12/12、Flyway V1–V8、JS/JSON 语法、发布门禁和环境门禁。
-- MySQL 8 MockMvc 性能基线 P95：今日 12ms、食品搜索 14ms、日历 15ms、趋势 16ms。
-- staging 容器烟测已通过：Java 17 运行时镜像、MySQL 8.0.46、prod Profile、健康 200、未登录 401、Seed 404、Flyway V8、7 个分类和 48 个系统食品；后端非 root 且根文件系统只读，MySQL 未映射公网端口。
-- 真实配置来源/负责人、后端制品和体验版版本尚未就绪。
-- 当前不满足 E1.0 退出条件，不能进入正式的 E1.2 真机登录验收。
+E1.0 退出标准：本地环境检查和 Compose 配置通过；真实 Secret 不进入 Git。云端配置不属于退出条件。

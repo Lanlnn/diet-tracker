@@ -1,8 +1,10 @@
 const API_URLS = Object.freeze({
-  develop: 'http://127.0.0.1:8080/api',
-  trial: 'https://staging.tigercloud.asia/api',
+  develop: 'http://192.168.3.25:8080/api',
+  trial: 'http://192.168.3.25:8080/api',
   release: 'https://tigercloud.asia/api'
 });
+
+const LOCAL_API_URL_STORAGE_KEY = 'apiBaseUrl';
 
 function getEnvVersion() {
   try {
@@ -13,6 +15,34 @@ function getEnvVersion() {
 }
 
 const ENV_VERSION = getEnvVersion();
-const BASE_URL = API_URLS[ENV_VERSION] || API_URLS.develop;
 
-module.exports = { API_URLS, BASE_URL, ENV_VERSION };
+function normalizeApiUrl(value) {
+  if (typeof value !== 'string') return '';
+  const normalized = value.trim().replace(/\/+$/, '');
+  return /^https?:\/\//.test(normalized) ? normalized : '';
+}
+
+function getLocalOverride() {
+  try {
+    return normalizeApiUrl(wx.getStorageSync(LOCAL_API_URL_STORAGE_KEY));
+  } catch (error) {
+    return '';
+  }
+}
+
+function resolveBaseUrl(envVersion = ENV_VERSION) {
+  const override = getLocalOverride();
+  if (override && envVersion !== 'release') return override;
+  return API_URLS[envVersion] || API_URLS.develop;
+}
+
+const BASE_URL = resolveBaseUrl();
+
+module.exports = {
+  API_URLS,
+  BASE_URL,
+  ENV_VERSION,
+  LOCAL_API_URL_STORAGE_KEY,
+  normalizeApiUrl,
+  resolveBaseUrl
+};
