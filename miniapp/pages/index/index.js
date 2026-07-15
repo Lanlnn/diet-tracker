@@ -1,142 +1,168 @@
 const api = require('../../services/index');
 const date = require('../../shared/date');
-const { MEAL_TYPE_MAP } = require('../../shared/meal-types');
- const app = getApp();
+
+const EMPTY_DASHBOARD = {
+  goalCalories: 1800,
+  intakeCalories: 0,
+  remainingCalories: 1800,
+  exceededCalories: 0,
+  exerciseCalories: 0,
+  nutrition: null,
+  exercise: null,
+  meals: null,
+  advice: null
+};
 
 Page({
   data: {
-    today: '',
-    greeting: '',
-    nickname: '',
-    avatarUrl: '',
-     editWechatNickname: '',
-    records: [],
-    mealTypes: [],
-    stats: { totalCalories: 0, totalProtein: 0, totalFat: 0, totalCarbs: 0 }
-    ,pageState: 'loading',
-    errorMessage: ''
+    dateLabel: '',
+    pageState: 'loading',
+    errorMessage: '',
+    refreshing: false,
+    dashboard: EMPTY_DASHBOARD,
+    ringDegrees: 0,
+    remainingLabel: '1,800',
+    intakeLabel: '0',
+    goalLabel: '1,800',
+    exerciseLabel: '0',
+    exceededLabel: '0',
+    calorieStatus: '状态良好',
+    nutritionState: 'loading',
+    exerciseState: 'loading',
+    mealsState: 'loading',
+    nutritionItems: [],
+    meals: [],
+    recordedMealCount: 0,
+    hasRecords: false
   },
 
   onLoad() {
-    this.loadProfile();
-     // 注册资料变更通知
-     this._profileListener = () => this.loadProfile();
-     app.onProfileUpdate(this._profileListener);
-    const now = new Date();
-    const hour = now.getHours();
-    let greeting = '你好！';
-    if (hour < 6) greeting = '夜深了，早点休息 🌙';
-    else if (hour < 9) greeting = '早安！记得吃早餐哦 🌅';
-    else if (hour < 12) greeting = '上午好 ☀️';
-    else if (hour < 14) greeting = '中午好！吃午饭了吗 🍚';
-    else if (hour < 18) greeting = '下午好 🌤';
-    else greeting = '晚上好 🌆';
-
-    this.setData({
-      today: date.formatDate(now),
-      greeting
-    });
-  },
-
-   onUnload() {
-     app.offProfileUpdate(this._profileListener);
-   },
- 
-  loadProfile() {
-    const gd = app.globalData;
-    this.setData({
-      nickname: gd.nickname || '',
-      avatarUrl: gd.avatarUrl || '',
-      needsWechatInfo: gd.needsWechatInfo
-    });
+    this._loadedOnce = false;
+    this.setData({ dateLabel: this.formatDateLabel(new Date()) });
   },
 
   onShow() {
-    this.loadProfile();
-    this.loadData();
+    this.loadData({ preserve: this._loadedOnce });
   },
 
-  /** 新微信：选择头像按钮回调 */
-  onChooseAvatar(e) {
-     const url = e.detail && e.detail.avatarUrl ? e.detail.avatarUrl : '';
-     this.setData({ avatarUrl: url });
-   },
- 
-   /** 备用：手动输入昵称 */
-   onManualNicknameInput(e) {
-     this.setData({ manualNickname: e.detail.value });
-   },
- 
-   /** 备用：手动输入头像URL */
-   onManualAvatarInput(e) {
-     this.setData({ manualAvatarUrl: e.detail.value });
-   },
+  loadData(options = {}) {
+    const preserve = Boolean(options.preserve && this.data.pageState === 'success');
+    if (preserve) this.setData({ refreshing: true, errorMessage: '' });
+    else this.setData({ pageState: 'loading', errorMessage: '' });
 
-  /** 保存通过微信组件获取到的昵称和头像 */
-  onSaveWechatInfo() {
-    const that = this;
-     // 优先用微信组件获取的值，退化到手动输入
-     const nicknameInput = this.data.editWechatNickname || this.data.manualNickname || '';
-    const avatarUrl = this.data.avatarUrl || '';
-     
-     if (!nicknameInput && !this.data.manualNickname) {
-       wx.showToast({ title: '请填写昵称', icon: 'none' });
-       return;
-     }
-     
-     const finalNickname = nicknameInput || '微信用户';
-    app.saveWechatInfo(finalNickname, avatarUrl).then(() => {
-      wx.showToast({ title: '保存成功', icon: 'success' });
-    }).catch(() => wx.showToast({ title: '保存失败', icon: 'none' }));
-   },
-
-  /** 微信昵称输入框回调 */
-  onNicknameInput(e) {
-     this.setData({ editWechatNickname: e.detail && e.detail.value ? e.detail.value : '' });
-  },
-
-  loadData() {
-    const today = date.getToday();
-    this.setData({ pageState: 'loading', errorMessage: '' });
-    Promise.all([api.getRecords(today), api.getDailyStats(today)]).then(([records, stats]) => {
-      const mealTypes = this.groupByMealType(records || []);
-      this.setData({ records: records || [], mealTypes, stats: stats || {}, pageState: records.length ? 'success' : 'empty' });
-    }).catch(error => this.setData({ pageState: 'error', errorMessage: error.message || '加载失败' }));
-  },
-
-  groupByMealType(records) {
-    const groups = { breakfast: [], lunch: [], dinner: [], snack: [] };
-    records.forEach(r => {
-      if (groups[r.mealType]) groups[r.mealType].push({
-        ...r,
-        displayName: r.foodNameSnapshot || (r.foodItem && r.foodItem.name) || '食物',
-        displayCalories: this.recordNutrition(r, 'calories').toFixed(0)
-      });
-    });
-
-    return Object.keys(MEAL_TYPE_MAP).map(type => {
-      const items = groups[type] || [];
-      const totalCalories = items.reduce((sum, r) =>
-        sum + this.recordNutrition(r, 'calories'), 0);
-      return {
-        type,
-        label: MEAL_TYPE_MAP[type].label,
-        tagClass: MEAL_TYPE_MAP[type].class,
-        records: items,
-        totalCalories: totalCalories.toFixed(0)
-      };
+    return api.getTodayDashboard(date.getToday()).then(result => {
+      this._loadedOnce = true;
+      this.presentDashboard(result || {});
+    }).catch(error => {
+      const message = error.message || '今日数据加载失败';
+      if (preserve) {
+        this.setData({ refreshing: false, errorMessage: message });
+        wx.showToast({ title: '刷新失败，已保留当前数据', icon: 'none' });
+      } else {
+        this.setData({ pageState: 'error', refreshing: false, errorMessage: message });
+      }
     });
   },
 
-  recordNutrition(record, field) {
-    const snapshot = Number(record[field + 'Snapshot']);
-    const base = Number(record.baseAmountSnapshot);
-    if (Number.isFinite(snapshot) && base > 0) return snapshot * Number(record.quantity || 0) / base;
-    return Number(record.foodItem && record.foodItem[field] || 0) * Number(record.quantity || 0);
+  presentDashboard(raw) {
+    const dashboard = { ...EMPTY_DASHBOARD, ...raw };
+    const goal = Number(dashboard.goalCalories || 0);
+    const intake = Number(dashboard.intakeCalories || 0);
+    const remaining = Math.max(Number(dashboard.remainingCalories || 0), 0);
+    const exceeded = Math.max(Number(dashboard.exceededCalories || 0), 0);
+    const nutritionItems = dashboard.nutrition ? [
+      this.presentNutrient('碳水', dashboard.nutrition.carbs, 'carbs'),
+      this.presentNutrient('蛋白质', dashboard.nutrition.protein, 'protein'),
+      this.presentNutrient('脂肪', dashboard.nutrition.fat, 'fat')
+    ] : [];
+    const meals = Array.isArray(dashboard.meals) ? dashboard.meals.map(item => ({
+      ...item,
+      caloriesLabel: this.formatNumber(item.calories, 0),
+      previewLabel: (item.previewItems || []).join(' · '),
+      empty: !Number(item.itemCount)
+    })) : [];
+    const recordedMealCount = meals.filter(item => !item.empty).length;
+    const progress = goal > 0 ? Math.min(intake / goal, 1) : 0;
+
+    this.setData({
+      dashboard,
+      pageState: 'success',
+      refreshing: false,
+      remainingLabel: this.formatNumber(remaining, 0),
+      intakeLabel: this.formatNumber(intake, 0),
+      goalLabel: this.formatNumber(goal, 0),
+      exerciseLabel: this.formatNumber(dashboard.exerciseCalories, 0),
+      exceededLabel: this.formatNumber(exceeded, 0),
+      calorieStatus: exceeded > 0 ? '今日已超出 ' + this.formatNumber(exceeded, 0) + ' 千卡' : (intake ? '状态良好' : '等待第一笔记录'),
+      ringDegrees: Math.round(progress * 360),
+      nutritionState: dashboard.nutrition ? 'success' : 'error',
+      exerciseState: dashboard.exercise ? (dashboard.exercise.completedCount ? 'success' : 'empty') : 'error',
+      mealsState: Array.isArray(dashboard.meals) ? (recordedMealCount ? 'success' : 'empty') : 'error',
+      nutritionItems,
+      meals,
+      recordedMealCount,
+      hasRecords: meals.some(item => !item.empty)
+    });
+  },
+
+  presentNutrient(label, metric, tone) {
+    const value = metric || {};
+    return {
+      label,
+      tone,
+      amountLabel: this.formatNumber(value.amount, 1) + 'g',
+      progressLabel: Math.max(Number(value.progressPercent || 0), 0) + '%',
+      progressWidth: Math.min(Math.max(Number(value.progressPercent || 0), 0), 100)
+    };
+  },
+
+  retryModule() {
+    this.loadData({ preserve: true });
+  },
+
+  openRecord() {
+    wx.switchTab({ url: '/pages/add/add' });
+  },
+
+  openCamera() {
+    wx.showModal({
+      title: '拍照留存',
+      content: '照片仅用于饮食留存，不进行食物识别或热量估算。该能力将在后续阶段接入。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+  },
+
+  openCalendar() {
+    wx.showModal({
+      title: '饮食日历',
+      content: '日历将在 M9 接入，当前可先在首页查看今日摘要。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+  },
+
+  openExercise() {
+    wx.switchTab({ url: '/pages/exercise/exercise' });
   },
 
   openMeal(event) {
-    const mealType = event.currentTarget.dataset.meal;
-    wx.navigateTo({ url: '/packageFood/pages/meal-detail/meal-detail?date=' + date.getToday() + '&mealType=' + mealType });
+    const meal = event.currentTarget.dataset.meal;
+    const count = Number(event.currentTarget.dataset.count || 0);
+    if (!count) return this.openRecord();
+    wx.navigateTo({
+      url: '/packageFood/pages/meal-detail/meal-detail?date=' + date.getToday() + '&mealType=' + meal
+    });
+  },
+
+  formatDateLabel(value) {
+    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return (value.getMonth() + 1) + '月' + value.getDate() + '日 · ' + weekdays[value.getDay()];
+  },
+
+  formatNumber(value, digits) {
+    const number = Number(value || 0);
+    const rounded = digits ? number.toFixed(digits).replace(/\.0$/, '') : String(Math.round(number));
+    return rounded.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 });
