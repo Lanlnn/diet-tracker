@@ -1,6 +1,6 @@
 package com.diettracker.repository;
 
-import com.diettracker.model.FoodItem;
+import com.diettracker.entity.FoodItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

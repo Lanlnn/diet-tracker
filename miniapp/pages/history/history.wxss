@@ -11,7 +11,7 @@
 
 .nav-btn {
   font-size: 48rpx;
-  color: #4CAF50;
+  color: #294E3B;
   padding: 0 20rpx;
   font-weight: bold;
 }

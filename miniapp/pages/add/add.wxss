@@ -41,7 +41,7 @@
 
 .toggle-btn.active {
   background: #fff;
-  color: #4CAF50;
+  color: #294E3B;
   font-weight: bold;
   box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.15);
 }
@@ -106,7 +106,7 @@
   font-size: 40rpx;
   font-weight: bold;
   margin: 0 30rpx;
-  border-bottom: 2rpx solid #4CAF50;
+  border-bottom: 2rpx solid #294E3B;
 }
 
 .nutrition-preview {

@@ -1,44 +1,62 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/stats/stats",
     "pages/add/add",
-    "pages/history/history",
-    "pages/stats/stats"
+    "pages/exercise/exercise",
+    "pages/profile/profile",
+    "pages/history/history"
+  ],
+  "subPackages": [
+    {
+      "root": "packageTools",
+      "pages": [
+        "pages/design-system/design-system"
+      ]
+    }
   ],
   "window": {
-    "navigationBarBackgroundColor": "#4CAF50",
-    "navigationBarTitleText": "饮食记录",
-    "navigationBarTextStyle": "white"
+    "navigationBarBackgroundColor": "#F7F3EA",
+    "navigationBarTitleText": "轻养",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F3EA",
+    "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#B0B0B0",
-    "selectedColor": "#4CAF50",
-    "backgroundColor": "#FAFAFA",
+    "color": "#8A8D84",
+    "selectedColor": "#294E3B",
+    "backgroundColor": "#FFFDF8",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/home.png",
-        "selectedIconPath": "images/home_active.png"
+        "text": "今日",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "趋势",
+        "iconPath": "assets/tabbar/stats.png",
+        "selectedIconPath": "assets/tabbar/stats.png"
       },
       {
         "pagePath": "pages/add/add",
         "text": "记录",
-        "iconPath": "images/add.png",
-        "selectedIconPath": "images/add_active.png"
+        "iconPath": "assets/tabbar/add.png",
+        "selectedIconPath": "assets/tabbar/add.png"
       },
       {
-        "pagePath": "pages/history/history",
-        "text": "历史",
-        "iconPath": "images/history.png",
-        "selectedIconPath": "images/history_active.png"
+        "pagePath": "pages/exercise/exercise",
+        "text": "运动",
+        "iconPath": "assets/tabbar/exercise.png",
+        "selectedIconPath": "assets/tabbar/exercise.png"
       },
       {
-        "pagePath": "pages/stats/stats",
-        "text": "统计",
-        "iconPath": "images/stats.png",
-        "selectedIconPath": "images/stats_active.png"
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/tabbar/profile.png",
+        "selectedIconPath": "assets/tabbar/profile.png"
       }
     ]
   },

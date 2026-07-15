@@ -1,0 +1,1 @@
+<button class="ui-button ui-button--{{variant}} {{disabled || loading ? 'ui-button--disabled' : ''}}" disabled="{{disabled || loading}}" bindtap="onTap" hover-class="ui-button--pressed">{{loading ? '处理中…' : text}}</button>

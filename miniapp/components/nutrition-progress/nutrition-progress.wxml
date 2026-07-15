@@ -1,0 +1,1 @@
+<view class="nutrition"><view class="nutrition__meta"><text>{{label}}</text><text>{{value}} / {{target}}{{unit}}</text></view><view class="nutrition__track"><view class="nutrition__fill nutrition__fill--{{tone}}" style="width: {{percent}}%"></view></view></view>

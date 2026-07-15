@@ -1,0 +1,2 @@
+.ui-card { box-sizing: border-box; width: 100%; padding: 32rpx; background: #FFFDF8; border-radius: 44rpx; box-shadow: 0 10rpx 30rpx rgba(52,61,49,.06); }
+.ui-card__title { margin-bottom: 24rpx; font-size: 34rpx; font-weight: 600; color: #222820; }

@@ -1,0 +1,1 @@
+{ "navigationBarTitleText": "运动", "usingComponents": { "ui-card": "/components/ui-card/ui-card", "ui-button": "/components/ui-button/ui-button", "state-view": "/components/state-view/state-view" } }

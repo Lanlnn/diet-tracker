@@ -1,0 +1,1 @@
+<view class="state-view"><view class="state-view__icon">{{state === 'loading' ? '···' : state === 'error' ? '!' : '○'}}</view><text class="state-view__title">{{title}}</text><text class="state-view__message">{{message}}</text><button wx:if="{{state === 'error'}}" class="state-view__retry" bindtap="retry">重新加载</button></view>

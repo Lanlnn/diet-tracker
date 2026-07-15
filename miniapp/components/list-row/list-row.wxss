@@ -1,0 +1,6 @@
+.list-row { box-sizing: border-box; display: flex; align-items: center; width: 100%; min-height: 104rpx; padding: 20rpx 0; border-bottom: 1rpx solid #E9E4DA; }
+.list-row__content { flex: 1; min-width: 0; }
+.list-row__title,.list-row__description { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-row__title { color: #222820; font-size: 28rpx; }
+.list-row__description { margin-top: 6rpx; color: #8A8D84; font-size: 24rpx; }
+.list-row__value { margin-left: 20rpx; color: #8A8D84; font-size: 30rpx; }

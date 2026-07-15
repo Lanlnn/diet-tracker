@@ -1,9 +1,10 @@
-const api = require('../../utils/api');
-const util = require('../../utils/util');
+const api = require('../../services/index');
+const dateUtils = require('../../shared/date');
+const { MEAL_TYPE_MAP } = require('../../shared/meal-types');
 
 Page({
   data: {
-    currentDate: util.getToday(),
+    currentDate: dateUtils.getToday(),
     displayDate: '',
     weekday: '',
     records: [],
@@ -23,7 +24,7 @@ Page({
     const d = new Date(this.data.currentDate + 'T00:00:00');
     const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     this.setData({
-      displayDate: util.formatDate(d),
+      displayDate: dateUtils.formatDate(d),
       weekday: weekdays[d.getDay()]
     });
   },
@@ -44,7 +45,6 @@ Page({
     records.forEach(r => {
       if (groups[r.mealType]) groups[r.mealType].push(r);
     });
-    const MEAL_TYPE_MAP = util.MEAL_TYPE_MAP;
     return Object.keys(MEAL_TYPE_MAP).map(type => ({
       type,
       label: MEAL_TYPE_MAP[type].label,
@@ -57,7 +57,7 @@ Page({
   prevDay() {
     const d = new Date(this.data.currentDate + 'T00:00:00');
     d.setDate(d.getDate() - 1);
-    this.setData({ currentDate: util.formatDate(d) });
+    this.setData({ currentDate: dateUtils.formatDate(d) });
     this.updateDisplay();
     this.loadRecords();
   },
@@ -65,7 +65,7 @@ Page({
   nextDay() {
     const d = new Date(this.data.currentDate + 'T00:00:00');
     d.setDate(d.getDate() + 1);
-    this.setData({ currentDate: util.formatDate(d) });
+    this.setData({ currentDate: dateUtils.formatDate(d) });
     this.updateDisplay();
     this.loadRecords();
   },

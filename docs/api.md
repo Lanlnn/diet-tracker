@@ -1,7 +1,79 @@
 # API 接口文档
 
+> 本文记录当前原型接口，不代表优化版最终契约。优化版新增或调整接口时，必须与 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 和后端 DTO 同步更新。
+
 > 基础路径：`http://localhost:8080/api`
 > 请求头：`Content-Type: application/json`
+> 除登录接口外，业务接口请求头需要：`Authorization: Bearer <token>`
+
+---
+
+## 登录与个人资料（M2）
+
+### 微信登录
+
+```
+POST /auth/login
+```
+
+```json
+// 请求
+{ "code": "wx.login 返回的一次性 code" }
+
+// 响应
+{
+  "token": "<jwt>",
+  "expiresIn": 604800,
+  "user": {
+    "nickname": "林晓",
+    "avatarUrl": "https://img.example/avatar.png",
+    "goalType": "LOSE_FAT",
+    "dailyCalorieGoal": 1800,
+    "currentWeight": 62.4,
+    "targetWeight": 58.0,
+    "streakDays": 0
+  }
+}
+```
+
+登录响应不返回 `openid` 或 `session_key`。`expiresIn` 单位为秒。
+
+### 查询当前用户资料
+
+```
+GET /users/me
+```
+
+响应为登录响应中的 `user` 对象。用户身份只从 JWT 获取，不接受客户端传入用户 ID。
+
+### 修改当前用户资料
+
+```
+PUT /users/me
+```
+
+```json
+{
+  "nickname": "林晓",
+  "avatarUrl": "https://img.example/avatar.png",
+  "goalType": "LOSE_FAT",
+  "dailyCalorieGoal": 1800,
+  "currentWeight": 62.4,
+  "targetWeight": 58.0
+}
+```
+
+| 字段 | 规则 |
+|------|------|
+| nickname | 必填，去除首尾空格后 1–40 字符 |
+| avatarUrl | 可空，最长 500 字符，仅 HTTP/HTTPS URL |
+| goalType | 可空；`LOSE_FAT` / `MAINTAIN` / `BUILD_MUSCLE` |
+| dailyCalorieGoal | 可空；1,000–5,000 千卡 |
+| currentWeight / targetWeight | 可空；20–500 kg |
+
+### 删除账号数据（M10 预留）
+
+`DELETE /users/me` 的 UI 和实际删除逻辑在 M10 实现。接口必须要求有效 JWT 和二次确认；服务端事务内删除用户资料、饮食、运动、自定义食品和上传文件。审计日志只保存事件 ID、requestId、时间、结果和不可逆用户散列，不保存 openid、Token、昵称或业务内容，默认保留 180 天。删除失败必须整体回滚并返回结构化错误。
 
 ---
 
@@ -270,12 +342,15 @@ GET /records/stats/weekly?date=2026-05-15
 ### 错误响应
 
 ```json
-// 400 - 参数错误
-{ "timestamp": "2026-05-15T09:36:53", "status": 400, "error": "Bad Request", "path": "/api/records" }
-
-// 500 - 服务器内部错误
-{ "timestamp": "2026-05-15T09:39:24", "status": 500, "error": "Internal Server Error", "path": "/api/records/stats/weekly" }
+{
+  "code": "VALIDATION_ERROR",
+  "message": "请求参数不合法",
+  "requestId": "0e431e7f-...",
+  "fieldErrors": { "nickname": "昵称不能为空" }
+}
 ```
+
+认证错误使用 `AUTH_REQUIRED`、`TOKEN_EXPIRED` 或 `TOKEN_INVALID`；前端收到 401 后只进行一次互斥重新登录和重试。
 
 ### 状态码
 
@@ -285,4 +360,5 @@ GET /records/stats/weekly?date=2026-05-15
 | 204 | 删除成功，无响应体 |
 | 400 | 请求参数错误（JSON 格式错误、缺少必填字段） |
 | 404 | 资源不存在 |
+| 502 | 微信登录服务暂时不可用 |
 | 500 | 服务器内部错误 |

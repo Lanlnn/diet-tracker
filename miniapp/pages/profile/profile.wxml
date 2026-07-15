@@ -1,0 +1,60 @@
+<view class="container profile-page">
+  <state-view wx:if="{{status === 'loading' && !nickname}}" state="loading" title="正在加载个人资料" />
+  <state-view wx:elif="{{status === 'error' && !nickname}}" state="error" title="资料加载失败" message="请检查网络后重试" bind:retry="retry" />
+
+  <block wx:else>
+    <view class="profile-head" bindtap="openEditor">
+      <view class="avatar">
+        <image wx:if="{{avatarUrl}}" src="{{avatarUrl}}" mode="aspectFill" />
+        <text wx:else>{{nickname ? nickname.slice(0, 1) : '轻'}}</text>
+      </view>
+      <view class="profile-copy">
+        <view class="name-line"><text class="profile-name">{{nickname || '完善个人资料'}}</text><text class="chevron">›</text></view>
+        <text class="profile-note">{{streakDays ? '坚持记录 ' + streakDays + ' 天' : '从今天开始记录'}} · 目标：{{goalLabel}}</text>
+      </view>
+    </view>
+
+    <view class="weight-card" bindtap="openEditor">
+      <view class="weight-row">
+        <view><text class="weight-label">当前体重</text><text class="weight-value">{{currentWeight || '--'}}</text><text class="weight-unit"> kg</text></view>
+        <view class="weight-target"><text class="weight-label">目标体重</text><text class="weight-value">{{targetWeight || '--'}}</text><text class="weight-unit"> kg</text></view>
+      </view>
+      <view class="weight-track"><view class="weight-fill" style="width: {{progress}}%"></view></view>
+      <view class="weight-meta"><text>{{weightDifference ? '目标进度已同步' : '完善体重目标后显示进度'}}</text><text wx:if="{{weightDifference}}">还差 {{weightDifference}}kg</text></view>
+    </view>
+
+    <view class="section-title">饮食与目标</view>
+    <ui-card>
+      <list-row title="身体与营养目标" description="{{dailyCalorieGoal ? dailyCalorieGoal + ' 千卡' : '待完善'}}" bind:tap="openEditor" />
+      <list-row title="我的食品库" description="后续开放" bind:tap="unavailable" />
+      <list-row title="训练计划" description="后续开放" bind:tap="unavailable" />
+    </ui-card>
+
+    <view class="section-title">服务与设置</view>
+    <ui-card>
+      <list-row title="饮食日历" description="回看记录" bind:tap="openHistory" />
+      <list-row title="组件预览" description="设计系统" bind:tap="openDesignSystem" />
+      <list-row title="通知、隐私与关于" bind:tap="unavailable" />
+    </ui-card>
+  </block>
+
+  <view wx:if="{{editing}}" class="sheet-mask" catchtap="closeEditor">
+    <view class="edit-sheet" catchtap="stopPropagation">
+      <view class="sheet-handle"></view>
+      <view class="sheet-title-row"><text class="sheet-title">编辑个人资料</text><text class="sheet-close" bindtap="closeEditor">×</text></view>
+      <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" loading="{{uploading}}">
+        <image wx:if="{{draft.avatarUrl}}" src="{{draft.avatarUrl}}" mode="aspectFill" />
+        <text wx:else>{{draft.nickname ? draft.nickname.slice(0, 1) : '轻'}}</text>
+        <view class="avatar-edit">更换</view>
+      </button>
+      <view class="form-field"><text class="field-label">昵称</text><input class="field-input" type="nickname" maxlength="40" value="{{draft.nickname}}" placeholder="请输入昵称" bindinput="onNicknameInput" /></view>
+      <view class="form-field"><text class="field-label">阶段目标</text><picker range="{{goalLabels}}" value="{{goalIndex}}" bindchange="onGoalChange"><view class="field-input picker-value">{{goalLabels[goalIndex]}}<text>›</text></view></picker></view>
+      <view class="form-grid">
+        <view class="form-field"><text class="field-label">当前体重（kg）</text><input class="field-input" type="digit" value="{{draft.currentWeight}}" placeholder="例如 62.4" bindinput="onCurrentWeightInput" /></view>
+        <view class="form-field"><text class="field-label">目标体重（kg）</text><input class="field-input" type="digit" value="{{draft.targetWeight}}" placeholder="例如 58.0" bindinput="onTargetWeightInput" /></view>
+      </view>
+      <view class="form-field"><text class="field-label">每日热量目标（千卡）</text><input class="field-input" type="number" value="{{draft.dailyCalorieGoal}}" placeholder="1000–5000" bindinput="onCalorieInput" /></view>
+      <button class="save-button" loading="{{submitting}}" disabled="{{submitting || uploading}}" bindtap="saveProfile">{{submitting ? '保存中' : '保存资料'}}</button>
+    </view>
+  </view>
+</view>

@@ -1,15 +1,18 @@
 # 系统架构设计
 
+> 本文记录当前原型结构。优化版目标架构、开发阶段和质量要求以 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 为准。
+
 ## 整体架构
 
 ```mermaid
 graph TB
     subgraph "微信小程序 (前端)"
-        A1[首页 index/] --> API[utils/api.js]
+        A1[首页 index/] --> API[services/index.js]
         A2[记录 add/] --> API
         A3[历史 history/] --> API
         A4[统计 stats/] --> API
-        API --> |wx.request| B1
+        API --> REQ[services/request.js]
+        REQ --> |wx.request| B1
     end
 
     subgraph "Spring Boot 后端 (8080)"
@@ -17,18 +20,20 @@ graph TB
         B2 --> B3[Repository 层 JPA]
     end
 
-    subgraph "MySQL 8.0"
+    subgraph "PostgreSQL"
         C1[(food_category)]
         C2[(food_item)]
         C3[(meal_record)]
+        C4[(users)]
         B3 --> C1
         B3 --> C2
         B3 --> C3
+        B3 --> C4
     end
 
     subgraph "开发工具"
-        D1[JDK 25<br/>Temurin]
-        D2[Maven 3.9.9<br/>D:\\apache-maven-3.9.9]
+        D1[Java<br/>版本待统一]
+        D2[Maven Wrapper]
         D3[微信开发者工具]
     end
 ```
@@ -66,7 +71,7 @@ graph TB
 └─────────┼────────────────┼────────────────┼──────────┘
           │                │                │
 ┌─────────▼────────────────▼────────────────▼──────────┐
-│                    MODEL 层 (JPA Entity)               │
+│                    ENTITY 层 (JPA Entity)              │
 │  ┌────────────────┐  ┌────────────────────────┐       │
 │  │ FoodCategory   │──│ FoodItem               │       │
 │  │ • id           │  │ • id, name, unit       │       │
@@ -101,7 +106,7 @@ graph TB
   Service 解析 foodItem.id → 加载 FoodItem 实体
        │
        ▼
-  Repository 保存 MealRecord 到 MySQL
+  Repository 保存 MealRecord 到 PostgreSQL
        │
        ▼
   返回完整 MealRecord (含 FoodItem 关联)
@@ -140,9 +145,9 @@ graph TB
         → Service (业务逻辑、数据聚合)
         → Repository (JPA 查询)
         → Entity (Hibernate 映射)
-        → MySQL
+        → PostgreSQL
 
-响应: → MySQL
+响应: → PostgreSQL
         → Entity + Hibernate 关联加载
         → JSON 序列化 (Jackson)
         → HTTP Response
@@ -170,8 +175,8 @@ TabBar 导航:
 │            │                      │ │ 后端    │ │
 │            │                      │ │ :8080  │ │
 │            │                      │ ├────────┤ │
-│            │                      │ │ MySQL  │ │
-│            │                      │ │ :3306  │ │
+│            │                      │ │Postgres│ │
+│            │                      │ │ :5432  │ │
 └────────────┘                      │ └────────┘ │
                                     └────────────┘
 ```
@@ -179,7 +184,7 @@ TabBar 导航:
 ## 代码结构依赖关系
 
 ```
-controller/  →  service/  →  repository/  →  model/
+controller/  →  service/  →  repository/  →  entity/
     │               │             │
     │          ┌────┘             │
     │          │                  │

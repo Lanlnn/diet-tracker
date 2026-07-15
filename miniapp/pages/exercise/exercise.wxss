@@ -1,0 +1,13 @@
+.eyebrow { margin-top: 12rpx; color: #D99B54; font-size: 22rpx; font-weight: 600; letter-spacing: 3rpx; }
+.page-title { margin: 12rpx 0 32rpx; color: #222820; font-size: 48rpx; font-weight: 650; }
+.hero-card { padding: 44rpx 40rpx; color: #FFFDF8; background: #294E3B; border-radius: 48rpx; }
+.hero-value { font-size: 88rpx; font-weight: 650; line-height: 1; }
+.hero-unit { margin-left: 10rpx; font-size: 26rpx; opacity: .72; }
+.hero-meta { display: block; margin-top: 18rpx; font-size: 26rpx; opacity: .72; }
+.recommendation { display: flex; align-items: center; justify-content: space-between; min-height: 112rpx; border-bottom: 1rpx solid #E9E4DA; }
+.recommendation:last-child { border-bottom: 0; }
+.recommendation__name,.recommendation__meta { display: block; }
+.recommendation__name { color: #222820; font-size: 30rpx; font-weight: 600; }
+.recommendation__meta { margin-top: 8rpx; color: #8A8D84; font-size: 24rpx; }
+.recommendation__arrow { color: #8A8D84; font-size: 42rpx; }
+.action { margin-top: 28rpx; }

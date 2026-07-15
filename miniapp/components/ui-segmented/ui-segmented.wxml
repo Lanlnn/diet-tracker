@@ -1,0 +1,1 @@
+<view class="segmented"><view wx:for="{{options}}" wx:key="value" class="segmented__item {{value === item.value ? 'segmented__item--active' : ''}}" data-value="{{item.value}}" bindtap="select">{{item.label}}</view></view>

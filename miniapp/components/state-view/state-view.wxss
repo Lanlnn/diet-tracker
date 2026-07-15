@@ -1,0 +1,7 @@
+.state-view { box-sizing: border-box; width: 100%; padding: 72rpx 24rpx; text-align: center; }
+.state-view__icon { width: 72rpx; height: 72rpx; margin: 0 auto 20rpx; color: #294E3B; font-size: 44rpx; line-height: 72rpx; background: #E4EADD; border-radius: 50%; }
+.state-view__title,.state-view__message { display: block; }
+.state-view__title { color: #222820; font-size: 30rpx; font-weight: 600; }
+.state-view__message { margin-top: 12rpx; color: #8A8D84; font-size: 24rpx; line-height: 1.6; }
+.state-view__retry { min-width: 176rpx; min-height: 88rpx; margin-top: 28rpx; color: #FFFDF8; font-size: 26rpx; line-height: 88rpx; background: #294E3B; border-radius: 44rpx; }
+.state-view__retry::after { border: 0; }

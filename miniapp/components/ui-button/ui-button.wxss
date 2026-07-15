@@ -1,0 +1,6 @@
+.ui-button { box-sizing: border-box; width: 100%; min-height: 88rpx; margin: 0; padding: 20rpx 32rpx; font-size: 28rpx; font-weight: 600; line-height: 48rpx; border-radius: 44rpx; }
+.ui-button::after { border: 0; }
+.ui-button--primary { color: #FFFDF8; background: #294E3B; }
+.ui-button--secondary { color: #294E3B; background: #E4EADD; }
+.ui-button--pressed { opacity: .86; transform: scale(.99); }
+.ui-button--disabled { opacity: .42; }

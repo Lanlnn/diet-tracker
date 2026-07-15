@@ -1,0 +1,28 @@
+/* M1 design tokens: 1rpx equals half a design pixel on a 750rpx canvas. */
+page {
+  --color-bg: #F7F3EA;
+  --color-surface: #FFFDF8;
+  --color-primary: #294E3B;
+  --color-primary-pressed: #1F3C2D;
+  --color-accent: #D99B54;
+  --color-accent-soft: #F4E4CC;
+  --color-text: #222820;
+  --color-text-secondary: #5F665D;
+  --color-text-tertiary: #8A8D84;
+  --color-border: #E9E4DA;
+  --color-error: #B65346;
+  --font-display: 56rpx;
+  --font-title: 34rpx;
+  --font-body: 28rpx;
+  --font-caption: 24rpx;
+  --space-1: 8rpx;
+  --space-2: 16rpx;
+  --space-3: 24rpx;
+  --space-4: 32rpx;
+  --space-5: 48rpx;
+  --radius-sm: 20rpx;
+  --radius-md: 32rpx;
+  --radius-card: 44rpx;
+  --shadow-card: 0 10rpx 30rpx rgba(52, 61, 49, 0.06);
+  --tap-min: 88rpx;
+}

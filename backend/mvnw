@@ -21,6 +21,20 @@
 MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-$(cd "$(dirname "$0")" && pwd)}
 MAVEN_WRAPPER_JAR="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar"
 
+if [ -z "${JAVA_HOME:-}" ]; then
+  if [ -x /usr/libexec/java_home ]; then
+    JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
+  else
+    JAVA_BIN=$(command -v java 2>/dev/null || true)
+    [ -n "$JAVA_BIN" ] && JAVA_HOME=$(cd "$(dirname "$JAVA_BIN")/.." && pwd)
+  fi
+fi
+
+if [ -z "${JAVA_HOME:-}" ] || [ ! -x "$JAVA_HOME/bin/java" ]; then
+  echo "Java 17 is required. Set JAVA_HOME to a valid JDK installation." >&2
+  exit 1
+fi
+
 if [ ! -f "$MAVEN_WRAPPER_JAR" ]; then
   echo "- Downloading maven-wrapper.jar"
   curl -sS -o "$MAVEN_WRAPPER_JAR" "https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar"
