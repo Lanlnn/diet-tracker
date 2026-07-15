@@ -1,174 +1,218 @@
 const api = require('../../services/index');
-const date = require('../../shared/date');
-const { MEAL_TYPE_OPTIONS } = require('../../shared/meal-types');
+
+const SCOPES = [
+  { value: 'common', label: '常用' },
+  { value: 'recent', label: '最近' },
+  { value: 'favorite', label: '收藏' }
+];
+
+const FOOD_ICONS = {
+  鸡胸肉: '/assets/foods/chicken.png',
+  水煮蛋: '/assets/foods/egg.png',
+  鸡蛋: '/assets/foods/egg.png',
+  米饭: '/assets/foods/rice.png',
+  西兰花: '/assets/foods/broccoli.png',
+  无糖酸奶: '/assets/foods/milk.png',
+  酸奶: '/assets/foods/milk.png'
+};
 
 Page({
   data: {
-    date: date.getToday(),
-    mealTypeOptions: MEAL_TYPE_OPTIONS,
-    mealTypeIndex: 0,
-    categories: [],
-    categoryIndex: 0,
+    scopes: SCOPES,
+    activeScope: 'common',
+    keyword: '',
+    status: 'loading',
+    errorMessage: '',
     foods: [],
-    selectedFood: null,
-    quantity: 1,
-
-    // 自定义食物模式
-    customMode: false,
-    customFoodName: '',
-    customUnit: '份',
-    customCalories: '',
-    customProtein: '',
-    customFat: '',
-    customCarbs: ''
+    page: 0,
+    hasMore: false,
+    loadingMore: false,
+    recentCombination: null,
+    customOpen: false,
+    submitting: false,
+    customFood: {
+      name: '', calories: '', protein: '', fat: '', carbs: ''
+    }
   },
 
   onLoad() {
-    this.loadCategories();
+    this._requestVersion = 0;
+    this.loadFoods(true);
+    this.loadRecentCombination();
   },
 
-  loadCategories() {
-    api.getCategories().then(categories => {
-      this.setData({ categories: categories || [] });
-      if (categories && categories.length > 0) {
-        this.loadFoods(categories[0].id);
-      }
-    }).catch(() => {
-      wx.showToast({ title: '加载分类失败', icon: 'none' });
+  onUnload() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+  },
+
+  goBack() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
+  onSearchInput(event) {
+    const keyword = event.detail.value;
+    this.setData({ keyword });
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => this.loadFoods(true), 300);
+  },
+
+  clearSearch() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this.setData({ keyword: '' }, () => this.loadFoods(true));
+  },
+
+  selectScope(event) {
+    const scope = event.currentTarget.dataset.scope;
+    if (!scope || scope === this.data.activeScope) return;
+    this.setData({ activeScope: scope, keyword: '' }, () => this.loadFoods(true));
+  },
+
+  loadFoods(reset) {
+    const version = ++this._requestVersion;
+    const page = reset ? 0 : this.data.page + 1;
+    const keyword = String(this.data.keyword || '').trim();
+    if (reset) this.setData({ status: 'loading', foods: [], page: 0, errorMessage: '' });
+    else this.setData({ loadingMore: true });
+
+    const task = keyword
+      ? api.searchFood(keyword, page, 20)
+      : api.getFoods({ scope: this.data.activeScope, page, size: 20 });
+
+    task.then(result => {
+      if (version !== this._requestVersion) return;
+      const next = (result.items || []).map(item => this.presentFood(item));
+      const foods = reset ? next : this.data.foods.concat(next);
+      this.setData({
+        foods,
+        page: result.page || page,
+        hasMore: Boolean(result.hasMore),
+        loadingMore: false,
+        status: foods.length ? 'success' : 'empty'
+      });
+    }).catch(error => {
+      if (version !== this._requestVersion) return;
+      this.setData({
+        status: reset ? 'error' : this.data.status,
+        loadingMore: false,
+        errorMessage: error.message || '食品加载失败，请稍后重试'
+      });
     });
   },
 
-  loadFoods(categoryId) {
-    api.getFoods(categoryId).then(foods => {
-      foods = foods || [];
-      this.setData({ foods, selectedFood: foods.length > 0 ? foods[0] : null });
-    }).catch(() => {
-      this.setData({ foods: [], selectedFood: null });
+  loadMore() {
+    if (!this.data.hasMore || this.data.loadingMore) return;
+    this.loadFoods(false);
+  },
+
+  loadRecentCombination() {
+    api.getFoods({ scope: 'recent', page: 0, size: 2 }).then(result => {
+      const items = result.items || [];
+      if (!items.length) return;
+      this.setData({
+        recentCombination: {
+          names: items.map(item => item.name).join(' · '),
+          calories: items.reduce((sum, item) => sum + Number(item.calories || 0), 0).toFixed(0),
+          foodId: items[0].id,
+          foodName: items[0].name
+        }
+      });
+    }).catch(() => {});
+  },
+
+  presentFood(food) {
+    return {
+      ...food,
+      iconPath: FOOD_ICONS[food.name] || '',
+      initial: String(food.name || '食').slice(0, 1),
+      basisLabel: this.formatNumber(food.baseAmount || 100) + (food.baseUnit || 'g'),
+      calorieLabel: this.formatNumber(food.calories || 0)
+    };
+  },
+
+  formatNumber(value) {
+    const number = Number(value || 0);
+    return Number.isInteger(number) ? String(number) : number.toFixed(1);
+  },
+
+  selectFood(event) {
+    const id = event.currentTarget.dataset.id;
+    const name = event.currentTarget.dataset.name || '';
+    wx.navigateTo({
+      url: '/packageFood/pages/calorie-calculator/calorie-calculator?id=' + id + '&name=' + encodeURIComponent(name)
     });
   },
 
-  onDateChange(e) {
-    this.setData({ date: e.detail.value });
-  },
-
-  onMealTypeChange(e) {
-    this.setData({ mealTypeIndex: e.detail.value });
-  },
-
-  onCategoryChange(e) {
-    const idx = e.detail.value;
-    this.setData({ categoryIndex: idx });
-    const cat = this.data.categories[idx];
-    if (cat) this.loadFoods(cat.id);
-  },
-
-  onFoodChange(e) {
-    const idx = e.detail.value;
-    this.setData({ selectedFood: this.data.foods[idx] });
-  },
-
-  toggleCustom() {
-    this.setData({ customMode: !this.data.customMode });
-  },
-
-  onCustomNameInput(e) {
-    this.setData({ customFoodName: e.detail.value });
-  },
-
-  onCustomUnitInput(e) {
-    this.setData({ customUnit: e.detail.value || '份' });
-  },
-
-  onCustomCaloriesInput(e) {
-    this.setData({ customCalories: e.detail.value });
-  },
-
-  onCustomProteinInput(e) {
-    this.setData({ customProtein: e.detail.value });
-  },
-
-  onCustomFatInput(e) {
-    this.setData({ customFat: e.detail.value });
-  },
-
-  onCustomCarbsInput(e) {
-    this.setData({ customCarbs: e.detail.value });
-  },
-
-  decreaseQty() {
-    if (this.data.quantity > 0.5) {
-      this.setData({ quantity: this.data.quantity - 0.5 });
-    }
-  },
-
-  increaseQty() {
-    this.setData({ quantity: this.data.quantity + 0.5 });
-  },
-
-  onQtyInput(e) {
-    this.setData({ quantity: parseFloat(e.detail.value) || 1 });
-  },
-
-  submitRecord() {
-    const that = this;
-    const { date, mealTypeIndex, quantity, customMode, customFoodName, customUnit,
-            customCalories, customProtein, customFat, customCarbs } = this.data;
-
-    if (customMode) {
-      // 自定义食物模式
-      if (!customFoodName.trim()) {
-        wx.showToast({ title: '请输入食物名称', icon: 'none' });
-        return;
+  toggleFavorite(event) {
+    const id = Number(event.currentTarget.dataset.id);
+    const index = this.data.foods.findIndex(item => item.id === id);
+    if (index < 0) return;
+    const current = this.data.foods[index];
+    api.setFoodFavorite(id, !current.favorite).then(updated => {
+      if (this.data.activeScope === 'favorite' && !updated.favorite && !this.data.keyword) {
+        const foods = this.data.foods.filter(item => item.id !== id);
+        this.setData({ foods, status: foods.length ? 'success' : 'empty' });
+      } else {
+        this.setData({ ['foods[' + index + '].favorite']: updated.favorite });
       }
+      wx.showToast({ title: updated.favorite ? '已收藏' : '已取消收藏', icon: 'none' });
+    }).catch(error => wx.showToast({ title: error.message || '操作失败', icon: 'none' }));
+  },
 
-      wx.showLoading({ title: '保存中...' });
+  openPhoto() {
+    wx.showModal({
+      title: '拍照留存',
+      content: '照片仅用于饮食留存，不进行食物识别或热量估算。该能力将在后续阶段接入。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+  },
 
-      // 先创建自定义食物
-      api.addFoodItem({
-        name: customFoodName.trim(),
-        unit: customUnit,
-        calories: parseFloat(customCalories) || 0,
-        protein: parseFloat(customProtein) || 0,
-        fat: parseFloat(customFat) || 0,
-        carbs: parseFloat(customCarbs) || 0
-      }).then(food => {
-        // 再创建饮食记录
-        return api.addRecord({
-          mealDate: date,
-          mealType: that.data.mealTypeOptions[mealTypeIndex].value,
-          foodItemId: food.id,
-          quantity: quantity,
-          unit: customUnit,
-          recordTime: new Date().toISOString()
-        });
-      }).then(() => {
-        wx.hideLoading();
-        wx.showToast({ title: '记录成功 🎉', icon: 'success' });
-        setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1500);
-      }).catch(() => {
-        wx.hideLoading();
-        wx.showToast({ title: '保存失败', icon: 'none' });
-      });
-    } else {
-      // 已有食物模式
-      if (!this.data.selectedFood) {
-        wx.showToast({ title: '请选择食物', icon: 'none' });
-        return;
-      }
+  openCustomFood() {
+    this.setData({ customOpen: true });
+  },
 
-      api.addRecord({
-        mealDate: date,
-        mealType: this.data.mealTypeOptions[mealTypeIndex].value,
-        foodItemId: this.data.selectedFood.id,
-        quantity: quantity,
-        unit: this.data.selectedFood.unit,
-        recordTime: new Date().toISOString()
-      }).then(() => {
-        wx.showToast({ title: '记录成功 🎉', icon: 'success' });
-        setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1500);
-      }).catch(() => {
-        wx.showToast({ title: '记录失败', icon: 'none' });
-      });
+  closeCustomFood() {
+    if (!this.data.submitting) this.setData({ customOpen: false });
+  },
+
+  stopPropagation() {},
+
+  onCustomInput(event) {
+    const field = event.currentTarget.dataset.field;
+    this.setData({ ['customFood.' + field]: event.detail.value });
+  },
+
+  submitCustomFood() {
+    if (this.data.submitting) return;
+    const value = this.data.customFood;
+    const name = String(value.name || '').trim();
+    if (!name) {
+      wx.showToast({ title: '请输入食物名称', icon: 'none' });
+      return;
     }
+    this.setData({ submitting: true });
+    api.addFoodItem({
+      name,
+      baseAmount: 100,
+      baseUnit: 'g',
+      unit: 'g',
+      calories: Number(value.calories || 0),
+      protein: Number(value.protein || 0),
+      fat: Number(value.fat || 0),
+      carbs: Number(value.carbs || 0)
+    }).then(food => {
+      this.setData({
+        submitting: false,
+        customOpen: false,
+        keyword: name,
+        customFood: { name: '', calories: '', protein: '', fat: '', carbs: '' }
+      }, () => this.loadFoods(true));
+      wx.showToast({ title: '自定义食物已创建', icon: 'success' });
+    }).catch(error => {
+      this.setData({ submitting: false });
+      const fields = error.fieldErrors || {};
+      const first = Object.keys(fields).map(key => fields[key])[0];
+      wx.showToast({ title: first || error.message || '创建失败', icon: 'none' });
+    });
   }
 });

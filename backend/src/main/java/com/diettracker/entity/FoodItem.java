@@ -18,6 +18,16 @@ public class FoodItem {
     private BigDecimal protein;
     private BigDecimal fat;
     private BigDecimal carbs;
+    @Column(name = "base_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal baseAmount = new BigDecimal("100");
+    @Column(name = "base_unit", nullable = false, length = 20)
+    private String baseUnit = "g";
+    @Column(name = "serving_amount", precision = 10, scale = 2)
+    private BigDecimal servingAmount;
+    @Column(name = "serving_unit", length = 20)
+    private String servingUnit;
+    @Column(nullable = false, length = 30)
+    private String source = "SYSTEM";
     @Column(name = "user_id", length = 100)
     private String userId;
     @Column(name = "created_at", updatable = false)
@@ -49,6 +59,16 @@ public class FoodItem {
     public void setFat(BigDecimal f) { this.fat = f; }
     public BigDecimal getCarbs() { return carbs; }
     public void setCarbs(BigDecimal c) { this.carbs = c; }
+    public BigDecimal getBaseAmount() { return baseAmount; }
+    public void setBaseAmount(BigDecimal value) { this.baseAmount = value; }
+    public String getBaseUnit() { return baseUnit; }
+    public void setBaseUnit(String value) { this.baseUnit = value; }
+    public BigDecimal getServingAmount() { return servingAmount; }
+    public void setServingAmount(BigDecimal value) { this.servingAmount = value; }
+    public String getServingUnit() { return servingUnit; }
+    public void setServingUnit(String value) { this.servingUnit = value; }
+    public String getSource() { return source; }
+    public void setSource(String value) { this.source = value; }
     public String getUserId() { return userId; }
     public void setUserId(String u) { this.userId = u; }
     public LocalDateTime getCreatedAt() { return createdAt; }

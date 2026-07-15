@@ -1,0 +1,8 @@
+<view class="calculator-shell">
+  <view class="food-summary">
+    <text class="eyebrow">已选择食品</text>
+    <text class="food-name">{{foodName || '食品'}}</text>
+    <text class="stage-note">克数输入、营养实时计算和保存记录将在 M4 完成。</text>
+  </view>
+  <button class="return-button" bindtap="returnToSearch">返回食品列表</button>
+</view>

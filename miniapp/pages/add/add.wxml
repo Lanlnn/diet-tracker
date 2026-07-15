@@ -1,95 +1,77 @@
-<wxs src="../../shared/format.wxs" module="fmt" />
-<view class="container">
-  <view class="card">
-    <view class="form-item">
-      <text class="form-label">日期</text>
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="picker">{{date}}</view>
-      </picker>
+<view class="record-page">
+  <view class="record-header">
+    <view class="back-button" bindtap="goBack"><image src="/assets/icons/chevron-left.svg" mode="aspectFit" /></view>
+    <text class="record-title">记录饮食</text>
+    <view class="header-spacer"></view>
+  </view>
+
+  <view class="search-box">
+    <icon type="search" size="18" color="#8A8D84" />
+    <input class="search-input" value="{{keyword}}" placeholder="搜索食物或菜品" placeholder-class="search-placeholder" bindinput="onSearchInput" />
+    <icon wx:if="{{keyword}}" type="clear" size="18" color="#8A8D84" bindtap="clearSearch" />
+  </view>
+
+  <view class="quick-actions">
+    <view class="quick-card" bindtap="openPhoto">
+      <view class="quick-icon"><image src="/assets/icons/camera.svg" mode="aspectFit" /></view>
+      <view><text class="quick-title">拍照留存</text><text class="quick-note">仅保存饮食照片</text></view>
     </view>
-
-    <view class="form-item">
-      <text class="form-label">餐次</text>
-      <picker mode="selector" range="{{mealTypeOptions}}" range-key="label" bindchange="onMealTypeChange">
-        <view class="picker">{{mealTypeOptions[mealTypeIndex].label}}</view>
-      </picker>
+    <view class="quick-card" bindtap="openCustomFood">
+      <view class="quick-icon"><image src="/assets/icons/plus.svg" mode="aspectFit" /></view>
+      <view><text class="quick-title">自定义食物</text><text class="quick-note">录入营养数据</text></view>
     </view>
+  </view>
 
-    <!-- 切换按钮 -->
-    <view class="toggle-bar">
-      <view class="toggle-btn {{!customMode ? 'active' : ''}}" bindtap="toggleCustom" data-mode="picker">
-        <text>从列表选择</text>
-      </view>
-      <view class="toggle-btn {{customMode ? 'active' : ''}}" bindtap="toggleCustom" data-mode="custom">
-        <text>自定义食物</text>
-      </view>
+  <view class="scope-tabs">
+    <view wx:for="{{scopes}}" wx:key="value" class="scope-tab {{activeScope === item.value ? 'active' : ''}}" data-scope="{{item.value}}" bindtap="selectScope">{{item.label}}</view>
+  </view>
+
+  <view class="food-panel">
+    <state-view wx:if="{{status === 'loading'}}" state="loading" title="正在准备食品列表" message="稍等一下" />
+    <state-view wx:elif="{{status === 'error'}}" state="error" title="食品加载失败" message="{{errorMessage}}" bind:retry="loadFoods" />
+    <view wx:elif="{{status === 'empty'}}" class="empty-foods">
+      <text class="empty-title">{{keyword ? '没有找到“' + keyword + '”' : '这里还没有食品'}}</text>
+      <text class="empty-note">{{keyword ? '可以创建一条自定义食物' : '记录过的食品会出现在这里'}}</text>
+      <button wx:if="{{keyword}}" class="empty-action" bindtap="openCustomFood">创建自定义食物</button>
     </view>
-
-    <!-- 从列表选择模式 -->
-    <block wx:if="{{!customMode}}">
-      <view class="form-item">
-        <text class="form-label">食物分类</text>
-        <picker mode="selector" range="{{categories}}" range-key="name" bindchange="onCategoryChange">
-          <view class="picker">{{categories[categoryIndex] ? categories[categoryIndex].name : '请选择'}}</view>
-        </picker>
+    <block wx:else>
+      <view wx:for="{{foods}}" wx:key="id" class="food-row" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="selectFood">
+        <view class="food-icon">
+          <image wx:if="{{item.iconPath}}" src="{{item.iconPath}}" mode="aspectFit" />
+          <text wx:else>{{item.initial}}</text>
+        </view>
+        <view class="food-copy">
+          <view class="food-name-line"><text class="food-name">{{item.name}}</text><text wx:if="{{item.custom}}" class="custom-tag">自定义</text></view>
+          <text class="food-meta">{{item.calorieLabel}} 千卡 / {{item.basisLabel}}</text>
+        </view>
+        <view class="add-button"><image src="/assets/icons/plus.svg" mode="aspectFit" /></view>
       </view>
-
-      <view class="form-item">
-        <text class="form-label">食物</text>
-        <picker mode="selector" range="{{foods}}" range-key="name" bindchange="onFoodChange">
-          <view class="picker">{{selectedFood ? selectedFood.name : '请选择'}}</view>
-        </picker>
-      </view>
-
-      <view wx:if="{{selectedFood}}" class="nutrition-preview">
-        <text>热量: {{fmt.mulFixed(selectedFood.calories, quantity, 0)}} kcal</text>
-        <text>蛋白质: {{fmt.mulFixed(selectedFood.protein, quantity, 1)}}g</text>
-        <text>脂肪: {{fmt.mulFixed(selectedFood.fat, quantity, 1)}}g</text>
-        <text>碳水: {{fmt.mulFixed(selectedFood.carbs, quantity, 1)}}g</text>
-      </view>
+      <button wx:if="{{hasMore}}" class="load-more" loading="{{loadingMore}}" bindtap="loadMore">{{loadingMore ? '加载中' : '查看更多'}}</button>
     </block>
+  </view>
 
-    <!-- 自定义食物模式 -->
-    <block wx:if="{{customMode}}">
-      <view class="form-item">
-        <text class="form-label">食物名称 <text class="required">*</text></text>
-        <input class="custom-input" type="text" placeholder="例如：三明治" value="{{customFoodName}}" bindinput="onCustomNameInput" />
-      </view>
-      <view class="form-item">
-        <text class="form-label">单位</text>
-        <input class="custom-input" type="text" placeholder="份" value="{{customUnit}}" bindinput="onCustomUnitInput" />
-      </view>
-
-      <view class="nutrition-grid">
-        <view class="nutri-item">
-          <text class="nutri-label">热量 (kcal)</text>
-          <input class="nutri-input" type="digit" placeholder="可选" value="{{customCalories}}" bindinput="onCustomCaloriesInput" />
-        </view>
-        <view class="nutri-item">
-          <text class="nutri-label">蛋白质 (g)</text>
-          <input class="nutri-input" type="digit" placeholder="可选" value="{{customProtein}}" bindinput="onCustomProteinInput" />
-        </view>
-        <view class="nutri-item">
-          <text class="nutri-label">脂肪 (g)</text>
-          <input class="nutri-input" type="digit" placeholder="可选" value="{{customFat}}" bindinput="onCustomFatInput" />
-        </view>
-        <view class="nutri-item">
-          <text class="nutri-label">碳水 (g)</text>
-          <input class="nutri-input" type="digit" placeholder="可选" value="{{customCarbs}}" bindinput="onCustomCarbsInput" />
-        </view>
-      </view>
-    </block>
-
-    <!-- 数量 -->
-    <view class="form-item" style="margin-top: 20rpx">
-      <text class="form-label">数量（{{customMode ? customUnit : (selectedFood ? selectedFood.unit : '份')}}）</text>
-      <view class="qty-control">
-        <text class="qty-btn" bindtap="decreaseQty">-</text>
-        <input class="qty-input" type="number" value="{{quantity}}" bindinput="onQtyInput" />
-        <text class="qty-btn" bindtap="increaseQty">+</text>
-      </view>
+  <view class="combination-section">
+    <view class="combination-heading"><text>最近组合</text><text class="manage-label">管理</text></view>
+    <view wx:if="{{recentCombination}}" class="combination-card" data-id="{{recentCombination.foodId}}" data-name="{{recentCombination.foodName}}" bindtap="selectFood">
+      <text class="combination-name">{{recentCombination.names}}</text>
+      <view class="combination-value"><text>{{recentCombination.calories}} 千卡</text><image src="/assets/icons/plus.svg" mode="aspectFit" /></view>
     </view>
+    <view wx:else class="combination-empty">完成饮食记录后，可快速复用最近组合</view>
+  </view>
 
-    <button class="btn-primary submit-btn" bindtap="submitRecord">提交记录</button>
+  <view wx:if="{{customOpen}}" class="sheet-mask" catchtap="closeCustomFood">
+    <view class="custom-sheet" catchtap="stopPropagation">
+      <view class="sheet-handle"></view>
+      <view class="sheet-heading"><text>创建自定义食物</text><text class="sheet-close" bindtap="closeCustomFood">关闭</text></view>
+      <text class="sheet-note">营养数据统一按每 100g 填写</text>
+      <view class="field"><text class="field-label">食物名称</text><input class="field-input" placeholder="例如：低脂鸡肉卷" value="{{customFood.name}}" data-field="name" bindinput="onCustomInput" maxlength="100" /></view>
+      <view class="field"><text class="field-label">热量（千卡）</text><input class="field-input" type="digit" placeholder="0" value="{{customFood.calories}}" data-field="calories" bindinput="onCustomInput" /></view>
+      <view class="nutrition-fields">
+        <view class="field"><text class="field-label">蛋白质（g）</text><input class="field-input" type="digit" placeholder="0" value="{{customFood.protein}}" data-field="protein" bindinput="onCustomInput" /></view>
+        <view class="field"><text class="field-label">脂肪（g）</text><input class="field-input" type="digit" placeholder="0" value="{{customFood.fat}}" data-field="fat" bindinput="onCustomInput" /></view>
+        <view class="field"><text class="field-label">碳水（g）</text><input class="field-input" type="digit" placeholder="0" value="{{customFood.carbs}}" data-field="carbs" bindinput="onCustomInput" /></view>
+      </view>
+      <button class="save-custom" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitCustomFood">{{submitting ? '创建中' : '创建食物'}}</button>
+    </view>
   </view>
 </view>
