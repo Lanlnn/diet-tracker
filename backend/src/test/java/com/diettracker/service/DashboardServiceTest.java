@@ -4,6 +4,7 @@ import com.diettracker.dto.DashboardTodayResponse;
 import com.diettracker.entity.MealRecord;
 import com.diettracker.entity.User;
 import com.diettracker.repository.MealRecordRepository;
+import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ class DashboardServiceTest {
     void readsOneRecordSnapshotAndDoesNotReturnExerciseCaloriesToRemaining() {
         MealRecordRepository records = mock(MealRecordRepository.class);
         UserRepository users = mock(UserRepository.class);
+        ExerciseRecordRepository exercises = mock(ExerciseRecordRepository.class);
         LocalDate date = LocalDate.of(2026, 7, 15);
         User user = new User();
         user.setOpenid("user-a");
@@ -29,8 +31,9 @@ class DashboardServiceTest {
         MealRecord meal = meal(new BigDecimal("700"));
         when(users.findById("user-a")).thenReturn(Optional.of(user));
         when(records.findByUserIdAndMealDateOrderByRecordTimeAsc("user-a", date)).thenReturn(List.of(meal));
+        when(exercises.findByUserIdAndExerciseDateOrderByStartTimeAscIdAsc("user-a", date)).thenReturn(List.of());
 
-        DashboardTodayResponse response = new DashboardService(records, users).getToday(date, "user-a");
+        DashboardTodayResponse response = new DashboardService(records, users, exercises).getToday(date, "user-a");
 
         assertThat(response.intakeCalories()).isEqualByComparingTo("1155");
         assertThat(response.remainingCalories()).isEqualByComparingTo("0");

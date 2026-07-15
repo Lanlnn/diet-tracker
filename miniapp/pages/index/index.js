@@ -21,6 +21,7 @@ Page({
     refreshing: false,
     dashboard: EMPTY_DASHBOARD,
     ringDegrees: 0,
+    ringStep: 0,
     remainingLabel: '1,800',
     intakeLabel: '0',
     goalLabel: '1,800',
@@ -95,6 +96,7 @@ Page({
       exceededLabel: this.formatNumber(exceeded, 0),
       calorieStatus: exceeded > 0 ? '今日已超出 ' + this.formatNumber(exceeded, 0) + ' 千卡' : (intake ? '状态良好' : '等待第一笔记录'),
       ringDegrees: Math.round(progress * 360),
+      ringStep: Math.round(progress * 20),
       nutritionState: dashboard.nutrition ? 'success' : 'error',
       exerciseState: dashboard.exercise ? (dashboard.exercise.completedCount ? 'success' : 'empty') : 'error',
       mealsState: Array.isArray(dashboard.meals) ? (recordedMealCount ? 'success' : 'empty') : 'error',
@@ -112,7 +114,8 @@ Page({
       tone,
       amountLabel: this.formatNumber(value.amount, 1) + 'g',
       progressLabel: Math.max(Number(value.progressPercent || 0), 0) + '%',
-      progressWidth: Math.min(Math.max(Number(value.progressPercent || 0), 0), 100)
+      progressWidth: Math.min(Math.max(Number(value.progressPercent || 0), 0), 100),
+      progressStep: Math.round(Math.min(Math.max(Number(value.progressPercent || 0), 0), 100) / 5)
     };
   },
 

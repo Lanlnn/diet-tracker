@@ -65,6 +65,7 @@ function response(overrides = {}) {
   assert.equal(page.data.remainingLabel, '560');
   assert.equal(page.data.intakeLabel, '1,240');
   assert.equal(page.data.ringDegrees, 248);
+  assert.equal(page.data.ringStep, 14);
   assert.equal(page.data.recordedMealCount, 3);
   assert.equal(page.data.exerciseState, 'empty');
   assert.equal(page.data.nutritionItems[1].amountLabel, '86g');

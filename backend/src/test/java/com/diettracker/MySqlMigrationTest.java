@@ -29,7 +29,7 @@ class MySqlMigrationTest {
                 "SELECT COUNT(*) FROM food_item WHERE name = '鸡胸肉' AND user_id IS NULL",
                 Integer.class);
 
-        assertThat(migrationVersion).isEqualTo(6);
+        assertThat(migrationVersion).isEqualTo(7);
         assertThat(categoryCount).isGreaterThanOrEqualTo(7);
         assertThat(systemFoodCount).isGreaterThanOrEqualTo(48);
         assertThat(chickenCount).isGreaterThanOrEqualTo(1);

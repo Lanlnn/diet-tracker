@@ -1,1 +1,75 @@
-<view class="container"><view class="eyebrow">TODAY · MOVE</view><view class="page-title">今天动一动</view><view class="hero-card"><view><text class="hero-value">{{completedMinutes}}</text><text class="hero-unit">分钟</text></view><text class="hero-meta">已消耗 {{burnedCalories}} kcal</text></view><view class="section-title">为你推荐</view><ui-card><view wx:for="{{recommendations}}" wx:key="name" class="recommendation"><view><text class="recommendation__name">{{item.name}}</text><text class="recommendation__meta">{{item.meta}}</text></view><text class="recommendation__arrow">›</text></view></ui-card><view class="action"><ui-button text="添加运动" bind:tap="addExercise" /></view></view>
+<view class="exercise-page">
+  <view class="page-header">
+    <view><text class="date-label">{{dateLabel}}</text><text class="page-title">运动</text></view>
+    <view class="calendar-button"><image src="/assets/icons/calendar.svg" mode="aspectFit" /></view>
+  </view>
+
+  <state-view wx:if="{{status === 'loading'}}" state="loading" title="正在准备今日运动" message="稍等一下" />
+  <state-view wx:elif="{{status === 'error'}}" state="error" title="运动数据加载失败" message="{{errorMessage}}" bind:retry="retry" />
+
+  <block wx:else>
+    <view wx:if="{{refreshing}}" class="refresh-note">正在同步最新数据…</view>
+    <view class="hero-card">
+      <view class="hero-copy">
+        <text class="hero-label">今日活动消耗</text>
+        <view><text class="hero-value">{{totalCaloriesLabel}}</text><text class="hero-unit">千卡</text></view>
+        <text class="hero-meta">已运动 {{totalDuration}} 分钟</text>
+      </view>
+      <view class="hero-icon">🏃</view>
+    </view>
+
+    <view class="section-heading"><text>今天做了什么</text><text class="section-action" bindtap="openAdd">添加运动</text></view>
+    <view wx:if="{{records.length}}" class="record-panel">
+      <view wx:for="{{records}}" wx:key="id" class="record-row" data-id="{{item.id}}" bindtap="openEdit">
+        <view class="record-icon">{{item.icon}}</view>
+        <view class="record-copy">
+          <text class="record-name">{{item.typeLabel}}</text>
+          <text class="record-meta">{{item.timeLabel}} · {{item.intensityLabel}}</text>
+        </view>
+        <view class="record-stats"><text class="record-calories">{{item.caloriesLabel}} 千卡</text><text class="record-duration">{{item.durationMinutes}} 分钟</text></view>
+        <text class="delete-action" data-id="{{item.id}}" catchtap="confirmDelete">删除</text>
+      </view>
+    </view>
+    <view wx:else class="empty-panel">
+      <view class="empty-icon">🚶</view>
+      <text class="empty-title">从第一次轻松活动开始</text>
+      <text class="empty-note">按实际完成情况记录，消耗值可在保存前确认</text>
+      <button class="empty-button" bindtap="openAdd">添加第一次运动</button>
+    </view>
+
+    <view class="section-heading recommendation-heading"><text>为你推荐</text><text class="section-hint">根据今日记录</text></view>
+    <view class="recommendation-grid">
+      <view wx:for="{{recommendations}}" wx:key="id" class="recommendation-card {{item.tone}}" data-index="{{index}}" bindtap="openRecommendation">
+        <text class="recommendation-name">{{item.name}}</text>
+        <text class="recommendation-meta">{{item.intensityLabel}} · {{item.durationMinutes}} 分钟</text>
+        <text class="recommendation-meta">预计消耗 {{item.caloriesLabel}} 千卡</text>
+        <view class="recommendation-footer"><button>{{index ? '查看计划' : '开始活动'}}</button><text>{{item.icon}}</text></view>
+      </view>
+    </view>
+
+    <view class="section-heading weekly-heading"><text>本周</text><text class="weekly-value">{{weekly.completedDays}} / {{weekly.targetDays}} 次</text></view>
+    <view class="weekly-panel">
+      <view class="weekly-track"><view class="weekly-fill weekly-step-{{weeklyStep}}"></view></view>
+      <text>每个有运动记录的自然日计为一次完成</text>
+    </view>
+  </block>
+
+  <view wx:if="{{sheetOpen}}" class="sheet-mask" catchtap="closeSheet">
+    <view class="exercise-sheet" catchtap="stopPropagation">
+      <view class="sheet-handle"></view>
+      <view class="sheet-heading"><text>{{form.id ? '编辑运动' : '添加运动'}}</text><text class="sheet-close" bindtap="closeSheet">关闭</text></view>
+
+      <view class="field-row">
+        <view class="field half"><text class="field-label">运动类型</text><picker range="{{types}}" range-key="label" value="{{form.typeIndex}}" bindchange="onTypeChange"><view class="field-control">{{types[form.typeIndex].label}}<text>⌄</text></view></picker></view>
+        <view class="field half"><text class="field-label">开始时间</text><picker mode="time" value="{{form.startTime}}" bindchange="onTimeChange"><view class="field-control">{{form.startTime}}<text>⌄</text></view></picker></view>
+      </view>
+      <view class="field-row">
+        <view class="field half"><text class="field-label">运动时长（分钟）</text><input class="field-input" type="number" value="{{form.durationMinutes}}" data-field="durationMinutes" bindinput="onFormInput" /></view>
+        <view class="field half"><text class="field-label">运动强度</text><picker range="{{intensities}}" range-key="label" value="{{form.intensityIndex}}" bindchange="onIntensityChange"><view class="field-control">{{intensities[form.intensityIndex].label}}<text>⌄</text></view></picker></view>
+      </view>
+      <view class="field"><text class="field-label">确认消耗（千卡）</text><input class="field-input" type="digit" placeholder="建议 {{estimatedCalories}}" value="{{form.caloriesBurned}}" data-field="caloriesBurned" bindinput="onFormInput" /><text class="field-help">基于类型、时长和强度估算，可按实际设备数据调整</text></view>
+      <view class="field"><text class="field-label">备注（选填）</text><textarea class="field-textarea" maxlength="500" placeholder="记录路线、动作或感受" value="{{form.note}}" data-field="note" bindinput="onFormInput" /></view>
+      <button class="save-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitExercise">{{submitting ? '保存中' : '保存运动'}}</button>
+    </view>
+  </view>
+</view>
