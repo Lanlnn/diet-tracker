@@ -1,82 +1,86 @@
-<wxs src="../../shared/format.wxs" module="fmt" />
-<view class="container">
+<view class="today-page">
+  <view class="today-header">
+    <view>
+      <text class="date-label">{{dateLabel}}</text>
+      <text class="page-title">今天</text>
+    </view>
+    <view class="calendar-button" bindtap="openCalendar" aria-label="打开饮食日历">
+      <image class="calendar-icon" src="/assets/icons/calendar.svg" mode="aspectFit" />
+    </view>
+  </view>
+
   <state-view wx:if="{{pageState === 'loading'}}" state="loading" title="正在准备今日数据" message="稍等一下" />
-  <state-view wx:elif="{{pageState === 'error'}}" state="error" title="加载失败" message="{{errorMessage}}" bind:retry="loadData" />
+  <state-view wx:elif="{{pageState === 'error'}}" state="error" title="今日数据加载失败" message="{{errorMessage}}" bind:retry="loadData" />
+
   <block wx:else>
-  <view class="header-card">
-     <view class="profile-row">
-       <view class="avatar-wrap">
-         <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
-         <view wx:else class="avatar-placeholder">{{nickname ? nickname.slice(0,1) : '微'}}</view>
-       </view>
-       <view class="profile-info">
-         <text class="nickname">{{nickname || '微信用户'}}</text>
-         <text class="date-text">{{today}}</text>
-         <text class="greeting">{{greeting}}</text>
-       </view>
-     </view>
-  </view>
+    <view wx:if="{{errorMessage}}" class="refresh-notice" bindtap="retryModule">{{errorMessage}}· 点击重试</view>
 
-   <!-- 首次使用：获取微信头像和昵称 -->
-   <view wx:if="{{needsWechatInfo && !nickname}}" class="wechat-info-card card">
-     <view class="wechat-info-row">
-       <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-         <image wx:if="{{avatarUrl}}" class="wechat-avatar" src="{{avatarUrl}}" mode="aspectFill" />
-         <view wx:else class="wechat-avatar-placeholder">+</view>
-       </button>
-       <view class="wechat-info-fields">
-         <text class="wechat-info-label">微信头像</text>
-           <input class="nickname-input" type="nickname" placeholder="点此获取微信昵称" bindinput="onNicknameInput" />
-         <text class="wechat-info-hint">点击头像和昵称自动获取微信信息</text>
-           <view class="manual-section">
-             <view class="manual-divider">或手动填写（开发者工具测试用）</view>
-             <input class="manual-input" type="text" placeholder="输入昵称" bindinput="onManualNicknameInput" maxlength="20" />
-             <input class="manual-input" type="text" placeholder="头像URL（可选）" bindinput="onManualAvatarInput" />
-           </view>
-       </view>
-     </view>
-     <view class="wechat-save-btn" bindtap="onSaveWechatInfo">使用微信信息</view>
-   </view>
+    <view class="calorie-card">
+      <view class="calorie-main">
+        <view class="calorie-ring" style="background: conic-gradient(#6E8D62 {{ringDegrees}}deg, #E8E7E1 0deg);">
+          <view class="ring-center">
+            <text class="ring-caption">还可以吃</text>
+            <text class="ring-value">{{remainingLabel}}</text>
+            <text class="ring-unit">千卡</text>
+          </view>
+        </view>
+        <view class="calorie-copy">
+          <text class="intake-caption">今日摄入</text>
+          <text class="intake-value">{{intakeLabel}}</text>
+          <text class="goal-copy">目标 {{goalLabel}} 千卡</text>
+          <text class="status-copy {{dashboard.exceededCalories > 0 ? 'over' : ''}}">{{calorieStatus}}</text>
+          <text class="exercise-copy">运动消耗 {{exerciseLabel}} 千卡</text>
+        </view>
+      </view>
 
- <view class="summary-card card">
-    <view class="summary-row">
-      <view class="summary-item">
-        <text class="summary-num">{{stats.totalCalories}}</text>
-        <text class="summary-label">卡路里</text>
-      </view>
-      <view class="summary-item">
-        <text class="summary-num">{{stats.totalProtein}}g</text>
-        <text class="summary-label">蛋白质</text>
-      </view>
-      <view class="summary-item">
-        <text class="summary-num">{{stats.totalFat}}g</text>
-        <text class="summary-label">脂肪</text>
-      </view>
-      <view class="summary-item">
-        <text class="summary-num">{{stats.totalCarbs}}g</text>
-        <text class="summary-label">碳水</text>
+      <view class="nutrition-divider"></view>
+      <view wx:if="{{nutritionState === 'error'}}" class="module-error"><text>营养数据暂时不可用</text><text bindtap="retryModule">重试</text></view>
+      <view wx:else class="nutrition-grid">
+        <view wx:for="{{nutritionItems}}" wx:key="tone" class="nutrition-item {{item.tone}}">
+          <text class="nutrition-value">{{item.amountLabel}}</text>
+          <text class="nutrition-label">{{item.label}} · {{item.progressLabel}}</text>
+          <view class="progress-track"><view class="progress-fill" style="width: {{item.progressWidth}}%;"></view></view>
+        </view>
       </view>
     </view>
-  </view>
 
-  <view class="section-title">今日饮食</view>
-
-  <view wx:if="{{records.length === 0}}" class="empty-state">
-    <text>今天还没有记录，去记录一下吧 📝</text>
-  </view>
-
-  <view wx:for="{{mealTypes}}" wx:key="type" class="meal-section" wx:if="{{item.records.length > 0}}" data-meal="{{item.type}}" bindtap="openMeal">
-    <view class="meal-header">
-      <text class="tag {{item.tagClass}}">{{item.label}}</text>
-      <text class="meal-calories">{{item.totalCalories}} kcal</text>
+    <view class="record-actions">
+      <view class="record-button" bindtap="openRecord">{{hasRecords ? '记录一餐' : '记录第一餐'}}</view>
+      <view class="camera-button" bindtap="openCamera" aria-label="拍照留存"><image src="/assets/icons/camera.svg" mode="aspectFit" /></view>
     </view>
-    <view wx:for="{{item.records}}" wx:for-item="r" wx:key="id" class="food-row">
-      <view class="food-info">
-        <text class="food-name">{{r.displayName}}</text>
-        <text class="food-qty">{{r.quantity}}{{r.unit}}</text>
+
+    <view class="section-heading">
+      <text>今日运动</text>
+      <text class="section-link" bindtap="openExercise">查看全部</text>
+    </view>
+    <view wx:if="{{exerciseState === 'error'}}" class="module-card module-error"><text>运动摘要加载失败</text><text bindtap="retryModule">重试</text></view>
+    <view wx:elif="{{exerciseState === 'empty'}}" class="exercise-card" bindtap="openExercise">
+      <view class="exercise-summary">
+        <view class="exercise-icon"><image src="/assets/tabbar/exercise.png" mode="aspectFit" /></view>
+        <view class="exercise-text"><text class="exercise-title">今天还没有运动记录</text><text class="exercise-note">可从 10 分钟轻量活动开始</text></view>
+        <text class="chevron">›</text>
       </view>
-      <text class="food-cal">{{r.displayCalories}}kcal</text>
+      <view wx:if="{{dashboard.advice}}" class="advice-row"><view class="advice-mark">✦</view><view><text class="advice-title">{{dashboard.advice.title}}</text><text class="advice-note">{{dashboard.advice.message}}</text></view></view>
     </view>
-  </view>
+    <view wx:else class="exercise-card" bindtap="openExercise">
+      <view class="exercise-summary">
+        <view class="exercise-icon"><image src="/assets/tabbar/exercise.png" mode="aspectFit" /></view>
+        <view class="exercise-text"><text class="exercise-title">完成 {{dashboard.exercise.completedCount}} 项运动</text><text class="exercise-note">共 {{dashboard.exercise.durationMinutes}} 分钟</text></view>
+        <view class="burn-value"><text>{{exerciseLabel}}</text><text>千卡</text></view>
+      </view>
+      <view wx:if="{{dashboard.advice}}" class="advice-row"><view class="advice-mark">✦</view><view><text class="advice-title">{{dashboard.advice.title}}</text><text class="advice-note">{{dashboard.advice.message}}</text></view><text class="chevron advice-chevron">›</text></view>
+    </view>
+
+    <view class="section-heading meal-heading">
+      <text>今日饮食</text>
+      <text class="meal-count">{{recordedMealCount}} 餐</text>
+    </view>
+    <view wx:if="{{mealsState === 'error'}}" class="module-card module-error"><text>餐次摘要加载失败</text><text bindtap="retryModule">重试</text></view>
+    <view wx:else class="meal-card">
+      <view wx:for="{{meals}}" wx:key="type" class="meal-row" data-meal="{{item.type}}" data-count="{{item.itemCount}}" bindtap="openMeal">
+        <view class="meal-copy"><text class="meal-name">{{item.label}}</text><text class="meal-preview">{{item.empty ? '尚未记录，点击添加' : item.previewLabel}}</text></view>
+        <view class="meal-value"><text>{{item.empty ? '添加' : item.caloriesLabel + ' 千卡'}}</text><text class="chevron">›</text></view>
+      </view>
+    </view>
   </block>
 </view>

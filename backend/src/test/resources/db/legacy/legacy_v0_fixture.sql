@@ -1,10 +1,7 @@
-CREATE TABLE users (
-    openid VARCHAR(100) PRIMARY KEY,
-    nickname VARCHAR(100),
-    avatar_url VARCHAR(500),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+DROP DATABASE IF EXISTS diet_tracker_legacy_test;
+CREATE DATABASE diet_tracker_legacy_test
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE diet_tracker_legacy_test;
 
 CREATE TABLE food_category (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -20,14 +17,14 @@ CREATE TABLE food_item (
     name VARCHAR(100) NOT NULL,
     category_id BIGINT,
     unit VARCHAR(20),
-    calories NUMERIC(10,2) NOT NULL DEFAULT 0,
-    protein NUMERIC(10,2) NOT NULL DEFAULT 0,
-    fat NUMERIC(10,2) NOT NULL DEFAULT 0,
-    carbs NUMERIC(10,2) NOT NULL DEFAULT 0,
-    user_id VARCHAR(100),
+    calories NUMERIC(10,2),
+    protein NUMERIC(10,2),
+    fat NUMERIC(10,2),
+    carbs NUMERIC(10,2),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_food_item_category FOREIGN KEY (category_id) REFERENCES food_category(id)
+    CONSTRAINT legacy_fk_food_category
+        FOREIGN KEY (category_id) REFERENCES food_category(id)
 );
 
 CREATE TABLE meal_record (
@@ -38,14 +35,21 @@ CREATE TABLE meal_record (
     quantity NUMERIC(10,2) NOT NULL,
     unit VARCHAR(20),
     record_time TIMESTAMP,
-    user_id VARCHAR(100) NOT NULL,
     note VARCHAR(500),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_meal_record_food FOREIGN KEY (food_item_id) REFERENCES food_item(id)
+    CONSTRAINT legacy_fk_meal_food
+        FOREIGN KEY (food_item_id) REFERENCES food_item(id)
 );
 
-CREATE INDEX idx_meal_record_user_date ON meal_record(user_id, meal_date);
-CREATE INDEX idx_meal_record_user_time ON meal_record(user_id, record_time);
-CREATE INDEX idx_food_item_user_category ON food_item(user_id, category_id);
-CREATE INDEX idx_food_item_name ON food_item(name);
+INSERT INTO food_category (name, icon, sort_order)
+VALUES ('旧分类', 'legacy', 99), ('主食', 'rice-old', 10);
+
+INSERT INTO food_item (name, category_id, unit, calories, protein, fat, carbs)
+VALUES ('旧鸡胸肉', 1, '份', 248, 46.50, 5.40, 0);
+
+INSERT INTO meal_record (
+    meal_date, meal_type, food_item_id, quantity, unit, record_time, note
+) VALUES (
+    CURRENT_DATE, 'LUNCH', 1, 1, '份', CURRENT_TIMESTAMP, '迁移保留'
+);

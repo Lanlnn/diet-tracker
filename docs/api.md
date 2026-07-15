@@ -148,7 +148,7 @@ GET /foods?scope=all&categoryId=1&page=0&size=20
 }
 ```
 
-营养字段均对应 `baseAmount + baseUnit`。M3 新基准食品使用每 100g；迁移前无法可靠换算的历史按份数据会明确标记为 `LEGACY_SERVING`，不得当作每 100g 数据参与计算。
+营养字段均对应 `baseAmount + baseUnit`。M3 新基准食品使用每 100g；迁移前无法可靠换算的系统/自定义历史按份数据会分别标记为 `LEGACY_SYSTEM` / `LEGACY_CUSTOM`，并保存为 `baseAmount=1` 和原单位，不得当作每 100g 数据参与计算。
 
 ### 搜索食物
 
@@ -351,6 +351,49 @@ DELETE /records/{id}
 **成功返回 204，无响应体。**
 
 记录不存在返回 404，操作其他用户记录返回 403。日/周统计与餐次聚合均只读取记录中的营养快照，不受食品库后续修改影响。
+
+---
+
+## 今日首页聚合
+
+```
+GET /dashboard/today?date=2026-07-15
+```
+
+首页只请求该接口，服务端在同一只读事务内聚合用户目标和当日饮食快照。未设置热量目标时使用 1,800 千卡运营默认值，并通过 `goalSource=DEFAULT` 标识。
+
+```json
+{
+  "date": "2026-07-15",
+  "goalCalories": 1800,
+  "goalSource": "USER",
+  "intakeCalories": 1240,
+  "remainingCalories": 560,
+  "exceededCalories": 0,
+  "exerciseCalories": 0,
+  "netCalories": 1240,
+  "nutrition": {
+    "carbs": { "amount": 142, "goal": 225, "progressPercent": 63 },
+    "protein": { "amount": 86, "goal": 90, "progressPercent": 96 },
+    "fat": { "amount": 41, "goal": 60, "progressPercent": 68 }
+  },
+  "exercise": {
+    "state": "empty",
+    "completedCount": 0,
+    "durationMinutes": 0,
+    "caloriesBurned": 0
+  },
+  "meals": [
+    { "type": "breakfast", "label": "早餐", "itemCount": 1, "calories": 380, "previewItems": ["水煮蛋"] }
+  ],
+  "advice": { "title": "保持当前节奏", "message": "继续完整记录今日饮食" }
+}
+```
+
+- `remainingCalories = max(goalCalories - intakeCalories, 0)`
+- `exceededCalories = max(intakeCalories - goalCalories, 0)`
+- `netCalories = intakeCalories - exerciseCalories`
+- M6 暂无运动记录模型，`exercise` 返回明确空状态；M7 保持该契约并接入真实聚合。运动消耗不增加 `remainingCalories`。
 
 ---
 

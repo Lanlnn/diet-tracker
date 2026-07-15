@@ -11,7 +11,9 @@
 - M2 登录与个人资料：已完成
 - M3 食品库与搜索记录入口：已完成
 - M4 热量计算：已完成
-- 下一开发阶段：M5 饮食保存与餐次详情
+- M5 饮食保存与餐次详情：已完成
+- M6 今日热量总览：已完成
+- 下一开发阶段：M7 运动记录与推荐
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
@@ -21,7 +23,7 @@
 
 ### 后端
 
-项目统一使用 Java 17、Spring Boot、PostgreSQL、Flyway 和 Maven Wrapper。先按 [环境变量示例](../.env.example) 配置本地变量，再运行：
+项目统一使用 Java 17、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
 
 ```bash
 cd /Users/z/Documents/微信小程序/diet-tracker/backend
@@ -30,6 +32,8 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 真实数据库密码、微信 Secret 和 JWT Secret 只能保存在本地或部署平台的 Secret 管理中。如果历史凭据尚未完成轮换，应先在对应平台使旧值失效；修改仓库文本不能替代轮换。
+
+如果目标库已有旧版业务数据，不要执行空库迁移或手工 baseline。请使用 [`MySQL 8 历史数据迁移手册`](./mysql8-data-migration.md) 中的脚本；它会先备份，再升级结构并核对数据行数。
 
 ### 小程序
 
