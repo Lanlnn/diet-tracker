@@ -393,7 +393,77 @@ GET /dashboard/today?date=2026-07-15
 - `remainingCalories = max(goalCalories - intakeCalories, 0)`
 - `exceededCalories = max(intakeCalories - goalCalories, 0)`
 - `netCalories = intakeCalories - exerciseCalories`
-- M6 暂无运动记录模型，`exercise` 返回明确空状态；M7 保持该契约并接入真实聚合。运动消耗不增加 `remainingCalories`。
+- 无运动记录时 `exercise.state=empty`；有记录时为 `success`，并聚合次数、时长和消耗。运动消耗不增加 `remainingCalories`。
+
+---
+
+## 今日运动
+
+### 查询当日运动
+
+```
+GET /exercises?date=2026-07-15
+```
+
+```json
+{
+  "date": "2026-07-15",
+  "totalCalories": 80,
+  "totalDurationMinutes": 20,
+  "records": [{
+    "id": 7,
+    "exerciseDate": "2026-07-15",
+    "exerciseType": "walking",
+    "typeLabel": "户外快走",
+    "startTime": "18:00:00",
+    "durationMinutes": 20,
+    "intensity": "medium",
+    "intensityLabel": "中等强度",
+    "caloriesBurned": 80,
+    "source": "MANUAL",
+    "note": "饭后"
+  }],
+  "weeklyCompletion": {
+    "startDate": "2026-07-13",
+    "endDate": "2026-07-19",
+    "completedDays": 1,
+    "targetDays": 4
+  }
+}
+```
+
+### 新增、修改与删除
+
+```
+POST /exercises
+PUT /exercises/{id}
+DELETE /exercises/{id}
+```
+
+新增和修改使用同一请求结构：
+
+```json
+{
+  "exerciseDate": "2026-07-15",
+  "exerciseType": "walking",
+  "startTime": "18:00",
+  "durationMinutes": 20,
+  "intensity": "medium",
+  "caloriesBurned": 80,
+  "source": "MANUAL",
+  "note": "饭后"
+}
+```
+
+`caloriesBurned` 可不传，服务端按可配置的运动类型系数、强度系数与时长估算；保存时会固化最终确认值。修改或删除其他用户的记录返回 403。
+
+### 规则推荐
+
+```
+GET /exercise-recommendations?date=2026-07-15
+```
+
+返回 0–2 项基于当日已记录时长的固定规则建议，包含运动类型、强度、时长、预计消耗与推荐原因。V1 不调用大模型，不输出诊断、治疗或效果承诺。
 
 ---
 

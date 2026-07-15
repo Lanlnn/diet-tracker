@@ -13,7 +13,8 @@
 - M4 热量计算：已完成
 - M5 饮食保存与餐次详情：已完成
 - M6 今日热量总览：已完成
-- 下一开发阶段：M7 运动记录与推荐
+- M7 运动记录与推荐：开发完成，待开发者工具视觉验收与 PR
+- 下一开发阶段：M8 热量与运动趋势（须在 M7 合并并打标后开始）
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
