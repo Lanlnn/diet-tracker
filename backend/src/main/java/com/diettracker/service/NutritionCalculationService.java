@@ -28,17 +28,30 @@ public class NutritionCalculationService {
         FoodItem food = foodRepository.findById(foodId)
                 .filter(item -> item.getUserId() == null || userId.equals(item.getUserId()))
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "FOOD_NOT_FOUND", "食品不存在"));
-        validateAmount(amount);
-        validateFoodBasis(food);
+        return calculateValues(food.getId(), food.getName(), food.getBaseAmount(), food.getBaseUnit(),
+                food.getServingAmount(), food.getServingUnit(), food.getCalories(), food.getProtein(),
+                food.getFat(), food.getCarbs(), amount);
+    }
 
-        BigDecimal ratio = amount.divide(food.getBaseAmount(), 12, RoundingMode.HALF_UP);
+    public NutritionCalculationResponse preview(String name, BigDecimal baseAmount, String baseUnit,
+                                                 BigDecimal servingAmount, String servingUnit,
+                                                 BigDecimal calories, BigDecimal protein,
+                                                 BigDecimal fat, BigDecimal carbs, BigDecimal amount) {
+        return calculateValues(null, name, baseAmount, baseUnit, servingAmount, servingUnit,
+                calories, protein, fat, carbs, amount);
+    }
+
+    private NutritionCalculationResponse calculateValues(Long id, String name, BigDecimal baseAmount, String baseUnit,
+                                                          BigDecimal servingAmount, String servingUnit,
+                                                          BigDecimal calories, BigDecimal protein, BigDecimal fat,
+                                                          BigDecimal carbs, BigDecimal amount) {
+        validateAmount(amount);
+        validateFoodBasis(baseAmount, baseUnit, calories, protein, fat, carbs);
+        BigDecimal ratio = amount.divide(baseAmount, 12, RoundingMode.HALF_UP);
         return new NutritionCalculationResponse(
-                food.getId(), food.getName(), food.getBaseAmount(), food.getBaseUnit(),
-                food.getServingAmount(), food.getServingUnit(), amount.stripTrailingZeros(), "g",
-                scaled(food.getCalories(), ratio, 0),
-                scaled(food.getProtein(), ratio, 1),
-                scaled(food.getFat(), ratio, 1),
-                scaled(food.getCarbs(), ratio, 1));
+                id, name, baseAmount, baseUnit, servingAmount, servingUnit, amount.stripTrailingZeros(), "g",
+                scaled(calories, ratio, 0), scaled(protein, ratio, 1),
+                scaled(fat, ratio, 1), scaled(carbs, ratio, 1));
     }
 
     private void validateAmount(BigDecimal amount) {
@@ -51,17 +64,22 @@ public class NutritionCalculationService {
     }
 
     private void validateFoodBasis(FoodItem food) {
+        validateFoodBasis(food.getBaseAmount(), food.getBaseUnit(), food.getCalories(), food.getProtein(), food.getFat(), food.getCarbs());
+    }
+
+    private void validateFoodBasis(BigDecimal baseAmount, String baseUnit, BigDecimal calories,
+                                   BigDecimal protein, BigDecimal fat, BigDecimal carbs) {
         Map<String, String> fields = new LinkedHashMap<>();
-        if (food.getBaseAmount() == null || food.getBaseAmount().signum() <= 0) {
+        if (baseAmount == null || baseAmount.signum() <= 0) {
             fields.put("baseAmount", "食品缺少有效的营养基准");
         }
-        if (!"g".equalsIgnoreCase(food.getBaseUnit())) {
+        if (!"g".equalsIgnoreCase(baseUnit)) {
             fields.put("baseUnit", "该食品不是按克记录，暂不支持重量计算");
         }
-        validateNonNegative(fields, "calories", "热量", food.getCalories());
-        validateNonNegative(fields, "protein", "蛋白质", food.getProtein());
-        validateNonNegative(fields, "fat", "脂肪", food.getFat());
-        validateNonNegative(fields, "carbs", "碳水", food.getCarbs());
+        validateNonNegative(fields, "calories", "热量", calories);
+        validateNonNegative(fields, "protein", "蛋白质", protein);
+        validateNonNegative(fields, "fat", "脂肪", fat);
+        validateNonNegative(fields, "carbs", "碳水", carbs);
         if (!fields.isEmpty()) throw new FieldValidationException("INVALID_FOOD_BASIS", "食品营养基准不合法", fields);
     }
 

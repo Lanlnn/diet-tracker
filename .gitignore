@@ -27,6 +27,9 @@ miniapp/node_modules/
 .env
 backend/var/
 backend/uploads/
+admin-web/node_modules/
+admin-web/dist/
+admin-web/var/
 
 # Codex workspace config
 .codex/

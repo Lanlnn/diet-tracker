@@ -13,6 +13,8 @@
 7. [M0–M10 里程碑](./milestones/README.md)：每阶段的任务、验收和 Git 交付。
 8. [系统架构](./architecture.md)：了解当前系统结构；后续架构调整以开发指南为准。
 9. [API 文档](./api.md)：记录当前已实现接口；接口变化必须与代码同步更新。
+10. [管理后台功能需求与开发指南](./ADMIN-DEVELOPMENT.md)：前后台 1:1 映射、功能边界、管理 API、A0–A8 计划与验收标准。
+11. [开发复盘与防复发清单](./DEVELOPMENT-RETROSPECTIVE.md)：M0–M10 实际问题、后台吸收规则和双端提效流程。
 
 ## 唯一基准
 
@@ -20,6 +22,8 @@
 - UI 与交互：`design/优化版/`
 - 开发顺序和质量门槛：`docs/DEVELOPMENT.md`
 - 实际接口行为：以后端代码和自动生成的 OpenAPI 为准
+- 管理后台功能、前后台映射与开发顺序：`docs/ADMIN-DEVELOPMENT.md`
+- 管理后台设计基准：`admin-ui-ux-pro-max/`
 
 旧版 `design/` 根目录下的 20 张页面稿仅用于追溯功能来源，不作为新页面实现依据。
 

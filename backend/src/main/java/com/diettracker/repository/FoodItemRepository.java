@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
@@ -41,4 +42,16 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
 
     @Query("SELECT f FROM FoodItem f WHERE f.id IN :ids AND (f.userId IS NULL OR f.userId = :userId)")
     List<FoodItem> findVisibleFoodsByIds(@Param("ids") List<Long> ids, @Param("userId") String userId);
+
+    @Query("SELECT f FROM FoodItem f WHERE f.userId IS NULL " +
+           "AND (:keyword IS NULL OR LOWER(f.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "AND (:categoryId IS NULL OR f.category.id = :categoryId) " +
+           "AND (:source IS NULL OR f.source = :source)")
+    Page<FoodItem> findAdminSystemFoods(@Param("keyword") String keyword,
+                                        @Param("categoryId") Long categoryId,
+                                        @Param("source") String source,
+                                        Pageable pageable);
+
+    long countByCategoryIdAndUserIdIsNull(Long categoryId);
+    Optional<FoodItem> findByIdAndUserIdIsNotNull(Long id);
 }

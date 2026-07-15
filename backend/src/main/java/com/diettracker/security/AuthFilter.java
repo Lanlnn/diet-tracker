@@ -36,8 +36,8 @@ public class AuthFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        // Login and CORS preflight are the only public API requests.
-         if (path.equals("/api/auth/login") || "OPTIONS".equals(req.getMethod())) {
+        // Admin APIs have a separate identity and token audience.
+         if (path.startsWith("/api/admin/") || path.equals("/api/auth/login") || "OPTIONS".equals(req.getMethod())) {
             chain.doFilter(request, response);
             return;
         }

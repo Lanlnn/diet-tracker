@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="衡食饮食与运动小程序管理后台 UI/UX Pro Max 设计原型" />
+    <title>衡食运营台 · UI/UX Pro Max</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="主导航">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6.3 17.7C2.7 14.1 4 7.8 9.2 6.1c.3 2.6 1.8 4.3 4.5 5.2-2.6.5-4.4 2.7-4.8 5.4"/><path d="M11.3 19.5c1-4.3 3.3-7.9 7.2-10.7.6 5.4-1.7 9-7.2 10.7Z"/></svg>
+          </span>
+          <span><strong>衡食</strong><small>运营管理台</small></span>
+        </div>
+
+        <nav class="nav-list">
+          <p class="nav-label">工作台</p>
+          <a class="nav-item is-active" href="#overview" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+            <span>运营总览</span>
+          </a>
+          <a class="nav-item" href="#users">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>用户管理</span>
+          </a>
+          <a class="nav-item" href="#foods">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11h18M5 11a7 7 0 0 0 14 0M8 7c0-2 1-3 1-4M12 7c0-2 1-3 1-4M16 7c0-2 1-3 1-4"/></svg>
+            <span>食品库</span><span class="nav-count">23</span>
+          </a>
+          <a class="nav-item" href="#review">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span>内容审核</span><span class="status-dot warning" aria-label="有待处理内容"></span>
+          </a>
+          <p class="nav-label">配置与服务</p>
+          <a class="nav-item" href="#exercise">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M3 14l7 7M14 3l7 7M5 12l7-7M12 19l7-7"/></svg>
+            <span>运动配置</span>
+          </a>
+          <a class="nav-item" href="#rules">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.2.36.56.7 1 .9.3.13.65.2 1 .2h.1v4h-.1a1.7 1.7 0 0 0-2 1Z"/></svg>
+            <span>运营规则</span>
+          </a>
+          <a class="nav-item" href="#system">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 16 4-5 3 3 5-7"/></svg>
+            <span>系统状态</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="service-health"><span class="status-dot success"></span><span><strong>服务运行正常</strong><small>刚刚完成检查</small></span></div>
+          <button class="profile-button" type="button" aria-label="打开管理员账户菜单">
+            <span class="avatar">林</span><span><strong>林知夏</strong><small>超级管理员</small></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <div class="main-shell">
+        <header class="topbar">
+          <button class="icon-button mobile-menu" id="menuButton" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="crumb"><span>工作台</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg><strong>运营总览</strong></div>
+          <div class="top-actions">
+            <label class="search-box">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+              <span class="sr-only">全局搜索</span>
+              <input id="globalSearch" type="search" placeholder="搜索用户、食品或记录" autocomplete="off" />
+              <kbd>⌘ K</kbd>
+            </label>
+            <button class="icon-button" id="themeButton" type="button" aria-label="切换深色主题">
+              <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+              <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.6 6.6 0 0 0 21 12.8Z"/></svg>
+            </button>
+            <button class="icon-button notification-button" type="button" aria-label="查看 3 条通知">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>3</span>
+            </button>
+          </div>
+        </header>
+
+        <main id="main" tabindex="-1">
+          <section class="page-head" id="overview">
+            <div><p class="eyebrow">2026 年 7 月 15 日 · 周三</p><h1>下午好，林知夏</h1><p>用户记录保持增长，食品搜索无结果率已连续 4 天低于目标。</p></div>
+            <div class="page-actions">
+              <button class="button secondary" id="exportButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>导出周报
+              </button>
+              <button class="button primary" id="createRuleButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>新建运营规则
+              </button>
+            </div>
+          </section>
+
+          <section class="filter-bar" aria-label="数据筛选">
+            <div class="segmented" role="group" aria-label="时间范围">
+              <button type="button" data-period="today">今日</button>
+              <button class="is-selected" type="button" data-period="7d">近 7 天</button>
+              <button type="button" data-period="30d">近 30 天</button>
+            </div>
+            <span class="filter-divider"></span>
+            <button class="filter-button" type="button"><span class="status-dot success"></span>全部渠道<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+            <button class="filter-button" type="button">全部用户<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+            <span class="sync-state"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg>数据更新于 16:20</span>
+          </section>
+
+          <section class="kpi-grid" aria-label="核心指标">
+            <article class="kpi-card"><div class="kpi-top"><span class="kpi-icon cyan"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span><span class="trend up"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>8.2%</span></div><p>日活跃用户</p><strong data-kpi="active">12,684</strong><small>较上周 +961 人</small><div class="spark-bars" aria-hidden="true"><i style="height:28%"></i><i style="height:42%"></i><i style="height:35%"></i><i style="height:58%"></i><i style="height:62%"></i><i style="height:76%"></i><i style="height:91%"></i></div></article>
+            <article class="kpi-card"><div class="kpi-top"><span class="kpi-icon green"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/><path d="m8 15 2 2 5-5"/></svg></span><span class="trend up"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>12.6%</span></div><p>饮食记录次数</p><strong data-kpi="records">38,920</strong><small>人均 3.07 次 / 日</small><div class="spark-line green-line" aria-hidden="true"><svg viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M0 25C12 23 15 17 25 20S42 25 50 15 68 11 75 13 88 8 100 3"/></svg></div></article>
+            <article class="kpi-card"><div class="kpi-top"><span class="kpi-icon violet"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg></span><span class="trend up"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>3.4%</span></div><p>7 日记录留存</p><strong data-kpi="retention">42.8%</strong><small>目标 45.0%</small><div class="bullet" aria-label="7 日记录留存 42.8%，目标 45%"><span style="width:85.6%"></span><i style="left:90%"></i></div></article>
+            <article class="kpi-card"><div class="kpi-top"><span class="kpi-icon orange"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/></svg></span><span class="trend down-good"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>1.9%</span></div><p>搜索无结果率</p><strong data-kpi="empty">7.6%</strong><small>目标低于 10%</small><div class="target-row"><span>表现良好</span><b>低于警戒线 2.4%</b></div></article>
+          </section>
+
+          <section class="dashboard-grid">
+            <article class="panel trend-panel">
+              <header class="panel-head"><div><h2>记录与活跃趋势</h2><p>饮食记录与运动记录的每日变化</p></div><div class="legend" aria-label="图例"><span><i class="legend-line solid"></i>饮食记录</span><span><i class="legend-line dashed"></i>运动记录</span><button class="more-button" type="button" aria-label="打开图表更多操作"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></header>
+              <div class="chart-wrap" role="img" aria-label="近 7 天饮食记录整体上升，7 月 15 日达到 5890 次；运动记录缓慢上升至 2380 次">
+                <div class="chart-y"><span>6k</span><span>4k</span><span>2k</span><span>0</span></div>
+                <svg class="line-chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-hidden="true">
+                  <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".22"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>
+                  <g class="grid-lines"><path d="M0 10H700M0 76H700M0 143H700M0 210H700"/></g>
+                  <path class="area" d="M0 151 C55 145 58 125 116 128 S178 112 233 119 293 90 350 94 412 80 466 84 525 54 583 62 650 27 700 35 V210H0Z"/>
+                  <path class="food-line" d="M0 151 C55 145 58 125 116 128 S178 112 233 119 293 90 350 94 412 80 466 84 525 54 583 62 650 27 700 35"/>
+                  <path class="exercise-line" d="M0 185 C57 178 64 184 116 172 S183 165 233 168 297 147 350 154 416 141 466 144 531 121 583 132 648 105 700 112"/>
+                  <g class="chart-point"><circle cx="700" cy="35" r="5"/><circle cx="700" cy="35" r="9"/></g>
+                </svg>
+                <div class="chart-x"><span>7/09</span><span>7/10</span><span>7/11</span><span>7/12</span><span>7/13</span><span>7/14</span><span>7/15</span></div>
+                <div class="chart-tooltip"><span>7 月 15 日</span><strong>5,890 次</strong><small>较昨日 +8.3%</small></div>
+              </div>
+              <button class="text-button chart-data-toggle" type="button" aria-expanded="false" aria-controls="chartTable">查看数据表<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="chart-table" id="chartTable" hidden><table><thead><tr><th>日期</th><th>饮食记录</th><th>运动记录</th></tr></thead><tbody><tr><td>7 月 13 日</td><td>4,920</td><td>2,110</td></tr><tr><td>7 月 14 日</td><td>5,438</td><td>2,210</td></tr><tr><td>7 月 15 日</td><td>5,890</td><td>2,380</td></tr></tbody></table></div>
+            </article>
+
+            <article class="panel funnel-panel">
+              <header class="panel-head"><div><h2>首次记录转化</h2><p>新用户关键路径 · 近 7 天</p></div><button class="text-button" type="button">查看详情<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></header>
+              <div class="funnel-list">
+                <div class="funnel-row"><div><span>进入小程序</span><strong>8,420</strong></div><div class="funnel-track"><span style="width:100%"></span></div><small>100%</small></div>
+                <div class="funnel-drop"><span>−12.6%</span></div>
+                <div class="funnel-row"><div><span>完成授权</span><strong>7,359</strong></div><div class="funnel-track"><span style="width:87.4%"></span></div><small>87.4%</small></div>
+                <div class="funnel-drop alert"><span>−19.8% 最大流失</span></div>
+                <div class="funnel-row"><div><span>开始搜索</span><strong>5,902</strong></div><div class="funnel-track"><span style="width:70.1%"></span></div><small>70.1%</small></div>
+                <div class="funnel-drop"><span>−8.4%</span></div>
+                <div class="funnel-row"><div><span>完成首条记录</span><strong>5,406</strong></div><div class="funnel-track"><span style="width:64.2%"></span></div><small>64.2%</small></div>
+              </div>
+              <div class="insight"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 22h4M8.5 14.5A7 7 0 1 1 15.5 14.5c-.9.7-1.5 1.3-1.5 2.5h-4c0-1.2-.6-1.8-1.5-2.5Z"/></svg><p><strong>建议关注授权后引导</strong><span>授权到搜索流失 19.8%，可优化首次使用任务。</span></p></div>
+            </article>
+
+            <article class="panel review-panel" id="review">
+              <header class="panel-head"><div><h2>待审核食品</h2><p>用户创建食品的营养信息校验</p></div><a class="text-button" href="#foods">进入审核队列<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a></header>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>食品名称</th><th><button class="sort-button" type="button" data-sort="calories">热量 / 100g<svg viewBox="0 0 24 24"><path d="m8 9 4-4 4 4M16 15l-4 4-4-4"/></svg></button></th><th>提交用户</th><th>风险</th><th>等待时间</th><th><span class="sr-only">操作</span></th></tr></thead>
+                  <tbody id="foodTableBody">
+                    <tr data-calories="428"><td><span class="food-thumb oat"></span><span><strong>燕麦坚果脆</strong><small>谷物 · 自定义食品</small></span></td><td><strong>428 kcal</strong><small>蛋白质 12.4g</small></td><td>u_83021</td><td><span class="risk medium">营养偏差</span></td><td>2 小时</td><td><button class="row-action" type="button" data-food="燕麦坚果脆">审核</button></td></tr>
+                    <tr data-calories="256"><td><span class="food-thumb green"></span><span><strong>青酱鸡肉卷</strong><small>快餐 · 自定义食品</small></span></td><td><strong>256 kcal</strong><small>蛋白质 18.1g</small></td><td>u_64098</td><td><span class="risk low">常规校验</span></td><td>46 分钟</td><td><button class="row-action" type="button" data-food="青酱鸡肉卷">审核</button></td></tr>
+                    <tr data-calories="38"><td><span class="food-thumb milk"></span><span><strong>低糖燕麦奶</strong><small>饮品 · 自定义食品</small></span></td><td><strong>38 kcal</strong><small>蛋白质 1.2g</small></td><td>u_12904</td><td><span class="risk high">来源缺失</span></td><td>28 分钟</td><td><button class="row-action" type="button" data-food="低糖燕麦奶">审核</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel health-panel" id="system">
+              <header class="panel-head"><div><h2>系统状态</h2><p>核心服务与数据任务</p></div><span class="health-pill"><span class="status-dot success"></span>全部正常</span></header>
+              <div class="health-list">
+                <div><span class="health-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span><span><strong>MySQL 主库</strong><small>延迟 12 ms</small></span><b>正常</b></div>
+                <div><span class="health-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM8 20h8M12 16v4"/><path d="M8 9h8"/></svg></span><span><strong>API 服务</strong><small>成功率 99.97%</small></span><b>正常</b></div>
+                <div><span class="health-icon"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span><span><strong>每日汇总任务</strong><small>下次执行 00:05</small></span><b>已就绪</b></div>
+              </div>
+              <a class="system-link" href="#logs">查看运行日志<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+            </article>
+          </section>
+
+          <p class="prototype-note">原型数据仅用于设计评估，不代表真实业务表现。</p>
+        </main>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay" hidden></div>
+    <div class="modal-wrap" id="ruleModal" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <header><div><p class="eyebrow">运营规则</p><h2 id="modalTitle">新建用户提醒规则</h2></div><button class="icon-button close-modal" type="button" aria-label="关闭对话框"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></header>
+        <form id="ruleForm">
+          <label><span>规则名称 <b aria-hidden="true">*</b></span><input name="name" required placeholder="例如：连续 3 天未记录提醒" /></label>
+          <label><span>触发对象</span><select name="audience"><option>近 7 天新用户</option><option>全部活跃用户</option><option>连续 3 天未记录用户</option></select></label>
+          <label><span>触发条件</span><select name="condition"><option>注册后 24 小时无记录</option><option>连续 3 天无记录</option><option>搜索无结果 2 次以上</option></select><small>命中规则后进入消息任务队列，不会立即群发。</small></label>
+          <footer><button class="button secondary close-modal" type="button">取消</button><button class="button primary" type="submit">保存为草稿</button></footer>
+        </form>
+      </section>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span></span></div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

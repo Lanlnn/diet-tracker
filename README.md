@@ -42,8 +42,11 @@ diet-tracker/
 │   ├── shared/            # 配置、常量、工具和 WXS
 │   └── assets/            # 图片与图标
 ├── docs/             # PRD、接口、架构与上线文档
+├── admin-ui-ux-pro-max/ # 管理后台 UI/UX Pro Max 设计原型与设计系统
 └── design/           # UI 设计稿和设计说明
 ```
+
+管理后台采用与小程序并行的 A0–A8 阶段推进，并与 8 张小程序设计页、业务口径和数据模型逐项绑定。开发顺序、跨端映射、安全边界、管理 API 和验收要求见 [`docs/ADMIN-DEVELOPMENT.md`](docs/ADMIN-DEVELOPMENT.md)。当前 `admin-ui-ux-pro-max/` 是可交互设计基准，不是生产前端工程。
 
 ## 快速启动
 

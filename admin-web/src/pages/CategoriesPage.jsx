@@ -1,0 +1,21 @@
+import { useCallback, useEffect, useState } from 'react'
+import { api } from '../api/client.js'
+import { Icon } from '../components/Icons.jsx'
+import { Modal } from '../components/Modal.jsx'
+import { StateView } from '../components/StateView.jsx'
+
+function CategoryEditor({ category, onClose, onSaved }) {
+  const [form, setForm] = useState(category || { name: '', icon: '', sortOrder: 100 })
+  const [reason, setReason] = useState(category ? '调整食品分类资料' : '新增系统食品分类')
+  const [error, setError] = useState(null); const [submitting, setSubmitting] = useState(false)
+  async function submit(event) { event.preventDefault(); setSubmitting(true); setError(null); try { const result = await api(category ? `/food-categories/${category.id}` : '/food-categories', { method: category ? 'PUT' : 'POST', headers: { 'X-Audit-Reason': encodeURIComponent(reason) }, body: JSON.stringify({ ...form, sortOrder: Number(form.sortOrder) }) }); onSaved(result) } catch (failure) { setError(failure) } finally { setSubmitting(false) } }
+  return <Modal title={category ? '编辑食品分类' : '新增食品分类'} description="排序值越小越靠前；图标使用稳定的资源标识。" onClose={onClose}><form className="stack-form" onSubmit={submit}><label><span>分类名称</span><input autoFocus required maxLength="50" value={form.name} onChange={(e) => setForm((v) => ({...v,name:e.target.value}))}/></label><label><span>图标标识</span><input maxLength="100" value={form.icon || ''} onChange={(e) => setForm((v) => ({...v,icon:e.target.value}))}/></label><label><span>排序</span><input type="number" min="0" max="9999" required value={form.sortOrder} onChange={(e) => setForm((v) => ({...v,sortOrder:e.target.value}))}/></label><label><span>审计原因</span><textarea required minLength="2" maxLength="200" value={reason} onChange={(e) => setReason(e.target.value)}/></label>{error ? <div className="inline-error"><Icon name="alert"/><span>{error.message}</span></div> : null}<footer><button className="button secondary" type="button" onClick={onClose}>取消</button><button className="button primary" disabled={submitting}>{submitting?'保存中…':'保存分类'}</button></footer></form></Modal>
+}
+
+export function CategoriesPage() {
+  const [items, setItems] = useState([]); const [state, setState] = useState('loading'); const [error, setError] = useState(null); const [editing, setEditing] = useState(undefined)
+  const load = useCallback(async () => { setState('loading'); try { const result = await api('/food-categories'); setItems(result); setState(result.length?'success':'empty') } catch (failure) { setError(failure); setState('error') } }, [])
+  useEffect(() => { Promise.resolve().then(load) }, [load])
+  async function remove(item) { const reason = window.prompt(`删除分类“${item.name}”的审计原因：`); if (!reason) return; try { await api(`/food-categories/${item.id}`, { method:'DELETE', headers:{'X-Audit-Reason':encodeURIComponent(reason)} }); load() } catch (failure) { setError(failure); setState('error') } }
+  return <><header className="page-head"><div><span>食品数据</span><h1>食品分类</h1><p>维护小程序食品检索使用的公共分类与顺序。</p></div><button className="button primary" onClick={() => setEditing(null)}><Icon name="plus"/>新增分类</button></header>{state === 'success' ? <section className="category-list"><header><span>分类</span><span>系统食品数</span><span>排序</span><span>更新时间</span><span>操作</span></header>{items.map((item) => <article key={item.id}><span className="category-name"><i>{item.name.slice(0,1)}</i><span><strong>{item.name}</strong><small>{item.icon || '未设置图标'}</small></span></span><b>{item.systemFoodCount}</b><code>{item.sortOrder}</code><time>{item.updatedAt ? new Date(item.updatedAt).toLocaleString('zh-CN',{hour12:false}) : '—'}</time><span className="actions"><button onClick={() => setEditing(item)}>编辑</button><button disabled={item.systemFoodCount>0} title={item.systemFoodCount>0?'仍有食品引用，禁止删除':''} onClick={() => remove(item)}>删除</button></span></article>)}</section> : <StateView state={state} title={state==='empty'?'尚无食品分类':state==='loading'?'':'分类加载失败'} detail={state==='empty'?'新增分类后即可为系统食品归类。':error?.message} requestId={error?.requestId} onRetry={state==='error'?load:undefined}/>} {editing !== undefined ? <CategoryEditor category={editing} onClose={() => setEditing(undefined)} onSaved={() => {setEditing(undefined);load()}}/> : null}</>
+}
