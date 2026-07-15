@@ -31,9 +31,18 @@ if [ -z "${JAVA_HOME:-}" ]; then
 fi
 
 if [ -z "${JAVA_HOME:-}" ] || [ ! -x "$JAVA_HOME/bin/java" ]; then
-  echo "Java 17 is required. Set JAVA_HOME to a valid JDK installation." >&2
+  echo "Java 18 is required. Set JAVA_HOME to a valid JDK installation." >&2
   exit 1
 fi
+
+JAVA_VERSION_OUTPUT=$("$JAVA_HOME/bin/java" -version 2>&1 | head -n 1)
+case "$JAVA_VERSION_OUTPUT" in
+  *'version "18.'*|*'version "18"'*) ;;
+  *)
+    echo "Java 18 is required, but JAVA_HOME reports: $JAVA_VERSION_OUTPUT" >&2
+    exit 1
+    ;;
+esac
 
 if [ ! -f "$MAVEN_WRAPPER_JAR" ]; then
   echo "- Downloading maven-wrapper.jar"

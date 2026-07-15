@@ -2,7 +2,7 @@
 
 这份文档说明当前交付位置，以及每次开发必须经过的验证链路。
 
-M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
+M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。M0–M10 的成果演示、跨模块对账和复盘测试统一使用 [`M0-M10-REVIEW-AND-TEST.md`](./M0-M10-REVIEW-AND-TEST.md)。
 
 ## 1. 当前状态
 
@@ -18,7 +18,8 @@ M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-
 - M7 运动记录与推荐：已完成
 - M8 热量与运动趋势：已完成
 - M9 饮食日历：已完成
-- 下一开发阶段：M10 个人中心与发布准备
+- M10 个人中心与发布准备：待验收
+- 下一阶段：完成 M10 验收后进入发布候选灰度，不再新增里程碑功能
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
@@ -28,13 +29,20 @@ M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-
 
 ### 后端
 
-项目统一使用 Java 17、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
+项目统一使用 Java 18、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
 
 ```bash
 cd /Users/z/Documents/微信小程序/diet-tracker/backend
-sh mvnw clean test
-sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
+JAVA_HOME=$(/usr/libexec/java_home -v 18 2>/dev/null)
+"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "18[.]' || {
+  echo "未找到可用的 Java 18"
+  exit 1
+}
+JAVA_HOME="$JAVA_HOME" sh mvnw clean test
+JAVA_HOME="$JAVA_HOME" sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+macOS 在未安装 Java 18 时可能把 `/usr/libexec/java_home -v 18` 回退到其他唯一可用版本，因此必须保留上面的版本断言。
 
 真实数据库密码、微信 Secret 和 JWT Secret 只能保存在本地或部署平台的 Secret 管理中。如果历史凭据尚未完成轮换，应先在对应平台使旧值失效；修改仓库文本不能替代轮换。
 

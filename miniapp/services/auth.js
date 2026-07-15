@@ -19,4 +19,13 @@ function uploadAvatar(filePath) {
   return uploadFile('/upload/avatar', filePath);
 }
 
-module.exports = { getProfile, login, updateProfile, uploadAvatar };
+function getGoals() { return request('/users/me/goals'); }
+function updateGoals(data) { return request('/users/me/goals', 'PUT', data); }
+function getProfileSummary() { return request('/users/me/summary'); }
+function deleteAccount() {
+  return request('/users/me', 'DELETE', {}, { headers: { 'X-Delete-Confirmation': 'DELETE' }, retry401: false });
+}
+
+module.exports = {
+  deleteAccount, getGoals, getProfile, getProfileSummary, login, updateGoals, updateProfile, uploadAvatar
+};

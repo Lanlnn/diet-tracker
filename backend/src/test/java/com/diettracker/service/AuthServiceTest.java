@@ -2,6 +2,7 @@ package com.diettracker.service;
 
 import com.diettracker.dto.LoginResponse;
 import com.diettracker.entity.User;
+import com.diettracker.entity.UserGoal;
 import com.diettracker.repository.UserRepository;
 import com.diettracker.security.JwtUtil;
 import org.junit.jupiter.api.Test;
@@ -20,18 +21,22 @@ class AuthServiceTest {
     @Mock JwtUtil jwtUtil;
     @Mock UserRepository userRepository;
     @Mock WeChatSessionClient weChatSessionClient;
+    @Mock UserGoalService userGoalService;
 
     @Test
     void returnsTypedSessionWithoutExposingOpenid() {
         User user = new User();
         user.setOpenid("openid-private");
         user.setNickname("林晓");
+        UserGoal goal = new UserGoal();
+        goal.setUserId("openid-private");
         when(weChatSessionClient.exchange("one-time-code")).thenReturn("openid-private");
         when(userRepository.findById("openid-private")).thenReturn(Optional.of(user));
         when(jwtUtil.generateToken("openid-private")).thenReturn("signed-token");
         when(jwtUtil.getExpirationSeconds()).thenReturn(604800L);
+        when(userGoalService.requireOrCreate("openid-private")).thenReturn(goal);
 
-        LoginResponse response = new AuthService(jwtUtil, userRepository, weChatSessionClient)
+        LoginResponse response = new AuthService(jwtUtil, userRepository, weChatSessionClient, userGoalService)
                 .login("one-time-code");
 
         assertThat(response.token()).isEqualTo("signed-token");

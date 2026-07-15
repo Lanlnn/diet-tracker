@@ -6,8 +6,10 @@ import com.diettracker.entity.MealRecord;
 import com.diettracker.entity.ExerciseRecord;
 import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.entity.User;
+import com.diettracker.entity.UserGoal;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +30,15 @@ public class DashboardService {
     private final MealRecordRepository mealRecordRepository;
     private final UserRepository userRepository;
     private final ExerciseRecordRepository exerciseRecordRepository;
+    private final UserGoalRepository userGoalRepository;
 
     public DashboardService(MealRecordRepository mealRecordRepository, UserRepository userRepository,
-                            ExerciseRecordRepository exerciseRecordRepository) {
+                            ExerciseRecordRepository exerciseRecordRepository,
+                            UserGoalRepository userGoalRepository) {
         this.mealRecordRepository = mealRecordRepository;
         this.userRepository = userRepository;
         this.exerciseRecordRepository = exerciseRecordRepository;
+        this.userGoalRepository = userGoalRepository;
     }
 
     @Transactional(readOnly = true)
@@ -43,9 +48,9 @@ public class DashboardService {
         List<MealRecord> records = mealRecordRepository
                 .findByUserIdAndMealDateOrderByRecordTimeAsc(userId, date);
 
-        int calorieGoal = user.getDailyCalorieGoal() == null
-                ? DEFAULT_CALORIE_GOAL : user.getDailyCalorieGoal();
-        String goalSource = user.getDailyCalorieGoal() == null ? "DEFAULT" : "USER";
+        UserGoal userGoal = userGoalRepository.findById(userId).orElse(null);
+        int calorieGoal = userGoal == null ? DEFAULT_CALORIE_GOAL : userGoal.getDailyCalorieGoal();
+        String goalSource = userGoal == null || !userGoal.isCustomized() ? "DEFAULT" : "USER";
         Totals totals = aggregate(records);
         BigDecimal goal = BigDecimal.valueOf(calorieGoal);
         BigDecimal remaining = goal.subtract(totals.calories()).max(BigDecimal.ZERO);
@@ -70,7 +75,7 @@ public class DashboardService {
                 display(exceeded),
                 display(exerciseCalories),
                 display(totals.calories().subtract(exerciseCalories)),
-                nutrition(totals, calorieGoal),
+                nutrition(totals, calorieGoal, userGoal),
                 exercise,
                 mealSummaries(records),
                 advice(records.isEmpty(), exceeded, remaining)
@@ -94,14 +99,10 @@ public class DashboardService {
         return new Totals(calories, protein, fat, carbs);
     }
 
-    private DashboardTodayResponse.NutritionSummary nutrition(Totals totals, int calorieGoal) {
-        // Default macro split: carbohydrates 50%, protein 20%, fat 30% of the calorie goal.
-        BigDecimal carbsGoal = BigDecimal.valueOf(calorieGoal).multiply(new BigDecimal("0.50"))
-                .divide(BigDecimal.valueOf(4), 1, RoundingMode.HALF_UP);
-        BigDecimal proteinGoal = BigDecimal.valueOf(calorieGoal).multiply(new BigDecimal("0.20"))
-                .divide(BigDecimal.valueOf(4), 1, RoundingMode.HALF_UP);
-        BigDecimal fatGoal = BigDecimal.valueOf(calorieGoal).multiply(new BigDecimal("0.30"))
-                .divide(BigDecimal.valueOf(9), 1, RoundingMode.HALF_UP);
+    private DashboardTodayResponse.NutritionSummary nutrition(Totals totals, int calorieGoal, UserGoal userGoal) {
+        BigDecimal carbsGoal = userGoal == null ? UserGoalService.macroGoal(calorieGoal, "carbs") : userGoal.getCarbsGoal();
+        BigDecimal proteinGoal = userGoal == null ? UserGoalService.macroGoal(calorieGoal, "protein") : userGoal.getProteinGoal();
+        BigDecimal fatGoal = userGoal == null ? UserGoalService.macroGoal(calorieGoal, "fat") : userGoal.getFatGoal();
         return new DashboardTodayResponse.NutritionSummary(
                 metric(totals.carbs(), carbsGoal),
                 metric(totals.protein(), proteinGoal),

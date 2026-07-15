@@ -15,6 +15,11 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface MealRecordRepository extends JpaRepository<MealRecord, Long> {
 
+    long deleteByUserId(String userId);
+
+    @Query("SELECT DISTINCT m.mealDate FROM MealRecord m WHERE m.userId = :userId ORDER BY m.mealDate DESC")
+    List<LocalDate> findRecordedDatesDesc(@Param("userId") String userId);
+
     @Query(value = "SELECT m.foodItem.id FROM MealRecord m WHERE m.userId = :userId " +
            "GROUP BY m.foodItem.id ORDER BY COUNT(m.id) DESC, MAX(m.recordTime) DESC",
            countQuery = "SELECT COUNT(DISTINCT m.foodItem.id) FROM MealRecord m WHERE m.userId = :userId")

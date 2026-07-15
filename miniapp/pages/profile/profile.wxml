@@ -26,15 +26,15 @@
     <view class="section-title">饮食与目标</view>
     <ui-card>
       <list-row title="身体与营养目标" description="{{dailyCalorieGoal ? dailyCalorieGoal + ' 千卡' : '待完善'}}" bind:tap="openEditor" />
-      <list-row title="我的食品库" description="后续开放" bind:tap="unavailable" />
-      <list-row title="训练计划" description="后续开放" bind:tap="unavailable" />
+      <list-row title="我的食品库" description="{{customFoodCount}} 项自建 · {{favoriteFoodCount}} 项收藏" bind:tap="openFoodLibrary" />
+      <list-row title="训练计划" description="本周已完成 {{exerciseCountThisWeek}} 次" bind:tap="openTraining" />
     </ui-card>
 
     <view class="section-title">服务与设置</view>
     <ui-card>
-      <list-row title="饮食日历" description="回看记录" bind:tap="openHistory" />
-      <list-row title="组件预览" description="设计系统" bind:tap="openDesignSystem" />
-      <list-row title="通知、隐私与关于" bind:tap="unavailable" />
+      <list-row title="AI 教练" description="{{aiCoachEnabled ? '已开启' : '已关闭'}}" bind:tap="openAiCoach" />
+      <list-row title="绑定教练与会员码" description="服务入口" bind:tap="unavailable" />
+      <list-row title="通知、隐私与关于" bind:tap="openSettings" />
     </ui-card>
   </block>
 
@@ -54,6 +54,12 @@
         <view class="form-field"><text class="field-label">目标体重（kg）</text><input class="field-input" type="digit" value="{{draft.targetWeight}}" placeholder="例如 58.0" bindinput="onTargetWeightInput" /></view>
       </view>
       <view class="form-field"><text class="field-label">每日热量目标（千卡）</text><input class="field-input" type="number" value="{{draft.dailyCalorieGoal}}" placeholder="1000–5000" bindinput="onCalorieInput" /></view>
+      <view class="form-grid macro-grid">
+        <view class="form-field"><text class="field-label">碳水（g）</text><input class="field-input" type="digit" data-field="carbsGoal" value="{{draft.carbsGoal}}" bindinput="onMacroInput" /></view>
+        <view class="form-field"><text class="field-label">蛋白质（g）</text><input class="field-input" type="digit" data-field="proteinGoal" value="{{draft.proteinGoal}}" bindinput="onMacroInput" /></view>
+        <view class="form-field"><text class="field-label">脂肪（g）</text><input class="field-input" type="digit" data-field="fatGoal" value="{{draft.fatGoal}}" bindinput="onMacroInput" /></view>
+      </view>
+      <view class="switch-row"><view><text class="switch-title">AI 教练建议</text><text class="switch-note">基于记录给出规则化建议</text></view><switch checked="{{draft.aiCoachEnabled}}" color="#294E3B" bindchange="onAiCoachChange" /></view>
       <button class="save-button" loading="{{submitting}}" disabled="{{submitting || uploading}}" bindtap="saveProfile">{{submitting ? '保存中' : '保存资料'}}</button>
     </view>
   </view>

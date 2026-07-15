@@ -6,6 +6,7 @@ import com.diettracker.entity.User;
 import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +28,16 @@ public class TrendService {
     private final MealRecordRepository mealRecordRepository;
     private final ExerciseRecordRepository exerciseRecordRepository;
     private final UserRepository userRepository;
+    private final UserGoalRepository userGoalRepository;
 
     public TrendService(MealRecordRepository mealRecordRepository,
                         ExerciseRecordRepository exerciseRecordRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository,
+                        UserGoalRepository userGoalRepository) {
         this.mealRecordRepository = mealRecordRepository;
         this.exerciseRecordRepository = exerciseRecordRepository;
         this.userRepository = userRepository;
+        this.userGoalRepository = userGoalRepository;
     }
 
     @Transactional(readOnly = true)
@@ -43,8 +47,9 @@ public class TrendService {
         LocalDate comparisonStart = startDate.minusDays(days);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "用户不存在"));
-        int calorieGoal = user.getDailyCalorieGoal() == null
-                ? DashboardService.DEFAULT_CALORIE_GOAL : user.getDailyCalorieGoal();
+        int calorieGoal = userGoalRepository.findById(userId)
+                .map(goal -> goal.getDailyCalorieGoal())
+                .orElse(DashboardService.DEFAULT_CALORIE_GOAL);
 
         Map<LocalDate, BigDecimal> intake = toDailyMap(
                 mealRecordRepository.sumCaloriesGroupByDate(userId, comparisonStart, endDate));

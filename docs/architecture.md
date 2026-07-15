@@ -1,6 +1,6 @@
 # 系统架构设计
 
-> 本文描述 M8 分支的当前架构。开发阶段、质量门禁和防复发规则分别见 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
+> 本文描述 M10 分支的当前架构。开发阶段、质量门禁和防复发规则分别见 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
 
 ## 1. 整体架构
 
@@ -24,7 +24,7 @@ graph TB
         SERVICES --> REQUEST
     end
 
-    subgraph "Spring Boot 3.4 / Java 17"
+    subgraph "Spring Boot 3.4 / Java 18"
         CONTROLLER["Controller + DTO + Validation"]
         SERVICE["Auth / Food / Meal / Dashboard / Exercise / Trend"]
         REPOSITORY["Spring Data JPA Repository"]
@@ -35,7 +35,7 @@ graph TB
         SERVICE --> REPOSITORY
     end
 
-    subgraph "MySQL 8 / Flyway V1–V7"
+    subgraph "MySQL 8 / Flyway V1–V8"
         USER[(users)]
         FOOD[(food_category / food_item / favorite)]
         MEAL[(meal_record + 营养快照)]
@@ -51,14 +51,14 @@ graph TB
 
 | 项目 | 基线 |
 | --- | --- |
-| 后端 | Java 17、Spring Boot 3.4.4、Maven Wrapper |
+| 后端 | Java 18、Spring Boot 3.4.4、Maven Wrapper |
 | 数据库 | MySQL 8，Flyway 管理结构；测试使用 H2 MySQL 兼容模式并由 CI 补充真实 MySQL 8 验证 |
 | 小程序开发 | 微信开发者工具只导入 `miniapp/` |
 | 开发 API | `http://127.0.0.1:8080/api` |
 | 体验/正式 API | `miniapp/shared/config.js` 按 `envVersion` 选择 |
 | 统计时区 | `APP_TIME_ZONE`，默认 `Asia/Shanghai` |
 
-项目和 CI 的权威 Java 版本是 17。本机默认 Java 更高时，必须显式设置 `JAVA_HOME`，否则 Mockito/Byte Buddy 可能在测试插桩阶段失败。
+项目、本机和 CI 的权威 Java 版本是 18。Maven Wrapper 会拒绝其他主版本，避免测试运行时与编译目标静默漂移。
 
 ## 3. 小程序信息架构
 
@@ -70,7 +70,7 @@ graph TB
 | 趋势 | `pages/stats` | 7/30/90 天摄入、运动、净摄入和规则小结 |
 | 记录 | `pages/add` | 食品搜索、常用/最近/收藏、自定义与拍照占位 |
 | 运动 | `pages/exercise` | 运动 CRUD、消耗估算与规则推荐 |
-| 我的 | `pages/profile` | 资料、头像和手动热量目标；M10 继续补齐隐私与设置 |
+| 我的 | `pages/profile` | 资料、头像、用户目标、摘要、AI 教练开关、隐私与账号删除 |
 
 二级能力：
 
@@ -100,7 +100,7 @@ controller/ → service/ → repository/ → entity/
 - Entity 不直接作为写接口请求体。
 - 所有用户 ID 取自鉴权过滤器写入的请求属性，不接受客户端自报用户 ID。
 
-随着 M9/M10 增长，可在不改变接口契约的前提下逐步按 `meal/`、`exercise/`、`stats/`、`user/` 业务包重组，但不为重构延误阶段闭环。
+后续可在不改变接口契约的前提下逐步按 `meal/`、`exercise/`、`stats/`、`user/` 业务包重组，但不为重构延误发布闭环。
 
 ## 5. 核心数据规则
 
@@ -188,7 +188,7 @@ sequenceDiagram
 
 提交前必须同时通过：
 
-1. Java 17 下后端测试。
+1. Java 18 下后端测试。
 2. `node --test miniapp/tests/*.test.js` 全量小程序测试。
 3. 全部 JS/JSON 静态检查和 `git diff --check`。
 4. 微信开发者工具普通编译问题面板为 0。

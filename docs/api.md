@@ -71,9 +71,17 @@ PUT /users/me
 | dailyCalorieGoal | 可空；1,000–5,000 千卡 |
 | currentWeight / targetWeight | 可空；20–500 kg |
 
-### 删除账号数据（M10 预留）
+### 个人目标与摘要
 
-`DELETE /users/me` 的 UI 和实际删除逻辑在 M10 实现。接口必须要求有效 JWT 和二次确认；服务端事务内删除用户资料、饮食、运动、自定义食品和上传文件。审计日志只保存事件 ID、requestId、时间、结果和不可逆用户散列，不保存 openid、Token、昵称或业务内容，默认保留 180 天。删除失败必须整体回滚并返回结构化错误。
+- `GET /users/me/goals`：读取热量、碳水、蛋白质、脂肪、体重、阶段目标与 AI 教练开关。
+- `PUT /users/me/goals`：整体更新目标；热量 1000–5000 千卡，体重 20–500kg，宏量目标按 DTO 范围校验。
+- `GET /users/me/summary`：返回自定义食品、收藏、本周运动次数与连续记录天数。
+
+`UserGoal` 是 M10 起的唯一目标数据源。旧 `users` 目标列仅保留一个发布周期用于数据库紧急回退，业务读取不再使用。
+
+### 删除账号数据
+
+`DELETE /users/me` 要求有效 JWT，并通过 `X-Delete-Confirmation: DELETE` 完成服务端二次确认。服务端删除用户资料、目标、饮食、运动、自定义食品、收藏和托管头像。审计只保存事件 ID、requestId、时间、结果和带服务端 pepper 的不可逆用户散列，不保存 openid、Token、昵称或业务内容，默认保留 180 天。失败返回统一结构化错误。
 
 ---
 

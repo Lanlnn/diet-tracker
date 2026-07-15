@@ -22,7 +22,12 @@ const app = {
   }
 };
 
-const api = { uploadAvatar: () => Promise.resolve({ url: 'https://img.example/new.png' }) };
+const api = {
+  uploadAvatar: () => Promise.resolve({ url: 'https://img.example/new.png' }),
+  updateGoals: payload => Promise.resolve(payload),
+  getGoals: () => Promise.resolve({}),
+  getProfileSummary: () => Promise.resolve({})
+};
 const originalLoad = Module._load;
 Module._load = function(request, parent, isMain) {
   if (request === '../../services/index') return api;
@@ -32,7 +37,9 @@ Module._load = function(request, parent, isMain) {
 global.getApp = () => app;
 global.wx = {
   showToast() {},
-  navigateTo() {}
+  navigateTo() {},
+  switchTab() {},
+  showModal() {}
 };
 global.Page = definition => { pageDefinition = definition; };
 

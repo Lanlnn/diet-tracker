@@ -1,13 +1,14 @@
 # 开发复盘与防复发清单
 
-本文记录 M0–M8 开发过程中已经实际发生的问题、根因和固定处理规则。它不是聊天记录，而是后续 M9、M10 和后台管理开发的开工检查表。
+本文记录 M0–M9 开发过程中已经实际发生的问题、根因和固定处理规则。它不是聊天记录，而是 M10、发布准备和后台管理开发的开工检查表。M0–M10 的集中成果演示与复盘测试见 [`M0-M10-REVIEW-AND-TEST.md`](./M0-M10-REVIEW-AND-TEST.md)。
 
 ## 1. 2026-07-15 项目快照
 
-- `master` 已按依赖顺序完成 M0–M8，阶段标签为 `m0-complete`–`m8-complete`。
+- `master` 已按依赖顺序完成 M0–M9，阶段标签为 `m0-complete`–`m9-complete`。
 - M7 通过 PR #9 合并；后端、MySQL 迁移、小程序和开发者工具检查全部通过。
 - M8 从包含 M7 的最新 `master` 独立整理，只包含趋势阶段的功能、测试、验收和文档改动。
 - M8 完成 7/30/90 天、少于 3 天状态的契约联调和开发者工具整页截图，问题面板为 0。
+- M9 完成饮食日历、日期边界和跨页聚合对账；M10 分支正在进行发布候选验收。
 - 工作区还有与小程序里程碑无关的后台管理文档和原型改动，提交时必须继续按路径隔离。
 
 ## 2. 已发生的问题与固定规则
@@ -34,19 +35,22 @@
 
 ### 2.3 本机 Java 与项目基线不一致
 
-**现象：** 项目和 CI 使用 Java 17，但本机默认 Java 26。Mockito/Byte Buddy 在 Java 26 下报无法插桩，业务测试被误判为失败；切换到兼容 JDK 后测试通过。
+**现象：** 项目和 CI 曾使用 Java 17，但本机实际只有其他主版本。macOS 的 `java_home -v` 还可能静默回退，导致 Maven 运行时与编译目标不一致，Mockito/Byte Buddy 插桩错误被误判为业务失败。
 
 **固定规则：**
 
 ```bash
 java -version
 cd backend
-JAVA_HOME=$(/usr/libexec/java_home -v 17) sh mvnw --batch-mode test
+JAVA_HOME=$(/usr/libexec/java_home -v 18 2>/dev/null)
+"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "18[.]' || exit 1
+JAVA_HOME="$JAVA_HOME" sh mvnw --batch-mode test
 ```
 
-- CI 的 Temurin 17 结果是交付基准。
+- 本机 Amazon Corretto 18.0.2 与 CI Temurin 18 使用同一 Java 18 主版本作为交付基准。
+- macOS 可能在没有目标版本时静默返回其他唯一可用 JDK，必须对实际版本做断言；Maven Wrapper 也会拒绝非 Java 18。
 - 遇到 Mockito/Byte Buddy “unsupported Java”时先核对运行时，不先修改业务代码或放宽测试。
-- 新开发机如果没有 JDK 17，先安装并设置 `JAVA_HOME`，不要长期依赖更高版本碰巧兼容。
+- 新开发机如果没有 JDK 18，先安装并设置 `JAVA_HOME`，不要依赖其他版本碰巧兼容。
 
 ### 2.4 CI 只列举了早期测试
 

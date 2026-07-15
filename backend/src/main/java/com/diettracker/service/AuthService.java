@@ -15,11 +15,14 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final WeChatSessionClient weChatSessionClient;
+    private final UserGoalService userGoalService;
 
-    public AuthService(JwtUtil jwtUtil, UserRepository userRepository, WeChatSessionClient weChatSessionClient) {
+    public AuthService(JwtUtil jwtUtil, UserRepository userRepository, WeChatSessionClient weChatSessionClient,
+                       UserGoalService userGoalService) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.weChatSessionClient = weChatSessionClient;
+        this.userGoalService = userGoalService;
     }
 
     @Transactional
@@ -33,6 +36,6 @@ public class AuthService {
         return new LoginResponse(
                 jwtUtil.generateToken(openid),
                 jwtUtil.getExpirationSeconds(),
-                UserProfileResponse.from(user));
+                UserProfileResponse.from(user, userGoalService.requireOrCreate(openid), 0));
     }
 }
