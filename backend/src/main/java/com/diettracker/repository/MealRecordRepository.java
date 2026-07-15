@@ -57,6 +57,16 @@ public interface MealRecordRepository extends JpaRepository<MealRecord, Long> {
 
     @Query("SELECT m.mealDate, " +
            "COALESCE(SUM(m.quantity / m.baseAmountSnapshot * m.caloriesSnapshot), 0), " +
+           "COUNT(DISTINCT m.mealType) " +
+           "FROM MealRecord m " +
+           "WHERE m.userId = :userId AND m.mealDate BETWEEN :start AND :end " +
+           "GROUP BY m.mealDate ORDER BY m.mealDate")
+    List<Object[]> summarizeCalendarByDate(@Param("userId") String userId,
+                                            @Param("start") LocalDate start,
+                                            @Param("end") LocalDate end);
+
+    @Query("SELECT m.mealDate, " +
+           "COALESCE(SUM(m.quantity / m.baseAmountSnapshot * m.caloriesSnapshot), 0), " +
            "COALESCE(SUM(m.quantity / m.baseAmountSnapshot * m.proteinSnapshot), 0), " +
            "COALESCE(SUM(m.quantity / m.baseAmountSnapshot * m.fatSnapshot), 0), " +
            "COALESCE(SUM(m.quantity / m.baseAmountSnapshot * m.carbsSnapshot), 0) " +
