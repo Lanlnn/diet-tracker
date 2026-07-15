@@ -20,6 +20,7 @@
 - [E1.0 版本与本地环境冻结](./evidence/e1/00-version-and-environment-freeze.md)
 - [E1.1 本地运行记录](./evidence/e1/01-local-runtime.md)
 - [E1.2–E1.4 真机验收表](./evidence/e1/02-real-device-acceptance.md)
+- [E1 优化版 UI 覆盖审计](./evidence/e1/03-ui-coverage-audit.md)
 
 ## 文档维护规则
 

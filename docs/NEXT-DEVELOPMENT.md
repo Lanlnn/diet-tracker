@@ -111,6 +111,7 @@ P2：局部视觉或异常状态问题，不阻断数据正确性，必须记录
 - `evidence/e1/00-version-and-environment-freeze.md`
 - `evidence/e1/01-local-runtime.md`
 - `evidence/e1/02-real-device-acceptance.md`
+- `evidence/e1/03-ui-coverage-audit.md`
 
 ## 9. 后续云端阶段
 
