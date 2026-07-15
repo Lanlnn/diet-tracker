@@ -86,6 +86,11 @@ public class FoodService {
         return response(foods, userId);
     }
 
+    public FoodResponse getFood(Long foodId, String userId) {
+        return FoodResponse.from(visibleFood(foodId, userId),
+                favoriteRepository.existsByUserIdAndFoodItemId(userId, foodId));
+    }
+
     @Transactional
     public FoodResponse create(CreateFoodRequest request, String userId) {
         FoodCategory category = request.categoryId() == null

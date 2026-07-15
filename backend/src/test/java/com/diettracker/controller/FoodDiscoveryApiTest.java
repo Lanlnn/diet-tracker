@@ -144,6 +144,35 @@ class FoodDiscoveryApiTest {
                 .andExpect(jsonPath("$.items.length()").value(0));
     }
 
+    @Test
+    void returnsFoodDetailAndServerVerifiedNutritionPreview() throws Exception {
+        mockMvc.perform(get("/api/foods/{id}", chicken.getId())
+                        .header("Authorization", bearer(tokenA)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("鸡胸肉"))
+                .andExpect(jsonPath("$.baseAmount").value(100));
+
+        mockMvc.perform(post("/api/foods/{id}/calculate", chicken.getId())
+                        .header("Authorization", bearer(tokenA))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\":150}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(150))
+                .andExpect(jsonPath("$.unit").value("g"))
+                .andExpect(jsonPath("$.calories").value(248));
+    }
+
+    @Test
+    void returnsFieldErrorForInvalidCalculationAmount() throws Exception {
+        mockMvc.perform(post("/api/foods/{id}/calculate", chicken.getId())
+                        .header("Authorization", bearer(tokenA))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\":1.11}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors.amount").value("食用重量最多保留 1 位小数"));
+    }
+
     private FoodItem food(String name, String userId, FoodCategory category, String calories) {
         FoodItem food = new FoodItem();
         food.setName(name);

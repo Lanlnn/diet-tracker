@@ -10,7 +10,8 @@
 - M1 设计系统与五 Tab 骨架：已完成
 - M2 登录与个人资料：已完成
 - M3 食品库与搜索记录入口：已完成
-- 下一开发阶段：M4 热量计算与饮食保存
+- M4 热量计算：已完成
+- 下一开发阶段：M5 饮食保存与餐次详情
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 

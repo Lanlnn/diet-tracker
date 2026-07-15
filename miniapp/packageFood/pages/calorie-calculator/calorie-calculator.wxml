@@ -1,8 +1,51 @@
-<view class="calculator-shell">
-  <view class="food-summary">
-    <text class="eyebrow">已选择食品</text>
-    <text class="food-name">{{foodName || '食品'}}</text>
-    <text class="stage-note">克数输入、营养实时计算和保存记录将在 M4 完成。</text>
+<view class="calculator-page">
+  <view class="calculator-header">
+    <view class="back-button" aria-role="button" bindtap="goBack"><image class="back-icon" src="/assets/icons/chevron-left.svg" mode="aspectFit" /></view>
+    <text class="page-title">热量计算</text>
+    <view class="header-spacer"></view>
   </view>
-  <button class="return-button" bindtap="returnToSearch">返回食品列表</button>
+
+  <state-view class="page-state" wx:if="{{status === 'loading'}}" state="loading" title="正在读取食品信息" message="稍等一下" />
+  <state-view class="page-state" wx:elif="{{status === 'error'}}" state="error" title="食品信息加载失败" message="{{errorMessage}}" bind:retry="loadFood" />
+
+  <block wx:else>
+    <view class="food-summary">
+      <view class="food-icon"><image class="food-image" wx:if="{{iconPath}}" src="{{iconPath}}" mode="aspectFit" /><text wx:else>{{foodInitial}}</text></view>
+      <view class="food-copy">
+        <text class="food-name">{{food.name}}</text>
+        <text class="food-meta">食品库数据 · 每 {{food.baseAmount}}{{food.baseUnit}} 含 {{food.calories}} 千卡</text>
+      </view>
+    </view>
+
+    <view class="calculation-card">
+      <text class="input-label">输入食用重量</text>
+      <view class="formula-line">{{food.calories}} 千卡 × <text class="formula-amount">{{amountInput || '--'}}g</text></view>
+      <view class="amount-control">
+        <view class="step-button" aria-role="button" hover-class="step-button-pressed" data-delta="-10" bindtap="adjustAmount">−</view>
+        <view class="amount-field {{amountError ? 'invalid' : ''}}"><input class="amount-input" type="digit" value="{{amountInput}}" maxlength="7" bindinput="onAmountInput" /><text class="amount-unit">g</text></view>
+        <view class="step-button" aria-role="button" hover-class="step-button-pressed" data-delta="10" bindtap="adjustAmount">＋</view>
+      </view>
+      <text wx:if="{{amountError}}" class="field-error">{{amountError}}</text>
+
+      <view class="quick-grid">
+        <view wx:for="{{quickAmounts}}" wx:key="*this" aria-role="button" class="quick-value {{amountInput == item ? 'active' : ''}}" data-amount="{{item}}" bindtap="selectQuickAmount">{{item}}g</view>
+        <view aria-role="button" class="quick-value {{!food.servingAmount ? 'disabled' : ''}}" bindtap="selectServing">一份<text class="serving-detail" wx:if="{{food.servingAmount}}"> · {{food.servingAmount}}g</text></view>
+      </view>
+
+      <view class="calorie-result"><text class="result-caption">本次摄入</text><view><text class="result-number">{{amountError ? '--' : nutrition.calories}}</text><text class="result-unit"> 千卡</text></view></view>
+      <view class="nutrition-row"><view><text class="dot protein"></text><text>蛋白质</text></view><text class="nutrition-value">{{amountError ? '--' : nutrition.protein + 'g'}}</text></view>
+      <view class="nutrition-row"><view><text class="dot fat"></text><text>脂肪</text></view><text class="nutrition-value">{{amountError ? '--' : nutrition.fat + 'g'}}</text></view>
+      <view class="nutrition-row"><view><text class="dot carbs"></text><text>碳水</text></view><text class="nutrition-value">{{amountError ? '--' : nutrition.carbs + 'g'}}</text></view>
+    </view>
+
+    <picker class="option-card" mode="selector" range="{{mealOptions}}" range-key="label" value="{{mealIndex}}" bindchange="onMealChange">
+      <view class="option-row"><text>加入餐次</text><view class="option-value"><text>{{mealOptions[mealIndex].label}}</text><text class="chevron">›</text></view></view>
+    </picker>
+    <view class="option-card note-card"><text>备注</text><input class="note-input" placeholder="选填" maxlength="500" value="{{note}}" bindinput="onNoteInput" /></view>
+
+    <text class="draft-note">确认后将保留计算草稿，饮食记录会在下一阶段正式保存。</text>
+    <view class="submit-button {{submitting || amountError ? 'disabled' : ''}}" aria-role="button" hover-class="submit-button-pressed" bindtap="submitDraft">
+      {{submitting ? '服务端复核中' : '确认' + mealOptions[mealIndex].label + ' · ' + nutrition.calories + ' 千卡'}}
+    </view>
+  </block>
 </view>

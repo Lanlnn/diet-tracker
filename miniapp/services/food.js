@@ -22,8 +22,16 @@ function searchFood(keyword, page = 0, size = 20) {
   return request('/foods/search?keyword=' + encodeURIComponent(keyword) + '&page=' + page + '&size=' + size);
 }
 
+function getFood(foodId) {
+  return request('/foods/' + foodId);
+}
+
+function calculateFood(foodId, amount) {
+  return request('/foods/' + foodId + '/calculate', 'POST', { amount });
+}
+
 function setFoodFavorite(foodId, favorite) {
   return request('/foods/' + foodId + '/favorite', 'PUT', { favorite });
 }
 
-module.exports = { addFoodItem, getCategories, getFoods, searchFood, setFoodFavorite };
+module.exports = { addFoodItem, calculateFood, getCategories, getFood, getFoods, searchFood, setFoodFavorite };
