@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "趋势",
+  "usingComponents": {
+    "ui-segmented": "/components/ui-segmented/ui-segmented",
+    "state-view": "/components/state-view/state-view"
+  }
+}

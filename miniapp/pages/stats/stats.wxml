@@ -1,48 +1,67 @@
-<view class="container">
-  <view class="card">
-    <view class="section-title">本周热量统计</view>
-    <view class="week-chart" wx:if="{{weeklyData.length > 0}}">
-      <view wx:for="{{weeklyData}}" wx:key="date" class="bar-wrapper">
-        <view class="bar-container">
-          <view class="bar" style="height: {{item.height}}%"></view>
-        </view>
-        <view class="bar-info">
-          <text class="bar-cal">{{item.calories}}</text>
-          <text class="bar-day">{{item.dayLabel}}</text>
-        </view>
-      </view>
+<view class="trend-page">
+  <view class="page-header">
+    <view>
+      <text class="eyebrow">热量与运动</text>
+      <text class="page-title">趋势</text>
     </view>
-    <view wx:if="{{weeklyData.length === 0}}" class="empty-state">
-      <text>本周暂无数据</text>
-    </view>
+    <view class="period-badge" aria-label="当前统计日期 {{periodLabel}}">{{periodLabel || '统计周期'}}</view>
   </view>
 
-  <view class="card">
-    <view class="section-title">本周营养汇总</view>
-    <view wx:if="{{weeklyTotal.avgCalories > 0}}">
-      <view class="nutrient-row">
-        <text class="nutrient-label">日均热量</text>
-        <text class="nutrient-value">{{weeklyTotal.avgCalories}} kcal</text>
-      </view>
-      <view class="nutrient-row">
-        <text class="nutrient-label">日均蛋白质</text>
-        <text class="nutrient-value">{{weeklyTotal.avgProtein}}g</text>
-      </view>
-      <view class="nutrient-row">
-        <text class="nutrient-label">日均脂肪</text>
-        <text class="nutrient-value">{{weeklyTotal.avgFat}}g</text>
-      </view>
-      <view class="nutrient-row">
-        <text class="nutrient-label">日均碳水</text>
-        <text class="nutrient-value">{{weeklyTotal.avgCarbs}}g</text>
-      </view>
-    </view>
-  </view>
+  <ui-segmented options="{{rangeOptions}}" value="{{selectedRange}}" bind:change="onRangeChange" />
 
-  <view class="card">
-    <view class="section-title">营养建议 💡</view>
-    <view class="tip-list">
-      <text wx:for="{{tips}}" wx:key="index" class="tip-item">{{item}}</text>
+  <state-view wx:if="{{pageState === 'loading'}}" state="loading" title="正在整理趋势" message="正在汇总饮食与运动记录" />
+  <state-view wx:elif="{{pageState === 'error'}}" state="error" title="趋势加载失败" message="{{errorMessage}}" bind:retry="retry" />
+
+  <block wx:else>
+    <view wx:if="{{refreshing}}" class="refresh-note">正在刷新最新趋势…</view>
+    <view wx:if="{{errorMessage}}" class="inline-error">{{errorMessage}}</view>
+
+    <view class="trend-card">
+      <view class="metric-head">
+        <view>
+          <text class="metric-caption">日均净摄入</text>
+          <view class="metric-value-row"><text class="metric-value">{{averageNetLabel}}</text><text class="metric-unit">千卡</text></view>
+        </view>
+        <text class="comparison comparison--{{comparisonTone}}">{{comparisonLabel}}</text>
+      </view>
+
+      <scroll-view class="chart-scroll" scroll-x="true" enable-flex="true" show-scrollbar="false">
+        <view class="chart {{chartRangeClass}}" role="img" aria-label="{{accessibilitySummary}}">
+          <view wx:for="{{chartData}}" wx:key="date" class="bar-column" aria-label="{{item.ariaLabel}}">
+            <view class="bar-track">
+              <view class="bar bar--{{item.tone}} bar-height-{{item.heightStep}}"></view>
+            </view>
+            <text class="bar-day">{{item.dayLabel}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <text class="sr-only">{{accessibilitySummary}}</text>
+
+      <view class="metric-grid">
+        <view class="metric-grid__item">
+          <text>平均摄入</text>
+          <view><text class="metric-grid__value">{{averageIntakeLabel}}</text><text> 千卡</text></view>
+        </view>
+        <view class="metric-grid__item metric-grid__item--border">
+          <text>平均运动</text>
+          <view><text class="metric-grid__value">{{averageExerciseLabel}}</text><text> 千卡</text></view>
+        </view>
+        <view class="metric-grid__item metric-grid__item--wide">
+          <text>营养达成率</text>
+          <view><text class="metric-grid__value">{{achievementRate}}</text><text>%</text></view>
+        </view>
+      </view>
     </view>
-  </view>
+
+    <text class="summary-title">周期小结</text>
+    <view class="summary-list">
+      <view wx:for="{{summaries}}" wx:key="type" class="summary-card">
+        <view class="summary-icon summary-icon--{{item.tone}}">{{item.icon}}</view>
+        <view class="summary-copy">
+          <text class="summary-card__title">{{item.title}}</text>
+          <text class="summary-card__message">{{item.message}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
 </view>
