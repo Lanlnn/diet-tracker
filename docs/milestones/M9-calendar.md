@@ -1,6 +1,6 @@
 # M9：饮食日历
 
-**状态：** 待验收
+**状态：** 已完成
 **依赖：** M8
 **Git 分支：** `codex/m9-calendar`
 **阶段标签：** `m9-complete`
@@ -53,6 +53,4 @@ feat(m9): implement optimized diet calendar
 test(m9): cover calendar boundaries and query count
 ```
 
-推送阶段分支，验收合并后创建 `m9-complete` 标签。
-
-本地代码、全量自动化、成功态联调和视觉对照已完成。只有当 M7、M8 依赖链先合并，且 M9 分支推送、PR CI 通过并合并后，才能改为`已完成`并创建 `m9-complete` 标签。
+PR [#11](https://github.com/Lanlnn/diet-tracker/pull/11) 已通过完整 CI 并 squash 合并到 `master`；完成标签 `m9-complete` 已创建并推送。

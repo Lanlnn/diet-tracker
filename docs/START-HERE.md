@@ -2,7 +2,7 @@
 
 这份文档说明当前交付位置，以及每次开发必须经过的验证链路。
 
-M0–M8 的实际问题、固定防复发规则和 M8 闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
+M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。
 
 ## 1. 当前状态
 
@@ -15,10 +15,10 @@ M0–M8 的实际问题、固定防复发规则和 M8 闭环顺序见 [`DEVELOPM
 - M4 热量计算：已完成
 - M5 饮食保存与餐次详情：已完成
 - M6 今日热量总览：已完成
-- M7 运动记录与推荐：待验收（尚未推送、创建 PR 和合并）
-- M8 热量与运动趋势：待联调成功态视觉验收与 PR（开发者工具编译 0 问题）
-- M9 饮食日历：本地开发与验证完成，待依赖链合并后推送 PR 验收
-- 下一开发阶段：M10 个人中心与发布准备（须先顺序合并 M7、M8、M9）
+- M7 运动记录与推荐：已完成
+- M8 热量与运动趋势：已完成
+- M9 饮食日历：已完成
+- 下一开发阶段：M10 个人中心与发布准备
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
