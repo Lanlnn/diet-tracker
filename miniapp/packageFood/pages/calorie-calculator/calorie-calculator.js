@@ -83,17 +83,18 @@ Page({
 
   readDraft(foodId) {
     try {
+      const pendingDraft = wx.getStorageSync('m4PendingMealDraft');
+      if (pendingDraft && Number(pendingDraft.foodId) === Number(foodId)) return pendingDraft;
       const calculatorDraft = wx.getStorageSync('m4CalculatorDraft:' + foodId);
       if (calculatorDraft) return calculatorDraft;
-      const pendingDraft = wx.getStorageSync('m4PendingMealDraft');
-      return pendingDraft && Number(pendingDraft.foodId) === Number(foodId) ? pendingDraft : null;
+      return null;
     } catch (error) {
       return null;
     }
   },
 
   persistCalculatorDraft() {
-    if (!this.data.food || !this.data.foodId) return;
+    if (this._saved || !this.data.food || !this.data.foodId) return;
     const meal = this.data.mealOptions[this.data.mealIndex];
     try {
       wx.setStorageSync('m4CalculatorDraft:' + this.data.foodId, {
@@ -152,6 +153,7 @@ Page({
     this.setData({ submitting: true });
     api.calculateFood(this.data.foodId, preview.amount).then(snapshot => {
       const meal = this.data.mealOptions[this.data.mealIndex];
+      const previous = this.readDraft(this.data.foodId);
       const draft = {
         foodId: this.data.foodId,
         foodName: this.data.food.name,
@@ -161,6 +163,7 @@ Page({
         amount: Number(snapshot.amount),
         unit: snapshot.unit,
         note: String(this.data.note || '').trim(),
+        clientRequestId: previous && previous.clientRequestId ? previous.clientRequestId : this.createRequestId(),
         nutrition: {
           calories: Number(snapshot.calories),
           protein: Number(snapshot.protein),
@@ -169,15 +172,33 @@ Page({
         }
       };
       wx.setStorageSync('m4PendingMealDraft', draft);
-      this.setData({ submitting: false, nutrition: draft.nutrition });
-      wx.showToast({ title: '计算结果已确认', icon: 'success' });
-      setTimeout(() => wx.navigateBack(), 500);
+      return api.addRecord({
+        foodItemId: draft.foodId,
+        mealDate: draft.mealDate,
+        mealType: draft.mealType,
+        quantity: draft.amount,
+        unit: draft.unit,
+        note: draft.note
+      }, draft.clientRequestId).then(() => {
+        this._saved = true;
+        wx.removeStorageSync('m4PendingMealDraft');
+        wx.removeStorageSync('m4CalculatorDraft:' + this.data.foodId);
+        this.setData({ submitting: false, nutrition: draft.nutrition });
+        wx.showToast({ title: '已加入' + draft.mealLabel, icon: 'success' });
+        setTimeout(() => wx.redirectTo({
+          url: '/packageFood/pages/meal-detail/meal-detail?date=' + draft.mealDate + '&mealType=' + draft.mealType
+        }), 400);
+      });
     }).catch(error => {
       const fieldKeys = error.fieldErrors ? Object.keys(error.fieldErrors) : [];
       const fieldMessage = error.fieldErrors && (error.fieldErrors.amount || error.fieldErrors[fieldKeys[0]]);
       this.setData({ submitting: false, amountError: fieldMessage || '' });
       wx.showToast({ title: fieldMessage || error.message || '确认失败，请重试', icon: 'none' });
     });
+  },
+
+  createRequestId() {
+    return 'meal-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
   },
 
   goBack() {

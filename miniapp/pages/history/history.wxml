@@ -35,18 +35,18 @@
   </view>
 
   <view wx:for="{{groupedRecords}}" wx:key="type" class="meal-section" wx:if="{{item.records.length > 0}}">
-    <view class="meal-header">
+    <view class="meal-header" data-meal="{{item.type}}" bindtap="openMeal">
       <text class="tag {{item.tagClass}}">{{item.label}}</text>
       <text class="meal-calories">{{item.totalCalories}} kcal</text>
     </view>
     <view wx:for="{{item.records}}" wx:for-item="r" wx:key="id" class="food-row">
       <view class="food-info">
-        <text class="food-name">{{r.foodItem.name}}</text>
+        <text class="food-name">{{r.displayName}}</text>
         <text class="food-qty">{{r.quantity}}{{r.unit}}</text>
       </view>
       <view class="food-actions">
-        <text class="food-cal">{{fmt.mulFixed(r.foodItem.calories, r.quantity, 0)}}kcal</text>
-        <text class="delete-btn" data-id="{{r.id}}" bindtap="deleteRecord">删除</text>
+        <text class="food-cal">{{r.displayCalories}}kcal</text>
+        <text class="delete-btn" data-id="{{r.id}}" catchtap="deleteRecord">删除</text>
       </view>
     </view>
   </view>

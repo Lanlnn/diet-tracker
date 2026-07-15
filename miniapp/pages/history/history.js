@@ -43,15 +43,31 @@ Page({
   groupByMealType(records) {
     const groups = { breakfast: [], lunch: [], dinner: [], snack: [] };
     records.forEach(r => {
-      if (groups[r.mealType]) groups[r.mealType].push(r);
+      if (groups[r.mealType]) groups[r.mealType].push({
+        ...r,
+        displayName: r.foodNameSnapshot || (r.foodItem && r.foodItem.name) || '食物',
+        displayCalories: this.recordCalories(r).toFixed(0)
+      });
     });
     return Object.keys(MEAL_TYPE_MAP).map(type => ({
       type,
       label: MEAL_TYPE_MAP[type].label,
       tagClass: MEAL_TYPE_MAP[type].class,
       records: groups[type] || [],
-      totalCalories: (groups[type] || []).reduce((s, r) => s + r.foodItem.calories * r.quantity, 0).toFixed(0)
+      totalCalories: (groups[type] || []).reduce((s, r) => s + this.recordCalories(r), 0).toFixed(0)
     }));
+  },
+
+  recordCalories(record) {
+    const snapshot = Number(record.caloriesSnapshot);
+    const base = Number(record.baseAmountSnapshot);
+    if (Number.isFinite(snapshot) && base > 0) return snapshot * Number(record.quantity || 0) / base;
+    return Number(record.foodItem && record.foodItem.calories || 0) * Number(record.quantity || 0);
+  },
+
+  openMeal(e) {
+    const mealType = e.currentTarget.dataset.meal;
+    wx.navigateTo({ url: '/packageFood/pages/meal-detail/meal-detail?date=' + this.data.currentDate + '&mealType=' + mealType });
   },
 
   prevDay() {

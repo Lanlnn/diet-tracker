@@ -1,11 +1,18 @@
 const { request } = require('./request');
 
-function addRecord(data) {
-  return request('/records', 'POST', data);
+function addRecord(data, clientRequestId) {
+  return request('/records', 'POST', data, {
+    headers: clientRequestId ? { 'X-Idempotency-Key': clientRequestId } : {}
+  });
 }
 
-function getRecords(date) {
-  return request('/records?date=' + date);
+function getRecords(date, mealType) {
+  const filter = mealType ? '&mealType=' + encodeURIComponent(mealType) : '';
+  return request('/records?date=' + encodeURIComponent(date) + filter);
+}
+
+function updateRecord(id, data) {
+  return request('/records/' + id, 'PUT', data);
 }
 
 function getRecordsByRange(start, end) {
@@ -30,5 +37,6 @@ module.exports = {
   getDailyStats,
   getRecords,
   getRecordsByRange,
-  getWeeklyStats
+  getWeeklyStats,
+  updateRecord
 };

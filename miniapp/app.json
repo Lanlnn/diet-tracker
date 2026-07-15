@@ -17,7 +17,8 @@
     {
       "root": "packageFood",
       "pages": [
-        "pages/calorie-calculator/calorie-calculator"
+        "pages/calorie-calculator/calorie-calculator",
+        "pages/meal-detail/meal-detail"
       ]
     }
   ],
