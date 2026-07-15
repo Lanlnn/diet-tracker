@@ -1,98 +1,54 @@
-.section-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 24rpx;
-}
+.trend-page { box-sizing: border-box; min-height: 100vh; padding: 30rpx 40rpx calc(48rpx + env(safe-area-inset-bottom)); background: #F7F3EA; }
+.page-header { display: flex; align-items: flex-end; justify-content: space-between; margin: 12rpx 0 34rpx; }
+.eyebrow, .page-title { display: block; }
+.eyebrow { margin-bottom: 8rpx; color: #7B8177; font-size: 24rpx; letter-spacing: 1rpx; }
+.page-title { color: #20261F; font-size: 56rpx; font-weight: 700; line-height: 1.08; }
+.period-badge { max-width: 250rpx; padding: 15rpx 20rpx; overflow: hidden; color: #5F665D; font-size: 22rpx; text-overflow: ellipsis; white-space: nowrap; background: #FFFDF8; border: 1rpx solid #E9E4DA; border-radius: 30rpx; }
 
-.week-chart {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  height: 300rpx;
-  padding: 0 10rpx;
-}
+.refresh-note, .inline-error { margin: 20rpx 0 -8rpx; font-size: 24rpx; text-align: center; }
+.refresh-note { color: #5F665D; }
+.inline-error { color: #B65346; }
+.trend-card { margin-top: 28rpx; padding: 38rpx 36rpx 32rpx; background: #FFFDF8; border: 1rpx solid rgba(41,78,59,.05); border-radius: 44rpx; box-shadow: 0 14rpx 36rpx rgba(52,61,49,.06); }
+.metric-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.metric-caption { display: block; margin-bottom: 4rpx; color: #6C7369; font-size: 24rpx; }
+.metric-value-row { display: flex; align-items: baseline; }
+.metric-value { color: #20261F; font-size: 56rpx; font-weight: 700; letter-spacing: -2rpx; line-height: 1.2; }
+.metric-unit { margin-left: 10rpx; color: #20261F; font-size: 24rpx; }
+.comparison { margin-top: 8rpx; font-size: 23rpx; font-weight: 500; }
+.comparison--down { color: #456941; }
+.comparison--up { color: #A05D45; }
+.comparison--steady { color: #7B8177; }
 
-.bar-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
+.chart-scroll { width: 100%; margin-top: 18rpx; }
+.chart { display: flex; box-sizing: border-box; height: 286rpx; padding: 12rpx 0 0; }
+.chart--7d { width: 638rpx; }.chart--30d { width: 2100rpx; }.chart--90d { width: 3780rpx; }
+.bar-column { display: flex; flex: 1; min-width: 42rpx; height: 100%; flex-direction: column; align-items: center; }
+.bar-track { display: flex; width: 34rpx; height: 220rpx; align-items: flex-end; }
+.bar { width: 100%; min-height: 8rpx; border-radius: 18rpx; }
+.bar--recorded { background: #CDD9C9; }
+.bar--current { background: #4B6C45; }
+.bar--empty { background: #E7E8E1; }
+.bar-height-1 { height: 5%; }.bar-height-2 { height: 10%; }.bar-height-3 { height: 15%; }.bar-height-4 { height: 20%; }.bar-height-5 { height: 25%; }
+.bar-height-6 { height: 30%; }.bar-height-7 { height: 35%; }.bar-height-8 { height: 40%; }.bar-height-9 { height: 45%; }.bar-height-10 { height: 50%; }
+.bar-height-11 { height: 55%; }.bar-height-12 { height: 60%; }.bar-height-13 { height: 65%; }.bar-height-14 { height: 70%; }.bar-height-15 { height: 75%; }
+.bar-height-16 { height: 80%; }.bar-height-17 { height: 85%; }.bar-height-18 { height: 90%; }.bar-height-19 { height: 95%; }.bar-height-20 { height: 100%; }
+.bar-day { margin-top: 12rpx; color: #73796F; font-size: 21rpx; white-space: nowrap; }
 
-.bar-container {
-  width: 40rpx;
-  height: 200rpx;
-  background: #f0f0f0;
-  border-radius: 20rpx;
-  position: relative;
-  overflow: hidden;
-}
+.metric-grid { display: flex; flex-wrap: wrap; margin-top: 12rpx; padding-top: 26rpx; border-top: 1rpx solid #E9E4DA; }
+.metric-grid__item { box-sizing: border-box; width: 50%; color: #73796F; font-size: 22rpx; }
+.metric-grid__item--border { padding-left: 30rpx; border-left: 1rpx solid #E9E4DA; }
+.metric-grid__item--wide { display: flex; width: 100%; align-items: baseline; justify-content: space-between; margin-top: 24rpx; padding-top: 22rpx; border-top: 1rpx solid #F0ECE4; }
+.metric-grid__item view { margin-top: 6rpx; color: #20261F; font-size: 22rpx; }
+.metric-grid__value { font-size: 34rpx; font-weight: 700; }
 
-.bar {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: linear-gradient(180deg, #294E3B, #78907F);
-  border-radius: 20rpx;
-  transition: height 0.3s;
-}
-
-.bar-info {
-  text-align: center;
-  margin-top: 10rpx;
-}
-
-.bar-cal {
-  font-size: 22rpx;
-  color: #666;
-  display: block;
-}
-
-.bar-day {
-  font-size: 24rpx;
-  color: #999;
-  display: block;
-  margin-top: 4rpx;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60rpx 0;
-  color: #999;
-  font-size: 28rpx;
-}
-
-.nutrient-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-}
-
-.nutrient-row:last-child {
-  border-bottom: none;
-}
-
-.nutrient-label {
-  font-size: 28rpx;
-  color: #666;
-}
-
-.nutrient-value {
-  font-size: 28rpx;
-  color: #333;
-  font-weight: bold;
-}
-
-.tip-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.tip-item {
-  font-size: 28rpx;
-  color: #555;
-  line-height: 1.6;
-}
+.summary-title { display: block; margin: 48rpx 4rpx 22rpx; color: #20261F; font-size: 34rpx; font-weight: 650; }
+.summary-list { display: flex; flex-direction: column; gap: 20rpx; }
+.summary-card { display: flex; padding: 30rpx 28rpx; background: #FFFDF8; border: 1rpx solid rgba(41,78,59,.05); border-radius: 38rpx; box-shadow: 0 10rpx 28rpx rgba(52,61,49,.045); }
+.summary-icon { display: flex; width: 72rpx; height: 72rpx; flex: 0 0 auto; align-items: center; justify-content: center; margin-right: 24rpx; color: #283026; font-size: 30rpx; border-radius: 22rpx; }
+.summary-icon--sand { background: #F3E8D4; }
+.summary-icon--green { background: #E1EBDD; }
+.summary-copy { min-width: 0; padding-top: 1rpx; }
+.summary-card__title, .summary-card__message { display: block; }
+.summary-card__title { color: #20261F; font-size: 27rpx; font-weight: 650; }
+.summary-card__message { margin-top: 9rpx; color: #72786F; font-size: 23rpx; line-height: 1.55; }
+.sr-only { position: absolute; width: 1rpx; height: 1rpx; margin: -1rpx; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
