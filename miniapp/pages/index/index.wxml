@@ -17,7 +17,7 @@
 
     <view class="calorie-card">
       <view class="calorie-main">
-        <view class="calorie-ring" style="background: conic-gradient(#6E8D62 {{ringDegrees}}deg, #E8E7E1 0deg);">
+        <view class="calorie-ring" style="--ring-degrees: {{ringDegrees}}deg;">
           <view class="ring-center">
             <text class="ring-caption">还可以吃</text>
             <text class="ring-value">{{remainingLabel}}</text>
