@@ -1,5 +1,8 @@
 package com.diettracker.security;
 
+import com.diettracker.api.ApiError;
+import com.diettracker.api.RequestIdFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @Order(1)
@@ -17,9 +21,11 @@ public class AuthFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);
 
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
-    public AuthFilter(JwtUtil jwtUtil) {
+    public AuthFilter(JwtUtil jwtUtil, ObjectMapper objectMapper) {
         this.jwtUtil = jwtUtil;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -30,8 +36,8 @@ public class AuthFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        // Skip auth for login and seed endpoints
-         if (path.equals("/api/auth/login") || path.equals("/api/setup/seed") || "OPTIONS".equals(req.getMethod())) {
+        // Login and CORS preflight are the only public API requests.
+         if (path.equals("/api/auth/login") || "OPTIONS".equals(req.getMethod())) {
             chain.doFilter(request, response);
             return;
         }
@@ -46,22 +52,32 @@ public class AuthFilter implements Filter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Missing or invalid Authorization header for {}", path);
             res.setStatus(401);
-            res.setContentType("application/json");
-            res.getWriter().write("{\"error\":\"Missing or invalid token\"}");
+            writeUnauthorized(req, res, "AUTH_REQUIRED", "需要登录后访问");
             return;
         }
 
         String token = authHeader.substring(7);
-        if (!jwtUtil.validateToken(token)) {
-            log.warn("Invalid token for {}", path);
+        JwtUtil.TokenStatus tokenStatus = jwtUtil.getTokenStatus(token);
+        if (tokenStatus != JwtUtil.TokenStatus.VALID) {
+            String errorCode = tokenStatus == JwtUtil.TokenStatus.EXPIRED ? "TOKEN_EXPIRED" : "TOKEN_INVALID";
+            log.warn("Rejected {} token for {}", tokenStatus.name().toLowerCase(), path);
             res.setStatus(401);
-            res.setContentType("application/json");
-            res.getWriter().write("{\"error\":\"Invalid or expired token\"}");
+            writeUnauthorized(req, res, errorCode, "登录状态已失效");
             return;
         }
 
         String openid = jwtUtil.extractOpenid(token);
         req.setAttribute("userId", openid);
         chain.doFilter(request, response);
+    }
+
+    private void writeUnauthorized(HttpServletRequest request, HttpServletResponse response,
+                                   String code, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        Object value = request.getAttribute(RequestIdFilter.REQUEST_ID_ATTRIBUTE);
+        objectMapper.writeValue(response.getWriter(),
+                new ApiError(code, message, value == null ? "unknown" : value.toString(), Map.of()));
     }
 }

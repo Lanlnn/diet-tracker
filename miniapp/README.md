@@ -4,7 +4,9 @@
 
 ```text
 miniapp/
-├── pages/          # 已注册页面；当前为 4 个 TabBar 页面
+├── pages/          # 今日、趋势、记录、运动、我的五个 Tab 页面
+├── components/     # 卡片、按钮、分段、状态、进度、列表行
+├── packageTools/   # M1 组件预览分包
 ├── services/       # 网络请求及按业务划分的 API
 ├── shared/         # 环境配置、业务常量、纯工具和 WXS
 └── assets/         # 图片、图标等静态资源
@@ -16,7 +18,8 @@ miniapp/
 - `services/request.js` 统一处理服务地址、Token、401 重试和上传。
 - `services/auth.js`、`food.js`、`record.js` 按业务维护接口。
 - `shared` 中的工具不依赖页面、接口和 `getApp()`；配置、常量与工具按文件区分。
-- 只有多个页面实际复用的视图才新建 `components`；当前没有公共组件，因此不保留空目录。
+- 公共组件的点击区域不小于 88rpx，并覆盖加载、空、错误、禁用和长文本状态。
+- `我的 → 组件预览` 用于检查 M1 Token 与组件状态。
 
 ## 后续分包
 

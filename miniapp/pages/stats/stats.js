@@ -1,4 +1,4 @@
-const api = require('../../services');
+const api = require('../../services/index');
 const date = require('../../shared/date');
 
 Page({
@@ -66,8 +66,7 @@ Page({
       }
 
       this.setData({ weeklyData, weeklyTotal, tips });
-    }).catch(err => {
-      console.error('Weekly stats error:', err);
+    }).catch(() => {
       this.setData({
         tips: ['Could not load data, check network or login status']
       });

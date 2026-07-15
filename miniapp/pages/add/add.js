@@ -1,4 +1,4 @@
-const api = require('../../services');
+const api = require('../../services/index');
 const date = require('../../shared/date');
 const { MEAL_TYPE_OPTIONS } = require('../../shared/meal-types');
 
@@ -136,7 +136,7 @@ Page({
         return api.addRecord({
           mealDate: date,
           mealType: that.data.mealTypeOptions[mealTypeIndex].value,
-          foodItem: { id: food.id },
+          foodItemId: food.id,
           quantity: quantity,
           unit: customUnit,
           recordTime: new Date().toISOString()
@@ -159,7 +159,7 @@ Page({
       api.addRecord({
         mealDate: date,
         mealType: this.data.mealTypeOptions[mealTypeIndex].value,
-        foodItem: { id: this.data.selectedFood.id },
+        foodItemId: this.data.selectedFood.id,
         quantity: quantity,
         unit: this.data.selectedFood.unit,
         recordTime: new Date().toISOString()

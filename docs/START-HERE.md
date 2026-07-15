@@ -8,11 +8,12 @@
 - 默认分支：`master`，已开启 PR 和 CI 保护
 - 当前基线分支：`codex/m0-m10-development-plan`
 - 当前交付：[草稿 PR #1](https://github.com/Lanlnn/diet-tracker/pull/1)
-- 下一开发阶段：[M0 工程、安全与数据基线](./milestones/M0-foundation.md)
+- 当前阶段：M0 与 M1 已完成代码实现和本地验证，状态为“待验收”
+- 下一开发阶段：验收 M0/M1 后进入 [M2 登录与个人资料](./milestones/M2-auth-profile.md)
 - 微信开发者工具项目目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
-现在不要同时开发 8 个 UI 页面。先合并基线 PR，再完成 M0；M0 验收通过后才进入 M1 设计系统和页面骨架。
+M0/M1 的实现位于当前工作区；验收前不要创建完成标签，也不要继续叠加 M2 业务功能。
 
 ## 2. 今天必须先完成的三件事
 

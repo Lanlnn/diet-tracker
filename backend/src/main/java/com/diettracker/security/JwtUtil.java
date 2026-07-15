@@ -1,6 +1,8 @@
 package com.diettracker.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    public enum TokenStatus { VALID, EXPIRED, INVALID }
 
     private final SecretKey key;
     private final long expiration;
@@ -43,11 +46,21 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
+        return getTokenStatus(token) == TokenStatus.VALID;
+    }
+
+    public TokenStatus getTokenStatus(String token) {
         try {
             extractOpenid(token);
-            return true;
-        } catch (Exception e) {
-            return false;
+            return TokenStatus.VALID;
+        } catch (ExpiredJwtException exception) {
+            return TokenStatus.EXPIRED;
+        } catch (JwtException | IllegalArgumentException exception) {
+            return TokenStatus.INVALID;
         }
+    }
+
+    public long getExpirationSeconds() {
+        return expiration / 1000;
     }
 }

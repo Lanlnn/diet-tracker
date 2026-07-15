@@ -1,0 +1,5 @@
+.nutrition { margin: 20rpx 0; }
+.nutrition__meta { display: flex; justify-content: space-between; margin-bottom: 12rpx; color: #5F665D; font-size: 24rpx; }
+.nutrition__track { height: 16rpx; overflow: hidden; background: #E9E4DA; border-radius: 8rpx; }
+.nutrition__fill { height: 100%; background: #294E3B; border-radius: 8rpx; }
+.nutrition__fill--orange { background: #D99B54; }

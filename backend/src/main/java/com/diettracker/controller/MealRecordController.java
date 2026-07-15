@@ -2,6 +2,8 @@ package com.diettracker.controller;
 
 import com.diettracker.entity.MealRecord;
 import com.diettracker.service.MealRecordService;
+import com.diettracker.dto.CreateMealRecordRequest;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ public class MealRecordController {
 
     @PostMapping
     public ResponseEntity<MealRecord> addRecord(
-            @RequestBody MealRecord record,
+            @Valid @RequestBody CreateMealRecordRequest record,
             @RequestAttribute("userId") String userId) {
         MealRecord saved = service.addRecord(record, userId);
         return ResponseEntity.ok(saved);

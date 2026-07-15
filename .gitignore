@@ -24,6 +24,9 @@ miniapp/node_modules/
 
 # 日志
 *.log
+.env
+backend/var/
+backend/uploads/
 
 # Codex workspace config
 .codex/

@@ -13,7 +13,8 @@
  import java.nio.file.Path;
  import java.nio.file.Paths;
  import java.util.Map;
- import java.util.UUID;
+import java.util.UUID;
+ import java.util.Set;
  
  @RestController
  @RequestMapping("/api/upload")
@@ -21,10 +22,13 @@
  
      private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
  
-     @Value("${app.upload.dir:uploads/avatars}")
+     private static final long MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+
+     @Value("${app.upload.dir}")
      private String uploadDir;
  
-     @Value("${app.base-url:https://tigercloud.asia}")
+     @Value("${app.base-url}")
      private String baseUrl;
  
      private Path uploadPath;
@@ -34,7 +38,7 @@
          uploadPath = Paths.get(uploadDir);
          try {
              Files.createDirectories(uploadPath);
-             log.info("Avatar upload directory: {}", uploadPath.toAbsolutePath());
+             log.info("Avatar upload directory initialized");
          } catch (IOException e) {
              log.error("Could not create upload directory", e);
          }
@@ -43,24 +47,28 @@
      @PostMapping("/avatar")
      public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
          if (file.isEmpty()) {
-             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+             return ResponseEntity.badRequest().body(Map.of("message", "文件不能为空"));
          }
- 
-         String originalName = file.getOriginalFilename();
-         String ext = "";
-         if (originalName != null && originalName.contains(".")) {
-             ext = originalName.substring(originalName.lastIndexOf("."));
+
+         if (file.getSize() > MAX_AVATAR_BYTES || !ALLOWED_TYPES.contains(file.getContentType())) {
+             return ResponseEntity.badRequest().body(Map.of("message", "仅支持 2MB 以内的 JPG、PNG 或 WebP 图片"));
          }
+         String ext = switch (file.getContentType()) {
+             case "image/png" -> ".png";
+             case "image/webp" -> ".webp";
+             default -> ".jpg";
+         };
          String newName = UUID.randomUUID().toString() + ext;
  
          try {
             byte[] bytes = file.getBytes();
-            Path target = uploadPath.resolve(newName);
+            Path target = uploadPath.resolve(newName).normalize();
+            if (!target.startsWith(uploadPath.normalize())) {
+                return ResponseEntity.badRequest().body(Map.of("message", "文件名不合法"));
+            }
             Files.write(target, bytes);
-             // 从 uploadDir 提取 URL 路径（如 "uploads/avatars" -> "/uploads/avatars"）
-             String urlPath = "/" + uploadDir.replace("\\", "/").replaceAll("^/+", "").replaceAll("/+$", "");
-             String url = baseUrl + urlPath + "/" + newName;
-            log.info("Avatar uploaded: {} -> {}", originalName, url);
+             String url = baseUrl.replaceAll("/+$", "") + "/uploads/avatars/" + newName;
+            log.info("Avatar uploaded successfully");
             return ResponseEntity.ok(Map.of("url", url));
          } catch (IOException e) {
              log.error("File upload failed", e);

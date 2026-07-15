@@ -10,6 +10,18 @@
 
 ## 2. 开发基准
 
+### 2.0 M0–M1 本地启动
+
+当前工程基线统一为 Java 17、PostgreSQL 和 Flyway。将根目录 `.env.example` 中的变量设置到本机 shell（不要提交 `.env`），然后执行：
+
+```bash
+cd backend
+sh mvnw --batch-mode test
+sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+微信开发者工具只导入 `miniapp/`。开发版请求 `http://127.0.0.1:8080/api`，体验版和正式版分别使用 `shared/config.js` 中的 staging/release 地址。组件预览入口位于“我的 → 组件预览”。
+
 ### 2.1 基准优先级
 
 出现冲突时按以下顺序处理：

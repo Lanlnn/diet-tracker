@@ -8,11 +8,11 @@ function login(code) {
 }
 
 function getProfile() {
-  return request('/auth/profile');
+  return request('/users/me');
 }
 
 function updateProfile(data) {
-  return request('/auth/profile', 'PUT', data);
+  return request('/users/me', 'PUT', data);
 }
 
 function uploadAvatar(filePath) {

@@ -1,4 +1,4 @@
-const api = require('../../services');
+const api = require('../../services/index');
 const dateUtils = require('../../shared/date');
 const { MEAL_TYPE_MAP } = require('../../shared/meal-types');
 

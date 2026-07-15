@@ -1,4 +1,4 @@
-const api = require('../../services');
+const api = require('../../services/index');
 const date = require('../../shared/date');
 const { MEAL_TYPE_MAP } = require('../../shared/meal-types');
  const app = getApp();
@@ -13,12 +13,15 @@ Page({
     records: [],
     mealTypes: [],
     stats: { totalCalories: 0, totalProtein: 0, totalFat: 0, totalCarbs: 0 }
+    ,pageState: 'loading',
+    errorMessage: ''
   },
 
   onLoad() {
     this.loadProfile();
      // 注册资料变更通知
-     app.onProfileUpdate(this._onProfileUpdate);
+     this._profileListener = () => this.loadProfile();
+     app.onProfileUpdate(this._profileListener);
     const now = new Date();
     const hour = now.getHours();
     let greeting = '你好！';
@@ -36,14 +39,9 @@ Page({
   },
 
    onUnload() {
-     app.offProfileUpdate(this._onProfileUpdate);
+     app.offProfileUpdate(this._profileListener);
    },
  
-   /** 资料变更时刷新页面 */
-   _onProfileUpdate() {
-     this.loadProfile();
-   },
-
   loadProfile() {
     const gd = app.globalData;
     this.setData({
@@ -87,13 +85,9 @@ Page({
      }
      
      const finalNickname = nicknameInput || '微信用户';
-     app.saveWechatInfo(finalNickname, avatarUrl);
-     this.setData({
-       nickname: finalNickname,
-       avatarUrl: avatarUrl,
-       needsWechatInfo: false
-     });
-     wx.showToast({ title: '保存成功', icon: 'success' });
+    app.saveWechatInfo(finalNickname, avatarUrl).then(() => {
+      wx.showToast({ title: '保存成功', icon: 'success' });
+    }).catch(() => wx.showToast({ title: '保存失败', icon: 'none' }));
    },
 
   /** 微信昵称输入框回调 */
@@ -103,13 +97,11 @@ Page({
 
   loadData() {
     const today = date.getToday();
-    Promise.all([
-      api.getRecords(today).catch(() => []),
-      api.getDailyStats(today).catch(() => ({}))
-    ]).then(([records, stats]) => {
+    this.setData({ pageState: 'loading', errorMessage: '' });
+    Promise.all([api.getRecords(today), api.getDailyStats(today)]).then(([records, stats]) => {
       const mealTypes = this.groupByMealType(records || []);
-      this.setData({ records: records || [], mealTypes, stats: stats || {} });
-    });
+      this.setData({ records: records || [], mealTypes, stats: stats || {}, pageState: records.length ? 'success' : 'empty' });
+    }).catch(error => this.setData({ pageState: 'error', errorMessage: error.message || '加载失败' }));
   },
 
   groupByMealType(records) {

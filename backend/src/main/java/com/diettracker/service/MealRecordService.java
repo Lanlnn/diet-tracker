@@ -6,6 +6,10 @@ import com.diettracker.entity.MealRecord;
 import com.diettracker.repository.FoodCategoryRepository;
 import com.diettracker.repository.FoodItemRepository;
 import com.diettracker.repository.MealRecordRepository;
+import com.diettracker.dto.CreateFoodRequest;
+import com.diettracker.dto.CreateMealRecordRequest;
+import com.diettracker.api.ApiException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -48,12 +52,18 @@ public class MealRecordService {
         return foodItemRepository.findAllFoods(userId);
     }
 
-    public MealRecord addRecord(MealRecord record, String userId) {
-        if (record.getFoodItem() != null && record.getFoodItem().getId() != null) {
-            FoodItem managed = foodItemRepository.findById(record.getFoodItem().getId())
-                    .orElseThrow(() -> new RuntimeException("Food not found: " + record.getFoodItem().getId()));
-            record.setFoodItem(managed);
-        }
+    public MealRecord addRecord(CreateMealRecordRequest request, String userId) {
+        FoodItem managed = foodItemRepository.findById(request.foodItemId())
+                .filter(food -> food.getUserId() == null || userId.equals(food.getUserId()))
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "FOOD_NOT_FOUND", "食品不存在"));
+        MealRecord record = new MealRecord();
+        record.setMealDate(request.mealDate());
+        record.setMealType(request.mealType());
+        record.setFoodItem(managed);
+        record.setQuantity(request.quantity());
+        record.setUnit(request.unit() == null ? managed.getUnit() : request.unit());
+        record.setRecordTime(request.recordTime());
+        record.setNote(request.note());
         record.setUserId(userId);
         return mealRecordRepository.save(record);
     }
@@ -68,9 +78,9 @@ public class MealRecordService {
 
     public void deleteRecord(Long id, String userId) {
         MealRecord record = mealRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Record not found: " + id));
-        if (!record.getUserId().equals(userId)) {
-            throw new RuntimeException("Not authorized to delete this record");
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECORD_NOT_FOUND", "记录不存在"));
+        if (!userId.equals(record.getUserId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "无权操作该记录");
         }
         mealRecordRepository.delete(record);
     }
@@ -137,18 +147,24 @@ public class MealRecordService {
         return result;
     }
 
-    public FoodItem addFoodItem(FoodItem foodItem, String userId) {
-        if (foodItem.getCategory() == null || foodItem.getCategory().getId() == null) {
-            FoodCategory defaultCat = foodCategoryRepository.findAllByOrderBySortOrderAsc()
+    public FoodItem addFoodItem(CreateFoodRequest request, String userId) {
+        FoodCategory category;
+        if (request.categoryId() == null) {
+            category = foodCategoryRepository.findAllByOrderBySortOrderAsc()
                     .stream().findFirst()
-                    .orElseThrow(() -> new RuntimeException("No categories available"));
-            foodItem.setCategory(defaultCat);
+                    .orElseThrow(() -> new ApiException(HttpStatus.CONFLICT, "CATEGORY_REQUIRED", "请先初始化食品分类"));
+        } else {
+            category = foodCategoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CATEGORY_NOT_FOUND", "食品分类不存在"));
         }
-        if (foodItem.getCalories() == null) foodItem.setCalories(BigDecimal.ZERO);
-        if (foodItem.getProtein() == null) foodItem.setProtein(BigDecimal.ZERO);
-        if (foodItem.getFat() == null) foodItem.setFat(BigDecimal.ZERO);
-        if (foodItem.getCarbs() == null) foodItem.setCarbs(BigDecimal.ZERO);
-        if (foodItem.getUnit() == null) foodItem.setUnit("份");
+        FoodItem foodItem = new FoodItem();
+        foodItem.setName(request.name().trim());
+        foodItem.setCategory(category);
+        foodItem.setUnit(request.unit() == null ? "份" : request.unit());
+        foodItem.setCalories(request.calories() == null ? BigDecimal.ZERO : request.calories());
+        foodItem.setProtein(request.protein() == null ? BigDecimal.ZERO : request.protein());
+        foodItem.setFat(request.fat() == null ? BigDecimal.ZERO : request.fat());
+        foodItem.setCarbs(request.carbs() == null ? BigDecimal.ZERO : request.carbs());
         foodItem.setUserId(userId);
         return foodItemRepository.save(foodItem);
     }

@@ -33,7 +33,7 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: linear-gradient(180deg, #4CAF50, #81C784);
+  background: linear-gradient(180deg, #294E3B, #78907F);
   border-radius: 20rpx;
   transition: height 0.3s;
 }

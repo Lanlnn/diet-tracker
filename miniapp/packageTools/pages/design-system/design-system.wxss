@@ -1,0 +1,4 @@
+.preview-title { margin-top: 16rpx; color: #222820; font-size: 48rpx; font-weight: 650; }
+.preview-note { display: block; margin: 12rpx 0 36rpx; color: #8A8D84; font-size: 24rpx; }
+.block { margin-bottom: 28rpx; }
+.gap { height: 16rpx; }

@@ -1,0 +1,1 @@
+{ "navigationBarTitleText": "组件预览", "usingComponents": { "ui-card": "/components/ui-card/ui-card", "ui-button": "/components/ui-button/ui-button", "ui-segmented": "/components/ui-segmented/ui-segmented", "state-view": "/components/state-view/state-view", "nutrition-progress": "/components/nutrition-progress/nutrition-progress", "list-row": "/components/list-row/list-row" } }

@@ -33,6 +33,20 @@ jobs:
       - name: Check JSON syntax
         run: node -e "const fs=require('fs'); const path=require('path'); const walk=p=>fs.readdirSync(p,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(p,e.name)):path.join(p,e.name)); for(const file of walk('miniapp').filter(f=>f.endsWith('.json'))) JSON.parse(fs.readFileSync(file,'utf8'));"
 
+      - name: Test login concurrency
+        run: node miniapp/tests/auth-concurrency.test.js
+
+      - name: Test profile flow
+        run: node miniapp/tests/profile-flow.test.js
+
+      - name: Scan tracked files for committed secrets
+        shell: bash
+        run: |
+          if git grep -nE '(wechat\.secret|jwt\.secret|spring\.datasource\.password)=[^$]' -- ':!*.example'; then
+            echo 'Potential hard-coded secret found'
+            exit 1
+          fi
+
   backend-test:
     name: Backend tests
     runs-on: ubuntu-latest

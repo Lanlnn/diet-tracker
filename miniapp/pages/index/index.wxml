@@ -1,5 +1,8 @@
 <wxs src="../../shared/format.wxs" module="fmt" />
 <view class="container">
+  <state-view wx:if="{{pageState === 'loading'}}" state="loading" title="正在准备今日数据" message="稍等一下" />
+  <state-view wx:elif="{{pageState === 'error'}}" state="error" title="加载失败" message="{{errorMessage}}" bind:retry="loadData" />
+  <block wx:else>
   <view class="header-card">
      <view class="profile-row">
        <view class="avatar-wrap">
@@ -75,4 +78,5 @@
       <text class="food-cal">{{fmt.mulFixed(r.foodItem.calories, r.quantity, 0)}}kcal</text>
     </view>
   </view>
+  </block>
 </view>
