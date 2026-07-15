@@ -354,6 +354,49 @@ DELETE /records/{id}
 
 ---
 
+## 今日首页聚合
+
+```
+GET /dashboard/today?date=2026-07-15
+```
+
+首页只请求该接口，服务端在同一只读事务内聚合用户目标和当日饮食快照。未设置热量目标时使用 1,800 千卡运营默认值，并通过 `goalSource=DEFAULT` 标识。
+
+```json
+{
+  "date": "2026-07-15",
+  "goalCalories": 1800,
+  "goalSource": "USER",
+  "intakeCalories": 1240,
+  "remainingCalories": 560,
+  "exceededCalories": 0,
+  "exerciseCalories": 0,
+  "netCalories": 1240,
+  "nutrition": {
+    "carbs": { "amount": 142, "goal": 225, "progressPercent": 63 },
+    "protein": { "amount": 86, "goal": 90, "progressPercent": 96 },
+    "fat": { "amount": 41, "goal": 60, "progressPercent": 68 }
+  },
+  "exercise": {
+    "state": "empty",
+    "completedCount": 0,
+    "durationMinutes": 0,
+    "caloriesBurned": 0
+  },
+  "meals": [
+    { "type": "breakfast", "label": "早餐", "itemCount": 1, "calories": 380, "previewItems": ["水煮蛋"] }
+  ],
+  "advice": { "title": "保持当前节奏", "message": "继续完整记录今日饮食" }
+}
+```
+
+- `remainingCalories = max(goalCalories - intakeCalories, 0)`
+- `exceededCalories = max(intakeCalories - goalCalories, 0)`
+- `netCalories = intakeCalories - exerciseCalories`
+- M6 暂无运动记录模型，`exercise` 返回明确空状态；M7 保持该契约并接入真实聚合。运动消耗不增加 `remainingCalories`。
+
+---
+
 ## 统计
 
 ### 日统计
