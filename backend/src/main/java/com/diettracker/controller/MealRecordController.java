@@ -3,6 +3,7 @@ package com.diettracker.controller;
 import com.diettracker.entity.MealRecord;
 import com.diettracker.service.MealRecordService;
 import com.diettracker.dto.CreateMealRecordRequest;
+import com.diettracker.dto.UpdateMealRecordRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +26,26 @@ public class MealRecordController {
     @PostMapping
     public ResponseEntity<MealRecord> addRecord(
             @Valid @RequestBody CreateMealRecordRequest record,
+            @RequestHeader(value = "X-Idempotency-Key", required = false) String clientRequestId,
             @RequestAttribute("userId") String userId) {
-        MealRecord saved = service.addRecord(record, userId);
+        MealRecord saved = service.addRecord(record, userId, clientRequestId);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping
     public List<MealRecord> getRecords(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) MealRecord.MealType mealType,
             @RequestAttribute("userId") String userId) {
-        return service.getRecordsByDate(date, userId);
+        return service.getRecordsByDate(date, mealType, userId);
+    }
+
+    @PutMapping("/{id}")
+    public MealRecord updateRecord(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateMealRecordRequest record,
+            @RequestAttribute("userId") String userId) {
+        return service.updateRecord(id, record, userId);
     }
 
     @GetMapping("/range")

@@ -38,6 +38,30 @@ public class MealRecord {
     @Column(length = 500)
     private String note;
 
+    @Column(name = "food_name_snapshot", nullable = false, length = 100)
+    private String foodNameSnapshot;
+
+    @Column(name = "base_amount_snapshot", nullable = false, precision = 10, scale = 2)
+    private BigDecimal baseAmountSnapshot;
+
+    @Column(name = "base_unit_snapshot", nullable = false, length = 20)
+    private String baseUnitSnapshot;
+
+    @Column(name = "calories_snapshot", nullable = false, precision = 10, scale = 2)
+    private BigDecimal caloriesSnapshot;
+
+    @Column(name = "protein_snapshot", nullable = false, precision = 10, scale = 2)
+    private BigDecimal proteinSnapshot;
+
+    @Column(name = "fat_snapshot", nullable = false, precision = 10, scale = 2)
+    private BigDecimal fatSnapshot;
+
+    @Column(name = "carbs_snapshot", nullable = false, precision = 10, scale = 2)
+    private BigDecimal carbsSnapshot;
+
+    @Column(name = "client_request_id", length = 100)
+    private String clientRequestId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -53,6 +77,15 @@ public class MealRecord {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (recordTime == null) recordTime = LocalDateTime.now();
+        if (foodItem != null && foodNameSnapshot == null) {
+            foodNameSnapshot = foodItem.getName();
+            baseAmountSnapshot = foodItem.getBaseAmount();
+            baseUnitSnapshot = foodItem.getBaseUnit();
+            caloriesSnapshot = foodItem.getCalories();
+            proteinSnapshot = foodItem.getProtein();
+            fatSnapshot = foodItem.getFat();
+            carbsSnapshot = foodItem.getCarbs();
+        }
     }
 
     @PreUpdate
@@ -78,6 +111,22 @@ public class MealRecord {
     public void setUserId(String userId) { this.userId = userId; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+    public String getFoodNameSnapshot() { return foodNameSnapshot; }
+    public void setFoodNameSnapshot(String value) { this.foodNameSnapshot = value; }
+    public BigDecimal getBaseAmountSnapshot() { return baseAmountSnapshot; }
+    public void setBaseAmountSnapshot(BigDecimal value) { this.baseAmountSnapshot = value; }
+    public String getBaseUnitSnapshot() { return baseUnitSnapshot; }
+    public void setBaseUnitSnapshot(String value) { this.baseUnitSnapshot = value; }
+    public BigDecimal getCaloriesSnapshot() { return caloriesSnapshot; }
+    public void setCaloriesSnapshot(BigDecimal value) { this.caloriesSnapshot = value; }
+    public BigDecimal getProteinSnapshot() { return proteinSnapshot; }
+    public void setProteinSnapshot(BigDecimal value) { this.proteinSnapshot = value; }
+    public BigDecimal getFatSnapshot() { return fatSnapshot; }
+    public void setFatSnapshot(BigDecimal value) { this.fatSnapshot = value; }
+    public BigDecimal getCarbsSnapshot() { return carbsSnapshot; }
+    public void setCarbsSnapshot(BigDecimal value) { this.carbsSnapshot = value; }
+    public String getClientRequestId() { return clientRequestId; }
+    public void setClientRequestId(String value) { this.clientRequestId = value; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
