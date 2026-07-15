@@ -16,7 +16,7 @@ search() {
   fi
 }
 
-required_placeholders=(DB_URL DB_USERNAME DB_PASSWORD WECHAT_APPID WECHAT_SECRET JWT_SECRET APP_BASE_URL CORS_ALLOWED_ORIGINS DELETION_AUDIT_PEPPER)
+required_placeholders=(DB_URL DB_USERNAME DB_PASSWORD WECHAT_APPID WECHAT_SECRET JWT_SECRET ADMIN_JWT_SECRET APP_BASE_URL CORS_ALLOWED_ORIGINS DELETION_AUDIT_PEPPER)
 for name in "${required_placeholders[@]}"; do
   if ! search "\\$\\{${name}" backend/src/main/resources; then
     echo "Missing environment-backed production setting: ${name}" >&2
