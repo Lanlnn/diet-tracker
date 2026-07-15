@@ -86,3 +86,24 @@ jobs:
       - name: Run Maven tests
         working-directory: backend
         run: sh mvnw --batch-mode test
+
+      - name: Test legacy MySQL 8 data migration
+        env:
+          MYSQL_PWD: test-root-password
+          MYSQL_MIGRATION_HOST: 127.0.0.1
+          MYSQL_MIGRATION_PORT: "3306"
+          MYSQL_MIGRATION_DATABASE: diet_tracker_legacy_test
+          MYSQL_MIGRATION_USERNAME: root
+          MYSQL_MIGRATION_PASSWORD: test-root-password
+          MIGRATION_CONFIRM_DATABASE: diet_tracker_legacy_test
+          LEGACY_USER_ID: legacy-ci-user
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes default-mysql-client
+          mysql --host=127.0.0.1 --user=root \
+            < backend/src/test/resources/db/legacy/legacy_v0_fixture.sql
+          sh backend/scripts/migrate-legacy-mysql8.sh
+          test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
+            diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM meal_record WHERE user_id='legacy-ci-user' AND calories_snapshot=248.00 AND base_amount_snapshot=1.00 AND base_unit_snapshot='份'")" = "1"
+          test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
+            diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM flyway_schema_history WHERE version='5' AND success=1")" = "1"

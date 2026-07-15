@@ -148,7 +148,7 @@ GET /foods?scope=all&categoryId=1&page=0&size=20
 }
 ```
 
-营养字段均对应 `baseAmount + baseUnit`。M3 新基准食品使用每 100g；迁移前无法可靠换算的历史按份数据会明确标记为 `LEGACY_SERVING`，不得当作每 100g 数据参与计算。
+营养字段均对应 `baseAmount + baseUnit`。M3 新基准食品使用每 100g；迁移前无法可靠换算的系统/自定义历史按份数据会分别标记为 `LEGACY_SYSTEM` / `LEGACY_CUSTOM`，并保存为 `baseAmount=1` 和原单位，不得当作每 100g 数据参与计算。
 
 ### 搜索食物
 
