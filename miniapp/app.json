@@ -13,6 +13,12 @@
       "pages": [
         "pages/design-system/design-system"
       ]
+    },
+    {
+      "root": "packageFood",
+      "pages": [
+        "pages/calorie-calculator/calorie-calculator"
+      ]
     }
   ],
   "window": {

@@ -1,0 +1,7 @@
+.calculator-shell { box-sizing: border-box; min-height: 100vh; padding: 48rpx 40rpx calc(48rpx + env(safe-area-inset-bottom)); background: var(--color-bg); }
+.food-summary { padding: 48rpx 40rpx; background: var(--color-surface); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.eyebrow, .food-name, .stage-note { display: block; }
+.eyebrow { color: var(--color-primary); font-size: 23rpx; font-weight: 650; letter-spacing: 2rpx; }
+.food-name { margin-top: 18rpx; color: var(--color-text); font-size: 48rpx; font-weight: 700; }
+.stage-note { margin-top: 22rpx; color: var(--color-text-secondary); font-size: 27rpx; line-height: 1.7; }
+.return-button { height: 88rpx; margin-top: 32rpx; color: var(--color-surface); font-size: 28rpx; font-weight: 650; background: var(--color-primary); border-radius: 44rpx; }

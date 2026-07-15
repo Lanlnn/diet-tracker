@@ -39,6 +39,9 @@ jobs:
       - name: Test profile flow
         run: node miniapp/tests/profile-flow.test.js
 
+      - name: Test food search flow
+        run: node miniapp/tests/food-search-flow.test.js
+
       - name: Scan tracked files for committed secrets
         shell: bash
         run: |

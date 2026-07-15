@@ -1,9 +1,11 @@
 package com.diettracker.controller;
 
 import com.diettracker.entity.FoodCategory;
-import com.diettracker.entity.FoodItem;
-import com.diettracker.service.MealRecordService;
+import com.diettracker.service.FoodService;
 import com.diettracker.dto.CreateFoodRequest;
+import com.diettracker.dto.FavoriteFoodRequest;
+import com.diettracker.dto.FoodResponse;
+import com.diettracker.dto.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,35 +16,45 @@ import java.util.List;
 @RequestMapping("/api/foods")
 public class FoodController {
 
-    private final MealRecordService service;
+    private final FoodService service;
 
-    public FoodController(MealRecordService service) {
+    public FoodController(FoodService service) {
         this.service = service;
     }
 
     @GetMapping("/categories")
     public List<FoodCategory> getCategories() {
-        return service.getAllCategories();
+        return service.getCategories();
     }
 
     @GetMapping
-    public List<FoodItem> getFoods(
+    public PageResponse<FoodResponse> getFoods(
+            @RequestParam(defaultValue = "common") String scope,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             @RequestAttribute("userId") String userId) {
-        if (categoryId != null) {
-            return service.getFoodsByCategory(categoryId, userId);
-        }
-        return service.getAllFoods(userId);
+        return service.listFoods(scope, categoryId, page, size, userId);
     }
 
     @GetMapping("/search")
-    public List<FoodItem> searchFood(@RequestParam String keyword, @RequestAttribute("userId") String userId) {
-        return service.searchFood(keyword, userId);
+    public PageResponse<FoodResponse> searchFood(@RequestParam String keyword,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "20") int size,
+                                                  @RequestAttribute("userId") String userId) {
+        return service.search(keyword, page, size, userId);
     }
 
     @PostMapping
-    public ResponseEntity<FoodItem> addFood(@Valid @RequestBody CreateFoodRequest request,
+    public ResponseEntity<FoodResponse> addFood(@Valid @RequestBody CreateFoodRequest request,
                                              @RequestAttribute("userId") String userId) {
-        return ResponseEntity.ok(service.addFoodItem(request, userId));
+        return ResponseEntity.ok(service.create(request, userId));
+    }
+
+    @PutMapping("/{foodId}/favorite")
+    public FoodResponse setFavorite(@PathVariable Long foodId,
+                                    @RequestBody FavoriteFoodRequest request,
+                                    @RequestAttribute("userId") String userId) {
+        return service.setFavorite(foodId, request.favorite(), userId);
     }
 }

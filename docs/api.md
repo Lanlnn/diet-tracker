@@ -1,6 +1,6 @@
 # API 接口文档
 
-> 本文记录当前原型接口，不代表优化版最终契约。优化版新增或调整接口时，必须与 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 和后端 DTO 同步更新。
+> 本文记录当前已实现接口。新增或调整接口时，必须与 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 和后端 DTO 同步更新。
 
 > 基础路径：`http://localhost:8080/api`
 > 请求头：`Content-Type: application/json`
@@ -103,49 +103,65 @@ GET /foods/categories
 
 ## 食物
 
-### 获取食物列表
+### 获取食物列表（M3）
 
 ```
-GET /foods
-GET /foods?categoryId=1
+GET /foods?scope=common&page=0&size=20
+GET /foods?scope=recent&page=0&size=20
+GET /foods?scope=favorite&page=0&size=20
+GET /foods?scope=all&categoryId=1&page=0&size=20
 ```
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| categoryId | int | 分类ID，不传返回全部 |
+| scope | string | `common` / `recent` / `favorite` / `all`，默认 `common` |
+| categoryId | long | 可选分类 ID；传入时按可见食品过滤 |
+| page | int | 从 0 开始，默认 0 |
+| size | int | 1–50，默认 20 |
 
 **响应**
 ```json
-[
-  {
-    "id": 1,
-    "name": "米饭",
-    "category": {
-      "id": 1, "name": "主食", "icon": "rice",
-      "sortOrder": 1, "createdAt": "...", "updatedAt": "..."
-    },
-    "unit": "碗",
-    "calories": 232.0,
-    "protein": 2.6,
-    "fat": 0.3,
-    "carbs": 50.0,
-    "createdAt": "2026-05-15T09:37:16",
-    "updatedAt": "2026-05-15T09:37:16"
-  }
-]
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "米饭",
+      "categoryId": 1,
+      "categoryName": "主食",
+      "baseAmount": 100.0,
+      "baseUnit": "g",
+      "servingAmount": null,
+      "servingUnit": null,
+      "calories": 116.0,
+      "protein": 2.6,
+      "fat": 0.3,
+      "carbs": 25.0,
+      "source": "SYSTEM",
+      "custom": false,
+      "favorite": false
+    }
+  ],
+  "page": 0,
+  "size": 20,
+  "total": 1,
+  "hasMore": false
+}
 ```
+
+营养字段均对应 `baseAmount + baseUnit`。M3 新基准食品使用每 100g；迁移前无法可靠换算的历史按份数据会明确标记为 `LEGACY_SERVING`，不得当作每 100g 数据参与计算。
 
 ### 搜索食物
 
 ```
-GET /foods/search?keyword=鸡
+GET /foods/search?keyword=鸡&page=0&size=20
 ```
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| keyword | string | 模糊匹配食物名称 |
+| keyword | string | 必填；清理首尾与连续空白后模糊匹配，最长 50 字符 |
+| page / size | int | 与食品列表相同 |
 
-响应结构与上方食物列表相同。
+响应为上方分页结构。空关键词返回 `EMPTY_KEYWORD`，用户只能搜索系统食品和自己的自定义食品。
 
 ### 添加自定义食物
 
@@ -156,30 +172,49 @@ POST /foods
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | name | string | ✅ | 食物名称 |
-| unit | string | - | 单位，默认 `份` |
-| calories | number | - | 热量(kcal)，默认 0 |
-| protein | number | - | 蛋白质(g)，默认 0 |
-| fat | number | - | 脂肪(g)，默认 0 |
-| carbs | number | - | 碳水(g)，默认 0 |
+| categoryId | long | - | 分类 ID；不传自动使用“其他” |
+| baseAmount | number | - | 营养基准数量，默认 100，必须大于 0 |
+| baseUnit | string | - | 营养基准单位，默认 `g` |
+| servingAmount | number | - | 可选的每份重量，必须大于 0 |
+| servingUnit | string | - | 可选的份量单位 |
+| calories | number | - | 基准数量对应热量(kcal)，默认 0 |
+| protein / fat / carbs | number | - | 基准数量对应营养素(g)，默认 0 |
 
 ```json
 // 请求
-{ "name": "三明治", "unit": "个", "calories": 350, "protein": 15 }
+{ "name": "三明治", "baseAmount": 100, "baseUnit": "g", "calories": 220, "protein": 10 }
 
 // 响应（自动归入「其他」分类）
 {
   "id": 17,
   "name": "三明治",
-  "category": { "id": 7, "name": "其他", "icon": "other", "sortOrder": 7 },
-  "unit": "个",
-  "calories": 350.0,
-  "protein": 15.0,
+  "categoryId": 7,
+  "categoryName": "其他",
+  "baseAmount": 100.0,
+  "baseUnit": "g",
+  "servingAmount": null,
+  "servingUnit": null,
+  "calories": 220.0,
+  "protein": 10.0,
   "fat": 0.0,
   "carbs": 0.0,
-  "createdAt": "2026-05-15T13:40:32",
-  "updatedAt": "2026-05-15T13:40:32"
+  "source": "USER_CUSTOM",
+  "custom": true,
+  "favorite": false
 }
 ```
+
+### 收藏或取消收藏
+
+```
+PUT /foods/{foodId}/favorite
+```
+
+```json
+{ "favorite": true }
+```
+
+响应为单个食品对象。不能收藏其他用户的自定义食品；不可见食品返回 `FOOD_NOT_FOUND`。
 
 ---
 

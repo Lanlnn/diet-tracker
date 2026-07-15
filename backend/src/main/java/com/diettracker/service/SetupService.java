@@ -157,10 +157,36 @@ public class SetupService {
             fi.setProtein(new BigDecimal(row[4]));
             fi.setFat(new BigDecimal(row[5]));
             fi.setCarbs(new BigDecimal(row[6]));
+            applyNutritionBasis(fi, row[0], row[2]);
             foodItemRepo.save(fi);
             count++;
         }
         return count;
+    }
+
+    private void applyNutritionBasis(FoodItem food, String name, String legacyUnit) {
+        Map<String, String[]> nutritionPer100g = Map.of(
+                "鸡胸肉", new String[]{"165", "31.0", "3.6", "0.0"},
+                "鸡蛋", new String[]{"144", "13.3", "8.8", "2.8"},
+                "米饭", new String[]{"116", "2.6", "0.3", "25.9"},
+                "西兰花", new String[]{"36", "4.1", "0.6", "4.3"},
+                "酸奶", new String[]{"62", "3.1", "3.4", "4.8"});
+        if (nutritionPer100g.containsKey(name)) {
+            String[] nutrition = nutritionPer100g.get(name);
+            food.setCalories(new BigDecimal(nutrition[0]));
+            food.setProtein(new BigDecimal(nutrition[1]));
+            food.setFat(new BigDecimal(nutrition[2]));
+            food.setCarbs(new BigDecimal(nutrition[3]));
+            food.setBaseAmount(new BigDecimal("100"));
+            food.setBaseUnit("g");
+            food.setSource("SYSTEM");
+            return;
+        }
+        food.setBaseAmount(BigDecimal.ONE);
+        food.setBaseUnit(legacyUnit);
+        food.setServingAmount(BigDecimal.ONE);
+        food.setServingUnit(legacyUnit);
+        food.setSource("LEGACY_SYSTEM");
     }
 
     private int seedSampleRecords() {

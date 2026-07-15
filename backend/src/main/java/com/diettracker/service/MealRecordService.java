@@ -160,11 +160,16 @@ public class MealRecordService {
         FoodItem foodItem = new FoodItem();
         foodItem.setName(request.name().trim());
         foodItem.setCategory(category);
-        foodItem.setUnit(request.unit() == null ? "份" : request.unit());
+        foodItem.setBaseAmount(request.baseAmount() == null ? new BigDecimal("100") : request.baseAmount());
+        foodItem.setBaseUnit(request.baseUnit() == null ? "g" : request.baseUnit().trim());
+        foodItem.setServingAmount(request.servingAmount());
+        foodItem.setServingUnit(request.servingUnit());
+        foodItem.setUnit(request.unit() == null ? foodItem.getBaseUnit() : request.unit());
         foodItem.setCalories(request.calories() == null ? BigDecimal.ZERO : request.calories());
         foodItem.setProtein(request.protein() == null ? BigDecimal.ZERO : request.protein());
         foodItem.setFat(request.fat() == null ? BigDecimal.ZERO : request.fat());
         foodItem.setCarbs(request.carbs() == null ? BigDecimal.ZERO : request.carbs());
+        foodItem.setSource("USER_CUSTOM");
         foodItem.setUserId(userId);
         return foodItemRepository.save(foodItem);
     }

@@ -8,9 +8,21 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface MealRecordRepository extends JpaRepository<MealRecord, Long> {
+
+    @Query(value = "SELECT m.foodItem.id FROM MealRecord m WHERE m.userId = :userId " +
+           "GROUP BY m.foodItem.id ORDER BY COUNT(m.id) DESC, MAX(m.recordTime) DESC",
+           countQuery = "SELECT COUNT(DISTINCT m.foodItem.id) FROM MealRecord m WHERE m.userId = :userId")
+    Page<Long> findCommonFoodIds(@Param("userId") String userId, Pageable pageable);
+
+    @Query(value = "SELECT m.foodItem.id FROM MealRecord m WHERE m.userId = :userId " +
+           "GROUP BY m.foodItem.id ORDER BY MAX(m.recordTime) DESC",
+           countQuery = "SELECT COUNT(DISTINCT m.foodItem.id) FROM MealRecord m WHERE m.userId = :userId")
+    Page<Long> findRecentFoodIds(@Param("userId") String userId, Pageable pageable);
 
     // Filter by user
     List<MealRecord> findByUserIdAndMealDateOrderByRecordTimeAsc(String userId, LocalDate mealDate);
