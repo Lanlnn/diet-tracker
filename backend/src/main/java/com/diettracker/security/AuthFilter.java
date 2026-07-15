@@ -36,8 +36,10 @@ public class AuthFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        // Login and CORS preflight are the only public API requests.
-         if (path.equals("/api/auth/login") || "OPTIONS".equals(req.getMethod())) {
+        // Login, the local-only seed route, and CORS preflight may reach Spring MVC without a token.
+        // Outside the local profile there is no seed controller, so the route must resolve to 404
+        // instead of being masked as an authenticated endpoint by this filter.
+        if (path.equals("/api/auth/login") || path.equals("/api/setup/seed") || "OPTIONS".equals(req.getMethod())) {
             chain.doFilter(request, response);
             return;
         }

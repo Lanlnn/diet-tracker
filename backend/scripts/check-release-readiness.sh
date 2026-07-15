@@ -41,6 +41,10 @@ test "$(grep -c 'java-version: 17' .github/workflows/ci.yml)" -eq 2
 search 'name: Backend tests \(MySQL 8\)' .github/workflows/ci.yml
 search 'TEST_DB_DRIVER: com.mysql.cj.jdbc.Driver' .github/workflows/ci.yml
 search '^app.rate-limit.enabled=true$' backend/src/main/resources/application-prod.properties
+search '^app.base-url=\$\{APP_BASE_URL}$' backend/src/main/resources/application-prod.properties
+search '^app.upload.dir=\$\{UPLOAD_DIR}$' backend/src/main/resources/application-prod.properties
+search '^app.cors.allowed-origins=\$\{CORS_ALLOWED_ORIGINS}$' backend/src/main/resources/application-prod.properties
+search '^app.deletion.audit-pepper=\$\{DELETION_AUDIT_PEPPER}$' backend/src/main/resources/application-prod.properties
 search '^management.endpoint.health.probes.enabled=true$' backend/src/main/resources/application-prod.properties
 search '^management.endpoints.web.exposure.include=health,info,prometheus$' backend/src/main/resources/application-prod.properties
 search '^management.metrics.distribution.percentiles-histogram.http.server.requests=true$' backend/src/main/resources/application-prod.properties
@@ -49,5 +53,20 @@ search 'DietTrackerApiHighErrorRate' monitoring/alerts.yml
 search 'DietTrackerDashboardP95TooHigh' monitoring/alerts.yml
 search 'DietTrackerFoodSearchP95TooHigh' monitoring/alerts.yml
 search 'DietTrackerAnalyticsP95TooHigh' monitoring/alerts.yml
+test -f backend/Dockerfile
+test -f deploy/staging/compose.yml
+test -f deploy/staging/nginx-staging.conf.example
+test -x deploy/staging/preflight.sh
+test -x deploy/staging/build-image.sh
+test -x deploy/staging/smoke-test.sh
+search '^FROM eclipse-temurin:17-jre-jammy$' backend/Dockerfile
+search '^    image: mysql:8[.]0[.]46$' deploy/staging/compose.yml
+search '^      - 127[.]0[.]0[.]1:\$\{BACKEND_BIND_PORT:-18080}:8080$' deploy/staging/compose.yml
+search '^    read_only: true$' deploy/staging/compose.yml
+bash -n backend/scripts/check-e1-environment.sh
+bash -n backend/scripts/check-staging-readiness.sh
+bash -n deploy/staging/preflight.sh
+bash -n deploy/staging/build-image.sh
+bash -n deploy/staging/smoke-test.sh
 
 echo "Release readiness checks passed"

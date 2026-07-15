@@ -2,7 +2,7 @@
 
 这份文档说明当前交付位置，以及每次开发必须经过的验证链路。
 
-M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。M0–M10 的成果演示、跨模块对账和复盘测试统一使用 [`M0-M10-REVIEW-AND-TEST.md`](./M0-M10-REVIEW-AND-TEST.md)。
+M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-RETROSPECTIVE.md`](./DEVELOPMENT-RETROSPECTIVE.md)。M0–M10 的成果演示、跨模块对账和复盘测试统一使用 [`M0-M10-REVIEW-AND-TEST.md`](./M0-M10-REVIEW-AND-TEST.md)。当前开发必须先执行 [`体验环境与真机功能闭环`](./NEXT-DEVELOPMENT.md)。
 
 ## 1. 当前状态
 
@@ -18,12 +18,14 @@ M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-
 - M7 运动记录与推荐：已完成
 - M8 热量与运动趋势：已完成
 - M9 饮食日历：已完成
-- M10 个人中心与发布准备：待验收
-- 下一阶段：完成 M10 验收后进入发布候选灰度，不再新增里程碑功能
+- M10 个人中心与发布准备：代码已合并并创建 `m10-complete` 标签；体验环境功能闭环未完成
+- 当前阶段：E1 体验环境与真机功能闭环，恢复 staging、真实微信登录、基础数据和完整用户主链路
+- 当前阻塞：`trial` 指向的 `staging.tigercloud.asia` 在 2026-07-15 核查时不可用，体验版无法完成登录和业务请求
+- 后续顺序：E1 完成后评审后台 A3，再进入 A4 埋点与产品质量数据基础
 - 微信开发者工具目录：`/Users/z/Documents/微信小程序/diet-tracker/miniapp`
 - 后端目录：`/Users/z/Documents/微信小程序/diet-tracker/backend`
 
-里程碑要求、分支名和验收清单以 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`milestones/`](./milestones/) 为准。阶段之间不得跳过依赖；每个阶段都要完成代码、自动化测试、UI/开发者工具检查、文档、PR 和标签。
+E1 范围、顺序和验收以 [`NEXT-DEVELOPMENT.md`](./NEXT-DEVELOPMENT.md) 为准；历史里程碑要求仍以 [`DEVELOPMENT.md`](./DEVELOPMENT.md) 与 [`milestones/`](./milestones/) 为准。阶段之间不得跳过依赖；每个阶段都要完成代码、自动化测试、真实接口联调、真机检查、文档和 PR。
 
 ## 2. 首次启动
 

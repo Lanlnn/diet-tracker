@@ -25,6 +25,8 @@ miniapp/node_modules/
 # 日志
 *.log
 .env
+deploy/staging/.env
+deploy/staging/release-manifest.txt
 backend/var/
 backend/uploads/
 
