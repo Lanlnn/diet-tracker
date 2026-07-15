@@ -288,9 +288,11 @@ idle / loading / success / empty / error / submitting
 
 ## 9. Git 工作流
 
+- 仓库唯一远端为 `https://github.com/Lanlnn/diet-tracker.git`。
+- 详细操作、分支命名、阶段标签和异常处理见 [`git-workflow.md`](./git-workflow.md)。
 - `main/master` 保持可构建。
-- 功能分支建议使用 `feat/模块-功能`。
-- 修复分支建议使用 `fix/模块-问题`。
+- M0–M10 阶段分支统一使用 `codex/mN-阶段名`。
+- 阶段外功能使用 `codex/feat-模块-功能`，修复使用 `codex/fix-模块-问题`。
 - 一次提交只包含一个清晰目的。
 - 数据迁移、后端实体、接口 DTO、前端 Service 和文档尽量在同一功能 PR 中完成。
 - 大型设计源文件和重复 ZIP 不直接进入普通 Git 历史；需要版本管理时使用 Git LFS。

@@ -27,3 +27,9 @@ miniapp/node_modules/
 
 # Codex workspace config
 .codex/
+
+# 本地设计归档（正式基线仅保留 design/优化版 中的 PNG 与 Markdown）
+design/[0-9][0-9]-*.png
+design/页面索引.md
+design/优化版/*.zip
+docs/*.docx
