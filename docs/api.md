@@ -510,6 +510,35 @@ GET /stats/trend?range=7d
 - 营养达成率是有记录日期中，摄入落在用户目标热量 80%–120% 的日期占比。
 - 有数据的日期少于 3 天时只返回一条“继续记录”，达到 3 天后最多返回两条规则化小结。
 
+### 饮食日历月摘要（M9）
+
+```
+GET /calendar/summary?month=2026-07
+```
+
+`month` 必须为严格 `yyyy-MM` 格式，只允许当前月和向前 11 个月。超出范围返回 `MONTH_OUT_OF_RANGE`，格式错误返回 `INVALID_MONTH`。
+
+```json
+{
+  "month": "2026-07",
+  "goalCalories": 1800,
+  "goalSource": "USER",
+  "days": [{
+    "date": "2026-07-13",
+    "intakeCalories": 1240,
+    "exerciseCalories": 380,
+    "remainingCalories": 560,
+    "mealCount": 3,
+    "hasRecord": true
+  }]
+}
+```
+
+- `days` 始终包含当月全部日期，没有记录的日期数值补 0。
+- `mealCount` 是当天不同餐次类型数；`hasRecord` 在存在饮食或运动记录时为 `true`。
+- `remainingCalories = max(goalCalories - intakeCalories, 0)`，运动消耗不增加剩余可摄入。
+- 整月饮食和运动各执行一次分组聚合；前端月切换不逐日请求。
+
 ### 日统计
 
 ```

@@ -1,6 +1,6 @@
 # M9：饮食日历
 
-**状态：** 未开始
+**状态：** 待验收
 **依赖：** M8
 **Git 分支：** `codex/m9-calendar`
 **阶段标签：** `m9-complete`
@@ -37,11 +37,13 @@
 
 ## 测试与验收
 
-- [ ] 大小月、闰年、跨年和周起始显示正确。
-- [ ] 月切换不会逐日发起接口请求。
-- [ ] 日期标记与真实记录一致。
-- [ ] 选中日期摘要与首页相同日期结果一致。
-- [ ] 网络失败保留当前日历并提供重试。
+- [x] 大小月、闰年、跨年和周起始显示正确。
+- [x] 月切换不会逐日发起接口请求。
+- [x] 日期标记与真实记录一致。
+- [x] 选中日期摘要与首页相同日期结果一致。
+- [x] 网络失败保留当前日历并提供重试。
+
+自动化覆盖：`CalendarApiTest`、`calendar-date.test.js`、`calendar-flow.test.js`。整月摘要对饮食和运动各执行一次分组查询，并与同日 `dashboard/today` 完成对账。微信开发者工具 Nightly 2.02.2607142 普通编译通过，问题面板 0 项；成功态视觉证据见 [`../evidence/m9/calendar-comparison.png`](../evidence/m9/calendar-comparison.png) 和项目根目录 `design-qa.md`。
 
 ## Git 交付
 
@@ -52,3 +54,5 @@ test(m9): cover calendar boundaries and query count
 ```
 
 推送阶段分支，验收合并后创建 `m9-complete` 标签。
+
+本地代码、全量自动化、成功态联调和视觉对照已完成。只有当 M7、M8 依赖链先合并，且 M9 分支推送、PR CI 通过并合并后，才能改为`已完成`并创建 `m9-complete` 标签。

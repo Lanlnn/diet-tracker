@@ -137,12 +137,7 @@ Page({
   },
 
   openCalendar() {
-    wx.showModal({
-      title: '饮食日历',
-      content: '日历将在 M9 接入，当前可先在首页查看今日摘要。',
-      showCancel: false,
-      confirmText: '知道了'
-    });
+    wx.navigateTo({ url: '/packageFood/pages/calendar/calendar' });
   },
 
   openExercise() {

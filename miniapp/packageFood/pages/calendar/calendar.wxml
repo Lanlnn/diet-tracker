@@ -1,0 +1,77 @@
+<view class="calendar-page">
+  <view class="page-header">
+    <view class="icon-button back-button" bindtap="goBack" aria-label="返回">
+      <image src="/assets/icons/chevron-left.svg" mode="aspectFit" />
+    </view>
+    <text class="page-title">饮食日历</text>
+    <view class="header-spacer"></view>
+  </view>
+
+  <state-view wx:if="{{pageState === 'loading'}}" state="loading" title="正在准备饮食日历" message="整月记录一次加载" />
+  <state-view wx:elif="{{pageState === 'error'}}" state="error" title="饮食日历加载失败" message="{{errorMessage}}" bind:retry="retryMonth" />
+
+  <block wx:else>
+    <view wx:if="{{errorMessage}}" class="refresh-notice" bindtap="retryMonth">{{errorMessage}} · 点击重试</view>
+
+    <view class="month-nav">
+      <view class="month-button {{canGoPrevious ? '' : 'disabled'}}" bindtap="previousMonth" aria-label="上一月">
+        <image src="/assets/icons/chevron-left.svg" mode="aspectFit" />
+      </view>
+      <text class="month-label">{{monthLabel}}</text>
+      <view class="month-button next {{canGoNext ? '' : 'disabled'}}" bindtap="nextMonth" aria-label="下一月">
+        <image src="/assets/icons/chevron-left.svg" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view class="calendar-card">
+      <view class="weekday-row">
+        <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="day-grid">
+        <view wx:for="{{calendarDays}}" wx:key="date"
+          class="day-cell {{item.inMonth ? '' : 'outside'}} {{item.isToday ? 'today' : ''}} {{item.selected ? 'selected' : ''}} {{item.future ? 'future' : ''}}"
+          data-date="{{item.date}}" bindtap="selectDay" aria-label="{{item.date}}{{item.hasRecord ? '，有记录' : ''}}{{item.selected ? '，已选中' : ''}}">
+          <text>{{item.dayNumber}}</text>
+          <view wx:if="{{item.hasRecord}}" class="record-dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="summary-card">
+      <view class="summary-top">
+        <view class="summary-copy">
+          <text class="selected-date">{{selectedDateLabel}} · 摄入</text>
+          <text class="intake-value">{{intakeLabel}} 千卡</text>
+        </view>
+        <view class="progress-ring ring-step-{{progressStep}}">
+          <view class="progress-center"><text>{{progressLabel}}</text></view>
+        </view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="metric-row">
+        <view class="metric"><text>{{mealCountLabel}}</text><text>已记录餐次</text></view>
+        <view class="metric"><text>{{exerciseLabel}}</text><text>运动千卡</text></view>
+        <view class="metric"><text>{{remainingLabel}}</text><text>剩余千卡</text></view>
+      </view>
+    </view>
+
+    <view class="detail-heading">
+      <text>当天记录</text>
+      <text wx:if="{{hasMealRecords}}" class="detail-link" bindtap="openFirstMeal">查看详情</text>
+    </view>
+    <view wx:if="{{detailState === 'loading'}}" class="detail-card detail-state">正在加载当日餐次…</view>
+    <view wx:elif="{{detailState === 'error'}}" class="detail-card detail-state">
+      <text>当日餐次加载失败</text><text class="retry-link" bindtap="retryDetail">重试</text>
+    </view>
+    <view wx:elif="{{detailState === 'empty' || detailState === 'idle'}}" class="detail-card detail-state empty">
+      <text>{{selectedSummary.hasRecord ? '当天仅有运动记录' : '当天还没有饮食记录'}}</text>
+    </view>
+    <view wx:else class="detail-card">
+      <view wx:for="{{meals}}" wx:key="type" class="meal-row" data-meal="{{item.type}}" bindtap="openMeal">
+        <view class="meal-badge {{item.tone}}">{{item.badgeLabel}}</view>
+        <view class="meal-copy"><text class="meal-title">{{item.label}}</text><text class="meal-preview">{{item.previewLabel}}</text></view>
+        <text class="meal-calories">{{item.caloriesLabel}} 千卡</text>
+      </view>
+    </view>
+  </block>
+</view>
