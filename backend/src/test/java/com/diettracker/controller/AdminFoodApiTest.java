@@ -6,6 +6,7 @@ import com.diettracker.entity.FoodCategory;
 import com.diettracker.entity.FoodItem;
 import com.diettracker.entity.MealRecord;
 import com.diettracker.repository.*;
+import com.diettracker.security.JwtUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,7 @@ class AdminFoodApiTest {
     @Autowired FoodItemRepository foods;
     @Autowired MealRecordRepository records;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired JwtUtil jwtUtil;
 
     private FoodItem chicken;
     private MealRecord snapshot;
@@ -87,6 +89,40 @@ class AdminFoodApiTest {
                         .header("X-Audit-Reason", "供应商复核后修正热量")
                         .contentType(MediaType.APPLICATION_JSON).content(foodJson("200")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.calories").value(200));
+
+        MealRecord unchanged = records.findById(snapshot.getId()).orElseThrow();
+        assertThat(unchanged.getCaloriesSnapshot()).isEqualByComparingTo("165");
+        assertThat(auditLogs.count()).isEqualTo(1);
+    }
+
+    @Test
+    void adminFoodUpdateFlowsThroughMiniappSearchAndCalculationWithoutRewritingHistory() throws Exception {
+        String adminToken = login("editor");
+        String miniappToken = jwtUtil.generateToken("test-user");
+
+        mvc.perform(put("/api/admin/foods/{id}", chicken.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Audit-Reason", "跨端契约测试修正热量")
+                        .contentType(MediaType.APPLICATION_JSON).content(foodJson("200")))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/foods/search")
+                        .header("Authorization", "Bearer " + miniappToken)
+                        .param("keyword", "鸡胸肉")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].id").value(chicken.getId()))
+                .andExpect(jsonPath("$.items[0].calories").value(200));
+
+        mvc.perform(post("/api/foods/{id}/calculate", chicken.getId())
+                        .header("Authorization", "Bearer " + miniappToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\":150}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.calories").value(300))
+                .andExpect(jsonPath("$.protein").value(46.5));
 
         MealRecord unchanged = records.findById(snapshot.getId()).orElseThrow();
         assertThat(unchanged.getCaloriesSnapshot()).isEqualByComparingTo("165");

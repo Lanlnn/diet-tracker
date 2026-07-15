@@ -17,7 +17,8 @@ M9 日历 Controller、Service、DTO 和仓储聚合不属于本分支。
 
 ## 自动化与构建证据
 
-- `backend/./mvnw --batch-mode -q test`：通过，共 35 项测试。
+- `backend/./mvnw --batch-mode -q test`：通过，共 36 项测试。
+- 前后台贯通契约：后台修改系统食品后，小程序搜索与计算接口读取新值，历史膳食快照保持原值。
 - `admin-web/npm ci`：通过，依赖审计 0 漏洞。
 - `admin-web/npm run lint`：通过。
 - `admin-web/npm run build`：通过。
