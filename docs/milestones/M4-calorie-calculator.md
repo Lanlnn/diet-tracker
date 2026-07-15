@@ -1,6 +1,6 @@
 # M4：克数与热量计算
 
-**状态：** 开发与本地验收完成，待 PR 合并
+**状态：** 已完成
 **依赖：** M3
 **Git 分支：** `codex/m4-calorie-calculator`
 **阶段标签：** `m4-complete`
