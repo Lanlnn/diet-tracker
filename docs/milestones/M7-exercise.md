@@ -1,6 +1,6 @@
 # M7：今日运动与推荐
 
-**状态：** 开发完成，待开发者工具视觉验收与 PR
+**状态：** 待验收
 **依赖：** M6
 **Git 分支：** `codex/m7-exercise`
 **阶段标签：** `m7-complete`
@@ -47,7 +47,7 @@
 - [x] 运动消耗不增加首页剩余可摄入。
 - [x] 空、错、加载和删除确认状态齐全。
 
-自动化覆盖：`ExerciseApiTest`、`DashboardServiceTest`、`exercise-flow.test.js`。设计稿逐页视觉验收与微信开发者工具编译仍需在阶段 PR 前完成。
+自动化覆盖：`ExerciseApiTest`、`DashboardServiceTest`、`exercise-flow.test.js`。Java 后端 30 项通过、1 项外部 MySQL 测试按环境跳过；小程序 8/8 通过。微信开发者工具 Nightly 2.02.2607142 普通编译问题面板为 0，成功态视觉验收见 [`design-qa.md`](../../design-qa.md)，截图为 [`design/qa/m7-exercise-devtools-full.png`](../../design/qa/m7-exercise-devtools-full.png)。
 
 ## Git 交付
 

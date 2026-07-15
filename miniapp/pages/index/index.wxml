@@ -17,7 +17,7 @@
 
     <view class="calorie-card">
       <view class="calorie-main">
-        <view class="calorie-ring" style="--ring-degrees: {{ringDegrees}}deg;">
+        <view class="calorie-ring ring-step-{{ringStep}}">
           <view class="ring-center">
             <text class="ring-caption">还可以吃</text>
             <text class="ring-value">{{remainingLabel}}</text>
@@ -39,7 +39,7 @@
         <view wx:for="{{nutritionItems}}" wx:key="tone" class="nutrition-item {{item.tone}}">
           <text class="nutrition-value">{{item.amountLabel}}</text>
           <text class="nutrition-label">{{item.label}} · {{item.progressLabel}}</text>
-          <view class="progress-track"><view class="progress-fill" style="width: {{item.progressWidth}}%;"></view></view>
+          <view class="progress-track"><view class="progress-fill progress-step-{{item.progressStep}}"></view></view>
         </view>
       </view>
     </view>

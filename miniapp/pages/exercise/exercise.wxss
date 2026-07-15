@@ -45,6 +45,7 @@
 .weekly-panel { padding: 28rpx 30rpx; color: #7E847B; font-size: 22rpx; background: #FFFDF8; border-radius: 36rpx; }
 .weekly-track { height: 14rpx; margin-bottom: 18rpx; overflow: hidden; background: #E5E7DF; border-radius: 8rpx; }
 .weekly-fill { height: 100%; background: #4A6D43; border-radius: 8rpx; transition: width .25s ease; }
+.weekly-step-1 { width: 25%; }.weekly-step-2 { width: 50%; }.weekly-step-3 { width: 75%; }.weekly-step-4 { width: 100%; }
 .sheet-mask { position: fixed; z-index: 20; inset: 0; display: flex; align-items: flex-end; background: rgba(25,30,24,.42); }
 .exercise-sheet { box-sizing: border-box; width: 100%; max-height: 92vh; padding: 18rpx 36rpx calc(34rpx + env(safe-area-inset-bottom)); overflow-y: auto; background: #FFFDF8; border-radius: 46rpx 46rpx 0 0; }
 .sheet-handle { width: 78rpx; height: 8rpx; margin: 0 auto 28rpx; background: #D8D6CF; border-radius: 6rpx; }

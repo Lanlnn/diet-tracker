@@ -8,7 +8,11 @@
 .refresh-notice { margin: -18rpx 0 20rpx; padding: 18rpx 24rpx; color: #885A2E; font-size: 23rpx; text-align: center; background: #F4E4CC; border-radius: 20rpx; }
 .calorie-card { padding: 46rpx 40rpx 34rpx; background: var(--color-surface); border-radius: 46rpx; box-shadow: var(--shadow-card); }
 .calorie-main { display: flex; align-items: center; }
-.calorie-ring { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 278rpx; height: 278rpx; background: conic-gradient(#6E8D62 var(--ring-degrees, 0deg), #E8E7E1 0deg); border-radius: 50%; transform: rotate(-90deg); }
+.calorie-ring { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 278rpx; height: 278rpx; background: #E8E7E1; border-radius: 50%; transform: rotate(-90deg); }
+.ring-step-1 { background: conic-gradient(#6E8D62 18deg, #E8E7E1 0deg); }.ring-step-2 { background: conic-gradient(#6E8D62 36deg, #E8E7E1 0deg); }.ring-step-3 { background: conic-gradient(#6E8D62 54deg, #E8E7E1 0deg); }.ring-step-4 { background: conic-gradient(#6E8D62 72deg, #E8E7E1 0deg); }.ring-step-5 { background: conic-gradient(#6E8D62 90deg, #E8E7E1 0deg); }
+.ring-step-6 { background: conic-gradient(#6E8D62 108deg, #E8E7E1 0deg); }.ring-step-7 { background: conic-gradient(#6E8D62 126deg, #E8E7E1 0deg); }.ring-step-8 { background: conic-gradient(#6E8D62 144deg, #E8E7E1 0deg); }.ring-step-9 { background: conic-gradient(#6E8D62 162deg, #E8E7E1 0deg); }.ring-step-10 { background: conic-gradient(#6E8D62 180deg, #E8E7E1 0deg); }
+.ring-step-11 { background: conic-gradient(#6E8D62 198deg, #E8E7E1 0deg); }.ring-step-12 { background: conic-gradient(#6E8D62 216deg, #E8E7E1 0deg); }.ring-step-13 { background: conic-gradient(#6E8D62 234deg, #E8E7E1 0deg); }.ring-step-14 { background: conic-gradient(#6E8D62 252deg, #E8E7E1 0deg); }.ring-step-15 { background: conic-gradient(#6E8D62 270deg, #E8E7E1 0deg); }
+.ring-step-16 { background: conic-gradient(#6E8D62 288deg, #E8E7E1 0deg); }.ring-step-17 { background: conic-gradient(#6E8D62 306deg, #E8E7E1 0deg); }.ring-step-18 { background: conic-gradient(#6E8D62 324deg, #E8E7E1 0deg); }.ring-step-19 { background: conic-gradient(#6E8D62 342deg, #E8E7E1 0deg); }.ring-step-20 { background: #6E8D62; }
 .ring-center { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 226rpx; height: 226rpx; background: var(--color-surface); border-radius: 50%; transform: rotate(90deg); }
 .ring-caption { color: var(--color-text-tertiary); font-size: 24rpx; }
 .ring-value { margin: 2rpx 0 0; color: #151A15; font-size: 58rpx; font-weight: 760; line-height: 1.1; letter-spacing: -2rpx; }
@@ -30,6 +34,10 @@
 .nutrition-label { margin-top: 5rpx; overflow: hidden; color: var(--color-text-tertiary); font-size: 20rpx; text-overflow: ellipsis; white-space: nowrap; }
 .progress-track { height: 7rpx; margin-top: 17rpx; overflow: hidden; background: #E8E7E1; border-radius: 4rpx; }
 .progress-fill { height: 100%; background: #789371; border-radius: 4rpx; }.nutrition-item.protein .progress-fill { background: #D68B58; }.nutrition-item.fat .progress-fill { background: #C8A34B; }
+.progress-step-1 { width: 5%; }.progress-step-2 { width: 10%; }.progress-step-3 { width: 15%; }.progress-step-4 { width: 20%; }.progress-step-5 { width: 25%; }
+.progress-step-6 { width: 30%; }.progress-step-7 { width: 35%; }.progress-step-8 { width: 40%; }.progress-step-9 { width: 45%; }.progress-step-10 { width: 50%; }
+.progress-step-11 { width: 55%; }.progress-step-12 { width: 60%; }.progress-step-13 { width: 65%; }.progress-step-14 { width: 70%; }.progress-step-15 { width: 75%; }
+.progress-step-16 { width: 80%; }.progress-step-17 { width: 85%; }.progress-step-18 { width: 90%; }.progress-step-19 { width: 95%; }.progress-step-20 { width: 100%; }
 .record-actions { display: grid; grid-template-columns: 1fr 102rpx; gap: 20rpx; margin-top: 30rpx; }
 .record-button, .camera-button { display: flex; align-items: center; justify-content: center; min-height: 96rpx; border-radius: 30rpx; }
 .record-button { color: var(--color-surface); font-size: 29rpx; font-weight: 700; background: #4B6C45; box-shadow: 0 20rpx 42rpx rgba(50, 69, 45, .16); }

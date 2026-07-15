@@ -36,6 +36,7 @@ Page({
     recommendations: [],
     weekly: { completedDays: 0, targetDays: 4 },
     weeklyProgress: 0,
+    weeklyStep: 0,
     types: TYPES,
     intensities: INTENSITIES,
     sheetOpen: false,
@@ -95,7 +96,8 @@ Page({
         caloriesLabel: this.formatNumber(item.estimatedCalories)
       })),
       weekly,
-      weeklyProgress: weekly.targetDays ? Math.min(Math.round(weekly.completedDays / weekly.targetDays * 100), 100) : 0
+      weeklyProgress: weekly.targetDays ? Math.min(Math.round(weekly.completedDays / weekly.targetDays * 100), 100) : 0,
+      weeklyStep: weekly.targetDays ? Math.min(Math.round(weekly.completedDays / weekly.targetDays * 4), 4) : 0
     });
   },
 

@@ -87,6 +87,7 @@ function createPage() {
   assert.equal(page.data.totalDuration, 20);
   assert.equal(page.data.totalCaloriesLabel, '80');
   assert.equal(page.data.weeklyProgress, 25);
+  assert.equal(page.data.weeklyStep, 1);
 
   await page.deleteRecord(7);
   assert.equal(deletedId, 7);

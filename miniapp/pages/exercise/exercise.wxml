@@ -49,7 +49,7 @@
 
     <view class="section-heading weekly-heading"><text>本周</text><text class="weekly-value">{{weekly.completedDays}} / {{weekly.targetDays}} 次</text></view>
     <view class="weekly-panel">
-      <view class="weekly-track"><view class="weekly-fill" style="width: {{weeklyProgress}}%;"></view></view>
+      <view class="weekly-track"><view class="weekly-fill weekly-step-{{weeklyStep}}"></view></view>
       <text>每个有运动记录的自然日计为一次完成</text>
     </view>
   </block>
