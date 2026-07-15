@@ -1,0 +1,15 @@
+# M10 收口复验
+
+## 已通过
+
+- Java 基线恢复为 17：POM、Unix/Windows Maven Wrapper、启动脚本、CI、发布门禁及文档一致；使用 OpenJDK 17.0.19 从空 `target/` 编译通过。
+- H2 快速测试所有适用用例通过；真实 MySQL 8.0.46 完整测试 38/38、0 跳过，接口测试日志确认 JDBC 实际连接 MySQL。
+- 独立迁移库从空库执行 V1–V8 并通过 Hibernate Schema Validation，避免与完整接口测试互相污染。
+- API 性能基线使用真实 MySQL 8、200 条搜索食品、90 天饮食和运动数据，预热后各采样 40 次；P95：首页 10ms、搜索 8ms、月历 18ms、90 天趋势 18ms。
+- `prod` Profile 暴露健康和 Prometheus 指标并启用 HTTP 延迟直方图；健康、5xx、首页/搜索/分析 P95 和 429 共 6 条规则通过 Prometheus 3.5.0 `promtool` 校验。
+- 小程序 12/12、JS/JSON 静态检查、发布准备脚本和 `git diff --check` 通过。
+- 微信开发者工具 Nightly 2.02.2607142 对当前工作树重新执行 GUI 普通编译，问题面板 0。
+
+## 尚待外部设备
+
+本机 USB、Xcode 设备列表和开发者工具均未发现实体 iOS/Android 或现成远程调试会话，因此未把模拟器结果记作真机。仍需 iOS、Android 各至少两种常见屏幕完成场景 A–F，并在 `10-device-matrix.md` 记录设备型号、系统/微信版本、提交、结果和脱敏证据。该项完成前不合并 M10、不创建 `m10-complete`。

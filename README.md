@@ -4,7 +4,7 @@
 
 ## 当前 M0–M10 基线
 
-- Java 18、Spring Boot 3.4，数据库统一使用 MySQL 8
+- Java 17、Spring Boot 3.4，数据库统一使用 MySQL 8
 - 环境变量密钥、统一 API 错误、请求 ID、DTO 校验和受限头像上传
 - 小程序唯一登录 Promise、401 互斥刷新和开发/体验/生产环境地址
 - 五项导航：今日、趋势、记录、运动、我的
@@ -71,7 +71,7 @@ sh start.sh
 | 层 | 技术 |
 |---|------|
 | 前端 | 微信小程序 |
-| 后端 | Spring Boot 3.4.4；Java 18 |
+| 后端 | Spring Boot 3.4.4；Java 17 |
 | 数据库 | MySQL 8 |
 | ORM | Spring Data JPA + Hibernate |
 | 构建 | Maven 3.9.9 |

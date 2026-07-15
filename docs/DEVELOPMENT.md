@@ -12,7 +12,7 @@
 
 ### 2.0 M0–M1 本地启动
 
-当前工程基线统一为 Java 18、MySQL 8 和 Flyway。先创建 `utf8mb4` 编码的 `diet_tracker` 空库，将根目录 `.env.example` 中的变量设置到本机 shell（不要提交 `.env`），然后执行：
+当前工程基线统一为 Java 17、MySQL 8 和 Flyway。先创建 `utf8mb4` 编码的 `diet_tracker` 空库，将根目录 `.env.example` 中的变量设置到本机 shell（不要提交 `.env`），然后执行：
 
 ```bash
 cd backend
@@ -61,7 +61,7 @@ V1–V8 是面向空 MySQL 8 库的基线迁移，V6 会补齐基础系统食品
 以下事项未确认前，不进入大规模页面开发：
 
 - [x] 数据库统一使用 MySQL 8，并删除其他数据库驱动和专用 SQL。
-- [x] Java 编译、CI、部署和本机基线统一为 Java 18；本地开发必须显式使用 JDK 18。
+- [x] Java 编译、CI、部署和本机基线统一为 Java 17；本地开发必须显式使用 JDK 17。
 - [x] 重量类食品统一按每 100g 保存营养数据，按份食品使用 `baseAmount=1` 并保留原单位。
 - [x] 现有按“份”保存的食品数据迁移为 `baseAmount=1` 并保留原单位和历史来源标记。
 - [x] 饮食记录保存营养快照，历史统计不重新读取当前食品营养值。

@@ -24,7 +24,7 @@ graph TB
         SERVICES --> REQUEST
     end
 
-    subgraph "Spring Boot 3.4 / Java 18"
+    subgraph "Spring Boot 3.4 / Java 17"
         CONTROLLER["Controller + DTO + Validation"]
         SERVICE["Auth / Food / Meal / Dashboard / Exercise / Trend"]
         REPOSITORY["Spring Data JPA Repository"]
@@ -51,7 +51,7 @@ graph TB
 
 | 项目 | 基线 |
 | --- | --- |
-| 后端 | Java 18、Spring Boot 3.4.4、Maven Wrapper |
+| 后端 | Java 17、Spring Boot 3.4.4、Maven Wrapper |
 | 数据库 | MySQL 8，Flyway 管理结构；测试使用 H2 MySQL 兼容模式并由 CI 补充真实 MySQL 8 验证 |
 | 小程序开发 | 微信开发者工具只导入 `miniapp/` |
 | 开发 API | `http://127.0.0.1:8080/api` |
@@ -188,7 +188,7 @@ sequenceDiagram
 
 提交前必须同时通过：
 
-1. Java 18 下后端测试。
+1. Java 17 下后端测试。
 2. `node --test miniapp/tests/*.test.js` 全量小程序测试。
 3. 全部 JS/JSON 静态检查和 `git diff --check`。
 4. 微信开发者工具普通编译问题面板为 0。

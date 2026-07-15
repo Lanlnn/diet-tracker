@@ -1,13 +1,13 @@
 @echo off
 if "%JAVA_HOME%"=="" (
-    echo Java 18 is required. Set JAVA_HOME to an installed JDK 18.
+    echo Java 17 is required. Set JAVA_HOME to an installed JDK 17.
     exit /b 1
 )
 
 for /f "tokens=3" %%v in ('"%JAVA_HOME%\bin\java" -version 2^>^&1 ^| findstr /I "version"') do set JAVA_VERSION=%%~v
-echo %JAVA_VERSION% | findstr /B /C:"18." >nul
+echo %JAVA_VERSION% | findstr /B /C:"17." >nul
 if errorlevel 1 (
-    echo Java 18 is required. Current JAVA_HOME is %JAVA_HOME%
+    echo Java 17 is required. Current JAVA_HOME is %JAVA_HOME%
     exit /b 1
 )
 

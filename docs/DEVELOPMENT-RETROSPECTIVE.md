@@ -42,15 +42,15 @@
 ```bash
 java -version
 cd backend
-JAVA_HOME=$(/usr/libexec/java_home -v 18 2>/dev/null)
-"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "18[.]' || exit 1
+JAVA_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null)
+"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "17[.]' || exit 1
 JAVA_HOME="$JAVA_HOME" sh mvnw --batch-mode test
 ```
 
-- 本机 Amazon Corretto 18.0.2 与 CI Temurin 18 使用同一 Java 18 主版本作为交付基准。
-- macOS 可能在没有目标版本时静默返回其他唯一可用 JDK，必须对实际版本做断言；Maven Wrapper 也会拒绝非 Java 18。
+- 本机 Homebrew OpenJDK 17.0.19 与 CI Temurin 17 使用同一 Java 17 主版本作为交付基准。
+- macOS 可能在没有目标版本时静默返回其他唯一可用 JDK，必须对实际版本做断言；Maven Wrapper 也会拒绝非 Java 17。
 - 遇到 Mockito/Byte Buddy “unsupported Java”时先核对运行时，不先修改业务代码或放宽测试。
-- 新开发机如果没有 JDK 18，先安装并设置 `JAVA_HOME`，不要依赖其他版本碰巧兼容。
+- 新开发机如果没有 JDK 17，先安装并设置 `JAVA_HOME`，不要依赖其他版本碰巧兼容。
 
 ### 2.4 CI 只列举了早期测试
 

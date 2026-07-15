@@ -3,7 +3,7 @@
 ## 环境
 
 - MySQL 8.0.46 一次性容器
-- Java 18.0.2
+- Java 17.0.19
 - 空数据库 `diet_tracker_test`
 
 ## 结果

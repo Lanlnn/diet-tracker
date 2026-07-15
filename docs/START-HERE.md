@@ -29,20 +29,20 @@ M0–M9 的实际问题、固定防复发规则和闭环顺序见 [`DEVELOPMENT-
 
 ### 后端
 
-项目统一使用 Java 18、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
+项目统一使用 Java 17、Spring Boot、MySQL 8、Flyway 和 Maven Wrapper。先在 MySQL 8 中创建 `diet_tracker` 空库，再按 [环境变量示例](../.env.example) 配置本地变量并运行：
 
 ```bash
 cd /Users/z/Documents/微信小程序/diet-tracker/backend
-JAVA_HOME=$(/usr/libexec/java_home -v 18 2>/dev/null)
-"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "18[.]' || {
-  echo "未找到可用的 Java 18"
+JAVA_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null)
+"$JAVA_HOME/bin/java" -version 2>&1 | rg 'version "17[.]' || {
+  echo "未找到可用的 Java 17"
   exit 1
 }
 JAVA_HOME="$JAVA_HOME" sh mvnw clean test
 JAVA_HOME="$JAVA_HOME" sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
-macOS 在未安装 Java 18 时可能把 `/usr/libexec/java_home -v 18` 回退到其他唯一可用版本，因此必须保留上面的版本断言。
+macOS 在未安装 Java 17 时可能把 `/usr/libexec/java_home -v 17` 回退到其他唯一可用版本，因此必须保留上面的版本断言。
 
 真实数据库密码、微信 Secret 和 JWT Secret 只能保存在本地或部署平台的 Secret 管理中。如果历史凭据尚未完成轮换，应先在对应平台使旧值失效；修改仓库文本不能替代轮换。
 
