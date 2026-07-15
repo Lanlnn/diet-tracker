@@ -60,7 +60,7 @@ cd diet-tracker/backend
 sh start.sh
 ```
 
-应用会在 MySQL 8 空库中按版本执行 V1–V5 SQL。已有历史数据的 MySQL 8 库使用仓库提供的安全迁移脚本完成备份、结构升级和数据校验，具体见 [`docs/mysql8-data-migration.md`](docs/mysql8-data-migration.md)。不得直接清库或手工修改数据库迁移记录。
+应用会在 MySQL 8 空库中按版本执行 V1–V6 SQL，其中 V6 提供可直接搜索和记录的基础食品库。已有历史数据的 MySQL 8 库使用仓库提供的安全迁移脚本完成备份、结构升级和数据校验，具体见 [`docs/mysql8-data-migration.md`](docs/mysql8-data-migration.md)。不得直接清库或手工修改数据库迁移记录。
 
 ### 小程序
 微信开发者工具直接打开 `diet-tracker/miniapp`，不要打开仓库的上层目录。

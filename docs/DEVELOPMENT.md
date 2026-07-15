@@ -22,7 +22,7 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 微信开发者工具只导入 `miniapp/`。开发版请求 `http://127.0.0.1:8080/api`，体验版和正式版分别使用 `shared/config.js` 中的 staging/release 地址。组件预览入口位于“我的 → 组件预览”。
 
-V1–V5 是面向空 MySQL 8 库的基线迁移。已有业务数据的旧库不能直接清空或自行开启 `baseline-on-migrate`，必须按 [`mysql8-data-migration.md`](./mysql8-data-migration.md) 执行自动备份、旧结构升级、Flyway V5 接管和 Hibernate 校验。
+V1–V6 是面向空 MySQL 8 库的基线迁移，V6 会补齐基础系统食品。已有业务数据的旧库不能直接清空或自行开启 `baseline-on-migrate`，必须按 [`mysql8-data-migration.md`](./mysql8-data-migration.md) 执行自动备份、旧结构升级、V5 接管、V6 增量升级和 Hibernate 校验。
 
 ### 2.1 基准优先级
 
