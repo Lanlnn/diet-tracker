@@ -3,6 +3,8 @@ package com.diettracker.service;
 import com.diettracker.api.ApiException;
 import com.diettracker.dto.DashboardTodayResponse;
 import com.diettracker.entity.MealRecord;
+import com.diettracker.entity.ExerciseRecord;
+import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.entity.User;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.UserRepository;
@@ -25,10 +27,13 @@ public class DashboardService {
 
     private final MealRecordRepository mealRecordRepository;
     private final UserRepository userRepository;
+    private final ExerciseRecordRepository exerciseRecordRepository;
 
-    public DashboardService(MealRecordRepository mealRecordRepository, UserRepository userRepository) {
+    public DashboardService(MealRecordRepository mealRecordRepository, UserRepository userRepository,
+                            ExerciseRecordRepository exerciseRecordRepository) {
         this.mealRecordRepository = mealRecordRepository;
         this.userRepository = userRepository;
+        this.exerciseRecordRepository = exerciseRecordRepository;
     }
 
     @Transactional(readOnly = true)
@@ -46,10 +51,15 @@ public class DashboardService {
         BigDecimal remaining = goal.subtract(totals.calories()).max(BigDecimal.ZERO);
         BigDecimal exceeded = totals.calories().subtract(goal).max(BigDecimal.ZERO);
 
-        // Exercise records are introduced in M7. Keep the M6 contract stable and explicit.
+        List<ExerciseRecord> exerciseRecords = exerciseRecordRepository
+                .findByUserIdAndExerciseDateOrderByStartTimeAscIdAsc(userId, date);
+        BigDecimal exerciseCalories = exerciseRecords.stream().map(ExerciseRecord::getCaloriesBurned)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         DashboardTodayResponse.ExerciseSummary exercise = new DashboardTodayResponse.ExerciseSummary(
-                "empty", 0, 0, ZERO);
-        BigDecimal exerciseCalories = exercise.caloriesBurned();
+                exerciseRecords.isEmpty() ? "empty" : "success",
+                exerciseRecords.size(),
+                exerciseRecords.stream().mapToInt(ExerciseRecord::getDurationMinutes).sum(),
+                display(exerciseCalories));
 
         return new DashboardTodayResponse(
                 date,
