@@ -469,6 +469,47 @@ GET /exercise-recommendations?date=2026-07-15
 
 ## 统计
 
+### 热量与运动趋势
+
+```
+GET /stats/trend?range=7d
+```
+
+`range` 仅支持 `7d`、`30d`、`90d`，不传时默认 `7d`。服务端使用 `APP_TIME_ZONE`（默认 `Asia/Shanghai`）确定统计截止日期，并返回完整连续日期序列，缺失日期补 0。
+
+```json
+{
+  "range": "7d",
+  "startDate": "2026-07-09",
+  "endDate": "2026-07-15",
+  "calorieGoal": 1800,
+  "recordedDays": 3,
+  "averageIntake": 1916,
+  "averageExercise": 274,
+  "averageNetIntake": 1642,
+  "netChangePercent": -6,
+  "nutritionAchievementRate": 67,
+  "accessibilitySummary": "趋势共 7 天；净摄入最高为……",
+  "dailyData": [{
+    "date": "2026-07-15",
+    "intakeCalories": 1916,
+    "exerciseCalories": 274,
+    "netCalories": 1642,
+    "hasData": true
+  }],
+  "summaries": [{
+    "type": "intake-steady",
+    "title": "热量控制稳定",
+    "message": "近期净摄入处于目标区间，继续保持完整记录。"
+  }]
+}
+```
+
+- 摄入按 `meal_record` 的营养快照和记录克数聚合，运动按保存后的 `calories_burned` 聚合；`netCalories = intakeCalories - exerciseCalories`。
+- 三项日均值以完整区间天数为分母；`netChangePercent` 对比前一等长周期，前一周期净摄入为 0 时返回 `null`。
+- 营养达成率是有记录日期中，摄入落在用户目标热量 80%–120% 的日期占比。
+- 有数据的日期少于 3 天时只返回一条“继续记录”，达到 3 天后最多返回两条规则化小结。
+
 ### 日统计
 
 ```
