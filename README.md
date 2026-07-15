@@ -14,6 +14,7 @@
 - 一级导航：今日、趋势、记录、运动、我的
 - 核心页面：8 个优化版页面
 - UI 基准：[`design/优化版/`](design/优化版/)
+- 现在开始：[`docs/START-HERE.md`](docs/START-HERE.md)
 - 开发顺序：[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
 - 阶段文档：[`docs/milestones/`](docs/milestones/README.md)
 
