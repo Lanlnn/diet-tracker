@@ -140,3 +140,13 @@ jobs:
             diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM meal_record WHERE user_id='legacy-ci-user' AND calories_snapshot=248.00 AND base_amount_snapshot=1.00 AND base_unit_snapshot='份'")" = "1"
           test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
             diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM flyway_schema_history WHERE version='5' AND success=1")" = "1"
+
+  backend-test:
+    name: Backend tests
+    needs:
+      - backend-h2-test
+      - backend-mysql-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm all backend matrices passed
+        run: echo "H2 and MySQL 8 backend test jobs completed successfully"
