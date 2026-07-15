@@ -216,6 +216,43 @@ PUT /foods/{foodId}/favorite
 
 响应为单个食品对象。不能收藏其他用户的自定义食品；不可见食品返回 `FOOD_NOT_FOUND`。
 
+### 获取食品详情（M4）
+
+```
+GET /foods/{foodId}
+```
+
+响应为单个食品对象，字段与食品列表项一致。只能读取系统食品或当前用户创建的自定义食品。
+
+### 计算营养预览（M4）
+
+```
+POST /foods/{foodId}/calculate
+```
+
+```json
+// 请求
+{ "amount": 150 }
+
+// 响应
+{
+  "foodId": 1,
+  "foodName": "鸡胸肉",
+  "baseAmount": 100,
+  "baseUnit": "g",
+  "servingAmount": null,
+  "servingUnit": null,
+  "amount": 150,
+  "unit": "g",
+  "calories": 248,
+  "protein": 46.5,
+  "fat": 5.4,
+  "carbs": 0.0
+}
+```
+
+`amount` 范围为 1–10,000g，最多 1 位小数。服务端使用 `BigDecimal` 按食品营养基准重新计算；热量四舍五入为整数，三大营养素保留 1 位小数。空值、越界、多位小数、非克制基准和无效营养字段均返回 `fieldErrors`，客户端计算值不作为服务端结果来源。
+
 ---
 
 ## 饮食记录
