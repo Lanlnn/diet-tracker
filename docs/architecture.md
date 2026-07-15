@@ -76,7 +76,8 @@ graph TB
 
 - `packageFood/pages/calorie-calculator`：份量和营养实时预览。
 - `packageFood/pages/meal-detail`：餐次明细编辑和删除。
-- `pages/history`：旧历史页兼容入口，M9 应由月历能力正式替代。
+- `packageFood/pages/calendar`：一次加载整月摘要，展示记录标记和选中日餐次。
+- `pages/history`：旧历史页仅保留兼容，新入口已由饮食日历替代。
 - `packageTools/pages/design-system`：开发期组件预览。
 
 页面不直接调用 `wx.request`，统一经过 `services/` 和 `services/request.js`。异步页面分别维护加载、成功、空、错误和重试状态；快速切换查询条件时用请求版本号忽略过期响应。
@@ -95,7 +96,7 @@ controller/ → service/ → repository/ → entity/
 
 - Controller 只处理鉴权上下文、参数 DTO 和 HTTP 映射。
 - Service 定义业务规则、聚合口径、用户隔离和事务。
-- Repository 只负责按用户和日期查询；趋势聚合使用数据库分组查询。
+- Repository 只负责按用户和日期查询；趋势和月历聚合使用数据库分组查询。
 - Entity 不直接作为写接口请求体。
 - 所有用户 ID 取自鉴权过滤器写入的请求属性，不接受客户端自报用户 ID。
 
@@ -129,6 +130,13 @@ controller/ → service/ → repository/ → entity/
 - 环比使用前一等长周期；前一周期净摄入为 0 时不返回百分比。
 - 少于 3 个有数据日期只提示继续记录，达到 3 天后最多返回两条规则化总结。
 - 首页同日摄入、运动和净摄入必须与趋势最后一天对账一致。
+
+### 5.4 饮食日历
+
+- 月份仅接受严格 `yyyy-MM` 格式，并限制在当前月及向前 11 个月。
+- 整月饮食和运动分别使用一条按日分组查询，空日由服务层补 0，不逐日请求。
+- `remainingCalories` 只按摄入与目标计算；运动消耗不返还可摄入额度。
+- 餐次数是当天已记录的不同餐次类型数，仅运动记录也会让 `hasRecord=true`。
 
 ## 6. 数据库与迁移
 

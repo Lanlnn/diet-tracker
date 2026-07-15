@@ -141,3 +141,43 @@ passed
 ## 最终结果
 
 passed
+
+---
+
+# M9 饮食日历视觉 QA
+
+- Source visual truth: `design/优化版/06-饮食日历.png`
+- Implementation screenshot: `docs/evidence/m9/calendar-recorded-day.png`
+- Combined comparison: `docs/evidence/m9/calendar-comparison.png`
+- Viewport: 微信开发者工具 iPhone 14 Pro Max，截图归一化为 390 × 840
+- State: 2026-07 成功态，7 月 13 日已选中，有饮食和运动记录
+
+## Findings
+
+最终对照没有可执行的 P0、P1 或 P2 差异。
+
+- Fonts and typography: 小程序系统字体、标题字重、数字层级和小字辅助信息与设计稿等价，无截断或异常换行。
+- Spacing and layout rhythm: 顶部安全区、月份导航、6 行日历、摘要卡和餐次卡的垂直比例与参考一致；圆角和卡片间隔使用现有 Token。
+- Colors and visual tokens: 背景、表面、主绿、今日浅绿、边框和次级文本均沿用项目色彩系统，选中与记录标记的对比充足。
+- Image quality and assets: 导航继续使用仓库内 Heroicons 资产，未使用占位图、表情或伪造的位图资产。
+- Copy and content: 页面标题、月份、摄入、餐次、运动、剩余和详情入口与设计稿意图一致。验收数据中餐次数和进度百分比按真实后端计算，不强行复制设计稿的示例数字。
+
+## Interaction and runtime evidence
+
+- 普通编译通过，问题面板为 0。
+- 已验证首页日历入口、选中有记录日期、月度标记、摘要更新和餐次明细列表。
+- 开发者工具未报告 WXML、WXSS 或 JavaScript 问题；本地成功态使用临时 H2 数据验收，临时会话未保留在源码。
+
+## Comparison history
+
+1. First pass: P1 顶部自定义导航侵入刘海安全区，P2 日历与摘要卡垂直密度偏紧。
+2. Fixes: 增加顶部安全区，调整标题与月份间距、日期行高和摘要卡内边距。
+3. Post-fix evidence: `calendar-comparison.png` 显示标题、月历、摘要和餐次区域与参考图的层级及比例对齐，无剩余 P0/P1/P2。
+
+聚焦区域比较不再单独拆分：390px 宽的合并对照中，标题、日历数字、指标和餐次文本均可清晰阅读。
+
+## Follow-up polish
+
+- P3: 当前月的“下一月”按钮按业务规则禁用，因此比设计稿示例更浅；保留现有语义。
+
+final result: passed
