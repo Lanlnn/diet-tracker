@@ -28,10 +28,23 @@ class MySqlMigrationTest {
         Integer chickenCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM food_item WHERE name = '鸡胸肉' AND user_id IS NULL",
                 Integer.class);
+        Integer userGoalTableCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.tables " +
+                        "WHERE table_schema = DATABASE() AND table_name = 'user_goal'",
+                Integer.class);
+        Integer deletionAuditTableCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.tables " +
+                        "WHERE table_schema = DATABASE() AND table_name = 'account_deletion_audit'",
+                Integer.class);
+        Integer userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+        Integer userGoalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_goal", Integer.class);
 
-        assertThat(migrationVersion).isEqualTo(7);
+        assertThat(migrationVersion).isEqualTo(8);
         assertThat(categoryCount).isGreaterThanOrEqualTo(7);
         assertThat(systemFoodCount).isGreaterThanOrEqualTo(48);
         assertThat(chickenCount).isGreaterThanOrEqualTo(1);
+        assertThat(userGoalTableCount).isEqualTo(1);
+        assertThat(deletionAuditTableCount).isEqualTo(1);
+        assertThat(userGoalCount).isEqualTo(userCount);
     }
 }

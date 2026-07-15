@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, Long> {
+    long deleteByUserId(String userId);
+    long countByUserIdAndExerciseDateBetween(String userId, LocalDate start, LocalDate end);
     List<ExerciseRecord> findByUserIdAndExerciseDateOrderByStartTimeAscIdAsc(String userId, LocalDate date);
     List<ExerciseRecord> findByUserIdAndExerciseDateBetweenOrderByExerciseDateAscStartTimeAsc(
             String userId, LocalDate start, LocalDate end);

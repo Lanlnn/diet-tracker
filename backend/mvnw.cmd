@@ -43,6 +43,17 @@ if exist "%HOME%\mavenrc_post.bat" call "%HOME%\mavenrc_post.bat"
 set MAVEN_PROJECTBASEDIR=%CD%
 set WRAPPER_JAR=%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar
 
+if "%JAVA_HOME%"=="" (
+    echo Java 17 is required. Set JAVA_HOME to a valid JDK installation.
+    exit /b 1
+)
+for /f "tokens=3" %%v in ('"%JAVA_HOME%\bin\java.exe" -version 2^>^&1 ^| findstr /I "version"') do set JAVA_VERSION=%%~v
+echo %JAVA_VERSION% | findstr /B /C:"17." >nul
+if errorlevel 1 (
+    echo Java 17 is required. Current JAVA_HOME is %JAVA_HOME%
+    exit /b 1
+)
+
 if not exist "%WRAPPER_JAR%" (
     echo - Downloading maven-wrapper.jar
     powershell -Command "Invoke-WebRequest -Uri 'https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar' -OutFile '%WRAPPER_JAR%'"

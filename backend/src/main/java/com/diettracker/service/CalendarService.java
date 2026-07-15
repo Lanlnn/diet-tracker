@@ -6,6 +6,7 @@ import com.diettracker.entity.User;
 import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +28,16 @@ public class CalendarService {
     private final MealRecordRepository mealRecordRepository;
     private final ExerciseRecordRepository exerciseRecordRepository;
     private final UserRepository userRepository;
+    private final UserGoalRepository userGoalRepository;
 
     public CalendarService(MealRecordRepository mealRecordRepository,
                            ExerciseRecordRepository exerciseRecordRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           UserGoalRepository userGoalRepository) {
         this.mealRecordRepository = mealRecordRepository;
         this.exerciseRecordRepository = exerciseRecordRepository;
         this.userRepository = userRepository;
+        this.userGoalRepository = userGoalRepository;
     }
 
     @Transactional(readOnly = true)
@@ -46,9 +50,10 @@ public class CalendarService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "用户不存在"));
-        int goalCalories = user.getDailyCalorieGoal() == null
-                ? DashboardService.DEFAULT_CALORIE_GOAL : user.getDailyCalorieGoal();
-        String goalSource = user.getDailyCalorieGoal() == null ? "DEFAULT" : "USER";
+        var userGoal = userGoalRepository.findById(userId).orElse(null);
+        Integer savedGoal = userGoal == null ? null : userGoal.getDailyCalorieGoal();
+        int goalCalories = savedGoal == null ? DashboardService.DEFAULT_CALORIE_GOAL : savedGoal;
+        String goalSource = userGoal == null || !userGoal.isCustomized() ? "DEFAULT" : "USER";
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
 

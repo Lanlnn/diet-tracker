@@ -82,6 +82,18 @@ App({
     wx.removeStorageSync('token');
   },
 
+  clearDeletedAccount() {
+    this._clearSession();
+    this.globalData.nickname = '';
+    this.globalData.avatarUrl = '';
+    this.globalData.goalType = '';
+    this.globalData.dailyCalorieGoal = null;
+    this.globalData.currentWeight = null;
+    this.globalData.targetWeight = null;
+    wx.removeStorageSync('nickname');
+    wx.removeStorageSync('avatarUrl');
+  },
+
   onProfileUpdate(callback) {
     if (typeof callback === 'function' && !this._profileListeners.includes(callback)) {
       this._profileListeners.push(callback);

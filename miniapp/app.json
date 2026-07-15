@@ -21,6 +21,12 @@
         "pages/meal-detail/meal-detail",
         "pages/calendar/calendar"
       ]
+    },
+    {
+      "root": "packageProfile",
+      "pages": [
+        "pages/settings/settings"
+      ]
     }
   ],
   "window": {

@@ -3,9 +3,11 @@ package com.diettracker.controller;
 import com.diettracker.entity.FoodItem;
 import com.diettracker.entity.MealRecord;
 import com.diettracker.entity.User;
+import com.diettracker.entity.UserGoal;
 import com.diettracker.repository.FoodItemRepository;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
 import com.diettracker.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ class DashboardApiTest {
     @Autowired FoodItemRepository foodItemRepository;
     @Autowired MealRecordRepository mealRecordRepository;
     @Autowired JwtUtil jwtUtil;
+    @Autowired UserGoalRepository userGoalRepository;
 
     private final LocalDate date = LocalDate.of(2026, 7, 15);
     private String tokenA;
@@ -40,12 +43,15 @@ class DashboardApiTest {
     void setUp() {
         mealRecordRepository.deleteAll();
         foodItemRepository.deleteAll();
+        userGoalRepository.deleteAll();
         userRepository.deleteAll();
 
         User userA = user("user-a", 1800);
         User userB = user("user-b", 1800);
         userRepository.save(userA);
         userRepository.save(userB);
+        userGoalRepository.save(goal("user-a", true));
+        userGoalRepository.save(goal("user-b", true));
         chicken = foodItemRepository.save(food("鸡胸肉"));
         tokenA = jwtUtil.generateToken("user-a");
     }
@@ -97,9 +103,9 @@ class DashboardApiTest {
 
     @Test
     void returnsDedicatedEmptyStateAndDefaultGoal() throws Exception {
-        User user = userRepository.findById("user-a").orElseThrow();
-        user.setDailyCalorieGoal(null);
-        userRepository.save(user);
+        UserGoal goal = userGoalRepository.findById("user-a").orElseThrow();
+        goal.setCustomized(false);
+        userGoalRepository.save(goal);
 
         mockMvc.perform(get("/api/dashboard/today")
                         .header("Authorization", bearer(tokenA))
@@ -118,6 +124,13 @@ class DashboardApiTest {
         user.setNickname(id);
         user.setDailyCalorieGoal(goal);
         return user;
+    }
+
+    private UserGoal goal(String userId, boolean customized) {
+        UserGoal goal = new UserGoal();
+        goal.setUserId(userId);
+        goal.setCustomized(customized);
+        return goal;
     }
 
     private FoodItem food(String name) {

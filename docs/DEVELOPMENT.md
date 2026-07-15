@@ -22,7 +22,7 @@ sh mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 微信开发者工具只导入 `miniapp/`。开发版请求 `http://127.0.0.1:8080/api`，体验版和正式版分别使用 `shared/config.js` 中的 staging/release 地址。组件预览入口位于“我的 → 组件预览”。
 
-V1–V7 是面向空 MySQL 8 库的基线迁移，V6 会补齐基础系统食品，V7 增加运动记录。已有业务数据的旧库不能直接清空或自行开启 `baseline-on-migrate`，必须按 [`mysql8-data-migration.md`](./mysql8-data-migration.md) 执行自动备份、旧结构升级、V5 接管、V6 增量升级和 Hibernate 校验。
+V1–V8 是面向空 MySQL 8 库的基线迁移，V6 会补齐基础系统食品，V7 增加运动记录，V8 增加用户目标与匿名删除审计。已有业务数据的旧库不能直接清空或自行开启 `baseline-on-migrate`，必须按 [`mysql8-data-migration.md`](./mysql8-data-migration.md) 执行自动备份、旧结构升级、V5 接管、后续增量升级和 Hibernate 校验。
 
 ### 2.1 基准优先级
 
@@ -61,7 +61,7 @@ V1–V7 是面向空 MySQL 8 库的基线迁移，V6 会补齐基础系统食品
 以下事项未确认前，不进入大规模页面开发：
 
 - [x] 数据库统一使用 MySQL 8，并删除其他数据库驱动和专用 SQL。
-- [x] Java 编译、CI 和部署基线统一为 Java 17；本地开发也必须显式使用 JDK 17。
+- [x] Java 编译、CI、部署和本机基线统一为 Java 17；本地开发必须显式使用 JDK 17。
 - [x] 重量类食品统一按每 100g 保存营养数据，按份食品使用 `baseAmount=1` 并保留原单位。
 - [x] 现有按“份”保存的食品数据迁移为 `baseAmount=1` 并保留原单位和历史来源标记。
 - [x] 饮食记录保存营养快照，历史统计不重新读取当前食品营养值。

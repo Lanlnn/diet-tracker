@@ -1,6 +1,7 @@
 package com.diettracker.dto;
 
 import com.diettracker.entity.User;
+import com.diettracker.entity.UserGoal;
 
 import java.math.BigDecimal;
 
@@ -13,14 +14,14 @@ public record UserProfileResponse(
         BigDecimal targetWeight,
         int streakDays) {
 
-    public static UserProfileResponse from(User user) {
+    public static UserProfileResponse from(User user, UserGoal goal, int streakDays) {
         return new UserProfileResponse(
                 user.getNickname() == null ? "" : user.getNickname(),
                 user.getAvatarUrl() == null ? "" : user.getAvatarUrl(),
-                user.getGoalType() == null ? "" : user.getGoalType(),
-                user.getDailyCalorieGoal(),
-                user.getCurrentWeight(),
-                user.getTargetWeight(),
-                0);
+                goal.getGoalType(),
+                goal.getDailyCalorieGoal(),
+                goal.getCurrentWeight(),
+                goal.getTargetWeight(),
+                streakDays);
     }
 }

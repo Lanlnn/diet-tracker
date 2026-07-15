@@ -1,11 +1,20 @@
 @echo off
-set JAVA_HOME=D:\jdk-25.0.3.9
-set PATH=%JAVA_HOME%\bin;D:\apache-maven-3.9.9\bin;%PATH%
+if "%JAVA_HOME%"=="" (
+    echo Java 17 is required. Set JAVA_HOME to an installed JDK 17.
+    exit /b 1
+)
+
+for /f "tokens=3" %%v in ('"%JAVA_HOME%\bin\java" -version 2^>^&1 ^| findstr /I "version"') do set JAVA_VERSION=%%~v
+echo %JAVA_VERSION% | findstr /B /C:"17." >nul
+if errorlevel 1 (
+    echo Java 17 is required. Current JAVA_HOME is %JAVA_HOME%
+    exit /b 1
+)
 
 echo === 饮食记录小程序 - 后端启动 ===
 echo 正在构建项目...
 
-mvn clean package -DskipTests
+call mvnw.cmd clean package -DskipTests
 
 if %errorlevel% equ 0 (
     echo 构建成功！启动服务...

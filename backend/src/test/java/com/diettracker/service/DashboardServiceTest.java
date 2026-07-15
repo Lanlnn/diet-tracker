@@ -6,6 +6,8 @@ import com.diettracker.entity.User;
 import com.diettracker.repository.MealRecordRepository;
 import com.diettracker.repository.ExerciseRecordRepository;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
+import com.diettracker.entity.UserGoal;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -24,16 +26,21 @@ class DashboardServiceTest {
         MealRecordRepository records = mock(MealRecordRepository.class);
         UserRepository users = mock(UserRepository.class);
         ExerciseRecordRepository exercises = mock(ExerciseRecordRepository.class);
+        UserGoalRepository goals = mock(UserGoalRepository.class);
         LocalDate date = LocalDate.of(2026, 7, 15);
         User user = new User();
         user.setOpenid("user-a");
-        user.setDailyCalorieGoal(1000);
+        UserGoal goal = new UserGoal();
+        goal.setUserId("user-a");
+        goal.setDailyCalorieGoal(1000);
+        goal.setCustomized(true);
         MealRecord meal = meal(new BigDecimal("700"));
         when(users.findById("user-a")).thenReturn(Optional.of(user));
+        when(goals.findById("user-a")).thenReturn(Optional.of(goal));
         when(records.findByUserIdAndMealDateOrderByRecordTimeAsc("user-a", date)).thenReturn(List.of(meal));
         when(exercises.findByUserIdAndExerciseDateOrderByStartTimeAscIdAsc("user-a", date)).thenReturn(List.of());
 
-        DashboardTodayResponse response = new DashboardService(records, users, exercises).getToday(date, "user-a");
+        DashboardTodayResponse response = new DashboardService(records, users, exercises, goals).getToday(date, "user-a");
 
         assertThat(response.intakeCalories()).isEqualByComparingTo("1155");
         assertThat(response.remainingCalories()).isEqualByComparingTo("0");

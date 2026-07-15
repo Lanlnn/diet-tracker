@@ -2,6 +2,8 @@ package com.diettracker.controller;
 
 import com.diettracker.entity.User;
 import com.diettracker.repository.UserRepository;
+import com.diettracker.repository.UserGoalRepository;
+import com.diettracker.repository.AccountDeletionAuditRepository;
 import com.diettracker.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,15 +29,48 @@ class UserProfileApiTest {
     @Autowired MockMvc mockMvc;
     @Autowired UserRepository userRepository;
     @Autowired JwtUtil jwtUtil;
+    @Autowired UserGoalRepository userGoalRepository;
+    @Autowired AccountDeletionAuditRepository auditRepository;
 
     private String tokenA;
 
     @BeforeEach
     void setUp() {
+        userGoalRepository.deleteAll();
         userRepository.deleteAll();
         userRepository.save(user("user-a", "用户甲"));
         userRepository.save(user("user-b", "用户乙"));
         tokenA = jwtUtil.generateToken("user-a");
+    }
+
+    @Test
+    void managesGoalsAndDeletesAccountWithDoubleConfirmation() throws Exception {
+        mockMvc.perform(put("/api/users/me/goals")
+                        .header("Authorization", bearer(tokenA))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"dailyCalorieGoal":1750,"carbsGoal":210,"proteinGoal":105,"fatGoal":55,
+                                 "currentWeight":62.4,"targetWeight":58,"goalType":"LOSE_FAT","aiCoachEnabled":true}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.proteinGoal").value(105))
+                .andExpect(jsonPath("$.aiCoachEnabled").value(true));
+
+        mockMvc.perform(delete("/api/users/me").header("Authorization", bearer(tokenA)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("DELETE_CONFIRMATION_REQUIRED"));
+
+        mockMvc.perform(delete("/api/users/me")
+                        .header("Authorization", bearer(tokenA))
+                        .header("X-Delete-Confirmation", "DELETE"))
+                .andExpect(status().isOk());
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.existsById("user-a")).isFalse();
+        org.assertj.core.api.Assertions.assertThat(userRepository.existsById("user-b")).isTrue();
+        org.assertj.core.api.Assertions.assertThat(auditRepository.findAll()).anySatisfy(audit -> {
+            org.assertj.core.api.Assertions.assertThat(audit.getUserHash()).hasSize(64).doesNotContain("user-a");
+            org.assertj.core.api.Assertions.assertThat(audit.getRequestId()).isNotBlank();
+        });
     }
 
     @Test

@@ -12,6 +12,8 @@ import java.util.List;
 
 @Repository
 public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
+    long countByUserId(String userId);
+    long deleteByUserId(String userId);
     List<FoodItem> findByCategoryIdOrderByNameAsc(Long categoryId);
 
     @Query("SELECT f FROM FoodItem f WHERE f.category.id = :categoryId " +

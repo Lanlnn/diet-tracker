@@ -33,6 +33,12 @@
 .field-input { box-sizing: border-box; width: 100%; height: 88rpx; padding: 0 26rpx; color: #222820; font-size: 28rpx; background: #FFFDF8; border: 1rpx solid #E9E4DA; border-radius: 24rpx; }
 .picker-value { display: flex; align-items: center; justify-content: space-between; line-height: 88rpx; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18rpx; }
+.macro-grid { grid-template-columns: 1fr 1fr 1fr; }
+.macro-grid .field-input { padding: 0 18rpx; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; margin: 8rpx 0 28rpx; padding: 24rpx 26rpx; background: #FFFDF8; border: 1rpx solid #E9E4DA; border-radius: 24rpx; }
+.switch-title,.switch-note { display: block; }
+.switch-title { color: #222820; font-size: 28rpx; }
+.switch-note { margin-top: 6rpx; color: #8A8D84; font-size: 22rpx; }
 .save-button { height: 92rpx; margin-top: 12rpx; color: #FFFDF8; font-size: 29rpx; font-weight: 600; line-height: 92rpx; background: #294E3B; border: 0; border-radius: 46rpx; }
 .save-button::after { border: 0; }
 .save-button[disabled] { color: #FFFDF8; background: #789081; opacity: .72; }

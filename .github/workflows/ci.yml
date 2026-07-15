@@ -44,27 +44,12 @@ jobs:
             exit 1
           fi
 
-  backend-test:
-    name: Backend tests
+      - name: Check production readiness
+        run: bash backend/scripts/check-release-readiness.sh
+
+  backend-h2-test:
+    name: Backend tests (H2)
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: diet_tracker_test
-          MYSQL_ROOT_PASSWORD: test-root-password
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ptest-root-password"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-    env:
-      MYSQL_INTEGRATION_TEST: "true"
-      MYSQL_TEST_DB_URL: "jdbc:mysql://127.0.0.1:3306/diet_tracker_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true"
-      MYSQL_TEST_DB_USERNAME: root
-      MYSQL_TEST_DB_PASSWORD: test-root-password
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -81,6 +66,62 @@ jobs:
         working-directory: backend
         run: sh mvnw --batch-mode test
 
+  backend-mysql-test:
+    name: Backend tests (MySQL 8)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: diet_tracker_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ptest-root-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      MYSQL_INTEGRATION_TEST: "true"
+      TEST_DB_URL: "jdbc:mysql://127.0.0.1:3306/diet_tracker_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true"
+      TEST_DB_USERNAME: root
+      TEST_DB_PASSWORD: test-root-password
+      TEST_DB_DRIVER: com.mysql.cj.jdbc.Driver
+      TEST_JPA_DDL_AUTO: create-drop
+      TEST_FLYWAY_ENABLED: "false"
+      API_PERFORMANCE_TEST: "true"
+      MYSQL_TEST_DB_URL: "jdbc:mysql://127.0.0.1:3306/diet_tracker_migration_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true"
+      MYSQL_TEST_DB_USERNAME: root
+      MYSQL_TEST_DB_PASSWORD: test-root-password
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Install MySQL client and prepare isolated migration database
+        env:
+          MYSQL_PWD: test-root-password
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes default-mysql-client
+          mysql --host=127.0.0.1 --user=root \
+            --execute="CREATE DATABASE diet_tracker_migration_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+
+      - name: Run the complete Maven test suite against MySQL 8
+        working-directory: backend
+        run: sh mvnw --batch-mode test
+
+      - name: Validate Prometheus alert rules
+        run: docker run --rm --entrypoint /bin/promtool --volume "$PWD/monitoring:/monitoring:ro" prom/prometheus:v3.5.0 check rules /monitoring/alerts.yml
+
       - name: Test legacy MySQL 8 data migration
         env:
           MYSQL_PWD: test-root-password
@@ -92,8 +133,6 @@ jobs:
           MIGRATION_CONFIRM_DATABASE: diet_tracker_legacy_test
           LEGACY_USER_ID: legacy-ci-user
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes default-mysql-client
           mysql --host=127.0.0.1 --user=root \
             < backend/src/test/resources/db/legacy/legacy_v0_fixture.sql
           bash backend/scripts/migrate-legacy-mysql8.sh
@@ -101,3 +140,13 @@ jobs:
             diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM meal_record WHERE user_id='legacy-ci-user' AND calories_snapshot=248.00 AND base_amount_snapshot=1.00 AND base_unit_snapshot='份'")" = "1"
           test "$(mysql --host=127.0.0.1 --user=root --batch --skip-column-names \
             diet_tracker_legacy_test --execute="SELECT COUNT(*) FROM flyway_schema_history WHERE version='5' AND success=1")" = "1"
+
+  backend-test:
+    name: Backend tests
+    needs:
+      - backend-h2-test
+      - backend-mysql-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm all backend matrices passed
+        run: echo "H2 and MySQL 8 backend test jobs completed successfully"

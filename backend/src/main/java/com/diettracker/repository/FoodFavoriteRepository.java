@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface FoodFavoriteRepository extends JpaRepository<FoodFavorite, Long> {
+    long countByUserId(String userId);
+    long deleteByUserId(String userId);
     boolean existsByUserIdAndFoodItemId(String userId, Long foodItemId);
 
     @Modifying
