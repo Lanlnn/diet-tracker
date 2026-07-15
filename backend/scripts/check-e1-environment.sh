@@ -3,6 +3,13 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$repo_root"
+require_wechat=false
+if [[ "${1:-}" == "--require-wechat" ]]; then
+  require_wechat=true
+elif [[ -n "${1:-}" ]]; then
+  echo "Usage: $0 [--require-wechat]" >&2
+  exit 2
+fi
 
 failures=0
 fail() {
@@ -40,6 +47,23 @@ if [[ -f deploy/local/.env.local ]]; then
   if git ls-files --error-unmatch deploy/local/.env.local >/dev/null 2>&1; then
     fail "deploy/local/.env.local must never be tracked"
   fi
+elif [[ "$require_wechat" == "true" ]]; then
+  fail "deploy/local/.env.local is required for real WeChat login"
+fi
+
+if [[ "$require_wechat" == "true" && -f deploy/local/.env.local ]]; then
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    env_mode="$(stat -f '%Lp' deploy/local/.env.local)"
+  else
+    env_mode="$(stat -c '%a' deploy/local/.env.local)"
+  fi
+  [[ "$env_mode" == "600" ]] || fail "deploy/local/.env.local must have mode 600"
+
+  configured_appid="$(sed -n 's/^WECHAT_APPID=//p' deploy/local/.env.local | tail -n 1)"
+  configured_secret="$(sed -n 's/^WECHAT_SECRET=//p' deploy/local/.env.local | tail -n 1)"
+  [[ "$configured_appid" == "$expected_appid" ]] || fail "local WECHAT_APPID does not match miniapp/project.config.json"
+  [[ -n "$configured_secret" ]] || fail "local WECHAT_SECRET is empty"
+  [[ "$configured_secret" != *placeholder* ]] || fail "local WECHAT_SECRET is still a placeholder"
 fi
 
 if ((failures > 0)); then
@@ -47,4 +71,8 @@ if ((failures > 0)); then
   exit 1
 fi
 
-echo "E1 local environment check passed (Java 17, MySQL 8.0.46, AppID, LAN API and Compose)"
+if [[ "$require_wechat" == "true" ]]; then
+  echo "E1 WeChat login configuration is ready for a real wx.login test; no secret value was printed"
+else
+  echo "E1 local environment check passed (Java 17, MySQL 8.0.46, AppID, LAN API and Compose)"
+fi

@@ -73,6 +73,7 @@ jobs:
           bash -n deploy/local/stop.sh
           bash -n deploy/local/reset-data.sh
           bash -n deploy/local/smoke-test.sh
+          node --check deploy/local/main-flow-test.mjs
           docker compose --env-file deploy/local/.env.local.example \
             --file deploy/local/compose.yml config --quiet
 
@@ -95,6 +96,7 @@ jobs:
             --env-file deploy/local/.env.local.example \
             --file deploy/local/compose.yml up --detach --no-build
           BACKEND_BIND_PORT=18081 bash deploy/local/smoke-test.sh deploy/local/.env.local.example
+          BACKEND_BIND_PORT=18081 node deploy/local/main-flow-test.mjs
 
   backend-mysql-test:
     name: Backend tests (MySQL 8)

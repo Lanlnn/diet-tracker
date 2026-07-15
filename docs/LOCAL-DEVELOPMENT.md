@@ -50,6 +50,8 @@ curl http://192.168.3.25:8080/actuator/health
 
 微信开发者工具直接导入 `miniapp/`。项目配置当前允许开发阶段关闭合法域名校验；这只用于本地开发，不是未来发布配置。
 
+首次导入时选择“不使用云服务”。若开发者工具询问是否信任并运行项目，需要由工作区所有者亲自确认；未确认前只能检查源码，不能把模拟器画面记为本轮编译证据。
+
 ## 3. 真实微信登录
 
 页面、基础食品和无需真实微信凭据的接口可以先启动。要验证 `wx.login`，复制本地配置并填写与 AppID 匹配的真实 Secret：
@@ -60,6 +62,12 @@ chmod 600 deploy/local/.env.local
 ```
 
 修改 `deploy/local/.env.local` 中的 `WECHAT_SECRET`；换网络时同步修改 `LOCAL_LAN_IP`。必要时轮换本地 JWT 和审计 pepper，再重新运行 `bash deploy/local/start.sh`。该文件已被 Git 忽略。不要把 Secret 发到聊天、截图、日志、Issue 或 PR。
+
+重启前可执行以下检查。它只判断本地文件权限、AppID 一致性和 Secret 是否仍为占位值，不会输出 Secret，也不能代替真机 `wx.login`：
+
+```bash
+bash backend/scripts/check-e1-environment.sh --require-wechat
+```
 
 登录链路为：
 
@@ -87,6 +95,9 @@ docker compose --env-file deploy/local/.env.local.example -f deploy/local/compos
 
 # 重跑烟测
 bash deploy/local/smoke-test.sh
+
+# 在真实本地 MySQL 上执行目标、食品、饮食、运动、首页、趋势、日历和账号删除主链路
+node deploy/local/main-flow-test.mjs
 
 # 停止服务但保留数据
 bash deploy/local/stop.sh
