@@ -68,14 +68,15 @@ wx.removeStorageSync('token'); wx.removeStorageSync('nickname')
 
 ## 3. 真实微信登录
 
-页面、基础食品和无需真实微信凭据的接口可以先启动。要验证 `wx.login`，复制本地配置并填写与 AppID 匹配的真实 Secret：
+页面、基础食品和无需真实微信凭据的接口可以先启动。要验证 `wx.login`，推荐在本机终端执行交互式初始化：
 
 ```bash
-cp deploy/local/.env.local.example deploy/local/.env.local
-chmod 600 deploy/local/.env.local
+bash deploy/local/init-wechat-env.sh
 ```
 
-修改 `deploy/local/.env.local` 中的 `WECHAT_SECRET`；换网络时同步修改 `LOCAL_LAN_IP`。必要时轮换本地 JWT 和审计 pepper，再重新运行 `bash deploy/local/start.sh`。该文件已被 Git 忽略。不要把 Secret 发到聊天、截图、日志、Issue 或 PR。
+脚本会从终端隐藏读取两次 AppSecret，自动生成独立的本地 JWT Secret 和删除审计 pepper，探测局域网 IP，并用 600 权限创建 `deploy/local/.env.local`。它不会打印 Secret。若文件已存在，脚本默认拒绝覆盖；明确轮换全部本地密钥时才使用 `--replace`。无法自动识别网卡时可执行 `LOCAL_LAN_IP=新的地址 bash deploy/local/init-wechat-env.sh`。
+
+该文件已被 Git 忽略。不要把 Secret 发到聊天、截图、日志、Issue 或 PR。初始化成功后重新运行 `bash deploy/local/start.sh`。
 
 重启前可执行以下检查。它只判断本地文件权限、AppID 一致性和 Secret 是否仍为占位值，不会输出 Secret，也不能代替真机 `wx.login`：
 
@@ -106,6 +107,9 @@ bash backend/scripts/check-e1-environment.sh --require-wechat
 ```bash
 # 查看容器
 docker compose --env-file deploy/local/.env.local.example -f deploy/local/compose.yml ps
+
+# 在本机隐藏输入 AppSecret 并生成安全的真实登录配置
+bash deploy/local/init-wechat-env.sh
 
 # 重跑烟测
 bash deploy/local/smoke-test.sh

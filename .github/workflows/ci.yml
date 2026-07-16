@@ -75,6 +75,7 @@ jobs:
           bash -n deploy/local/smoke-test.sh
           node --check deploy/local/main-flow-test.mjs
           node --check deploy/local/preview-fixture.mjs
+          bash -n deploy/local/init-wechat-env.sh
           docker compose --env-file deploy/local/.env.local.example \
             --file deploy/local/compose.yml config --quiet
 
