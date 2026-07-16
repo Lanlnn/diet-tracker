@@ -1,5 +1,7 @@
 # M10 监控与告警门禁
 
+当前项目只在本地运行。本目录用于验证 Prometheus 规则语法和保留未来发布监控基线，不表示已经部署云端监控；线上告警接入在项目全部完成后的发布阶段执行。
+
 生产 `prod` Profile 暴露 `/actuator/health` 与 `/actuator/prometheus`。Prometheus 必须以 `job="diet-tracker"` 抓取指标，并加载 [`alerts.yml`](./alerts.yml)。指标端点应只向监控网络开放，不应直接暴露到公网。
 
 告警阈值与 PRD、发布回滚手册一致：健康检查连续失败、API 5xx 超过 2%、首页 P95 超过 800ms、搜索 P95 超过 500ms、日历或 90 天趋势 P95 超过 1.2s，以及 429 比例异常升高。

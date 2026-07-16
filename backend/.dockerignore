@@ -1,0 +1,10 @@
+.git
+.idea
+.mvn
+src
+mvnw
+mvnw.cmd
+pom.xml
+var
+uploads
+*.log

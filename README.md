@@ -1,12 +1,12 @@
 # 🥗 饮食记录小程序
 
-记录饮食摄入、运动消耗和营养目标的微信小程序。当前仓库包含可运行原型，后续开发统一以优化版 PRD 和 UI 为准。
+记录饮食摄入、运动消耗和营养目标的微信小程序。当前统一按优化版 PRD 和 UI 开发，并采用“全部功能先在本地完成，项目完成后再考虑云端部署”的策略。
 
 ## 当前 M0–M10 基线
 
 - Java 17、Spring Boot 3.4，数据库统一使用 MySQL 8
 - 环境变量密钥、统一 API 错误、请求 ID、DTO 校验和受限头像上传
-- 小程序唯一登录 Promise、401 互斥刷新和开发/体验/生产环境地址
+- 小程序唯一登录 Promise、401 互斥刷新和本地/未来生产环境隔离
 - 五项导航：今日、趋势、记录、运动、我的
 - 暖米白/深苔绿设计 Token、公共组件和组件预览页
 - 用户目标、个人中心、匿名账号删除审计、健康检查与生产限流
@@ -47,24 +47,18 @@ diet-tracker/
 
 ## 快速启动
 
-### 后端
-先在 MySQL 8 中创建空库：
-
-```sql
-CREATE DATABASE diet_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-```
-
-复制 `.env.example` 中的变量名到本机环境，填入已轮换的真实凭据，然后：
+### 本地完整环境
 
 ```bash
-cd diet-tracker/backend
-sh start.sh
+cd /Users/z/Documents/微信小程序/diet-tracker-master
+bash backend/scripts/check-e1-environment.sh
+bash deploy/local/start.sh
 ```
 
-应用会在 MySQL 8 空库中按版本执行 V1–V6 SQL，其中 V6 提供可直接搜索和记录的基础食品库。已有历史数据的 MySQL 8 库使用仓库提供的安全迁移脚本完成备份、结构升级和数据校验，具体见 [`docs/mysql8-data-migration.md`](docs/mysql8-data-migration.md)。不得直接清库或手工修改数据库迁移记录。
+该命令在本机 Docker 中启动 MySQL 8.0.46 和 Java 17 后端，执行 Flyway V1–V8，并验证 7 个分类和 48 个系统食品。无需阿里云、域名或 HTTPS。真实微信登录需把 Secret 写入 Git 忽略的本地文件，见 [`docs/LOCAL-DEVELOPMENT.md`](docs/LOCAL-DEVELOPMENT.md)。
 
 ### 小程序
-微信开发者工具直接打开 `diet-tracker/miniapp`，不要打开仓库的上层目录。
+微信开发者工具直接打开 `miniapp/`，不要打开仓库上层目录。开发者工具和同一 Wi-Fi 手机使用 `http://192.168.3.25:8080/api`；换网络时按本地手册覆盖地址。
 
 ## 技术栈
 

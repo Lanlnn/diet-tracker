@@ -25,6 +25,7 @@ miniapp/node_modules/
 # 日志
 *.log
 .env
+deploy/local/.env.local
 backend/var/
 backend/uploads/
 

@@ -54,7 +54,7 @@
 
 本地与开发者工具验收：Java 17 + MySQL 8.0.46 下后端完整测试 38/38、小程序 12/12、JavaScript/JSON 静态检查和发布门禁脚本通过；V8 升级、U8 回滚至 V7 和再次升级均成功。关键 API P95 基线为首页 10ms、搜索 8ms、月历 18ms、90 天趋势 18ms；Prometheus 6 条告警规则通过 `promtool`。微信开发者工具 Nightly 2.02.2607142 当前工作树普通编译问题面板为 0。个人中心与设置页证据见 [`../evidence/m10/profile-devtools.jpeg`](../evidence/m10/profile-devtools.jpeg)、[`../evidence/m10/settings-devtools.jpeg`](../evidence/m10/settings-devtools.jpeg) 和项目根目录 `design-qa.md`；完整环境、回滚和收口记录见 [`../evidence/review-20260715/`](../evidence/review-20260715/)。
 
-发布及回滚流程见 [`../release-and-rollback.md`](../release-and-rollback.md)。在真机矩阵和生产灰度监控演练完成前，不创建 `m10-complete` 标签。
+`m10-complete` 标签已创建，代表 M10 代码基线收口，不代表上线。当前先按 [`../NEXT-DEVELOPMENT.md`](../NEXT-DEVELOPMENT.md) 完成本地真实链路和双端回归；云端灰度推迟到项目全部完成后。回退规则见 [`../release-and-rollback.md`](../release-and-rollback.md)。
 
 ## Git 交付
 
@@ -65,4 +65,4 @@ chore(m10): finalize production readiness
 docs(m10): publish release and rollback guide
 ```
 
-推送阶段分支，验收合并后创建 `m10-complete` 标签。`m10-complete` 只代表达到发布候选标准，正式发布仍需要灰度验证。
+阶段分支已合并并创建 `m10-complete` 标签。正式发布仍需未来云端阶段的 HTTPS 合法域名、体验版双端回归与灰度验证。

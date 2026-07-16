@@ -2,6 +2,8 @@
 
 微信开发者工具应直接打开本目录，而不是仓库上层目录。
 
+当前 develop/trial 标识均连接同一局域网的本地后端，默认地址为 `http://192.168.3.25:8080/api`。换网络后先更新 `.env.local` 的 `LOCAL_LAN_IP` 并重启后端，再在 Console 执行 `wx.setStorageSync('apiBaseUrl', 'http://新IP:8080/api')` 并重新编译。正式 release 不读取该覆盖。完整步骤见 [`../docs/LOCAL-DEVELOPMENT.md`](../docs/LOCAL-DEVELOPMENT.md)。
+
 ```text
 miniapp/
 ├── pages/          # 今日、趋势、记录、运动、我的五个 Tab 页面
@@ -21,9 +23,9 @@ miniapp/
 - 公共组件的点击区域不小于 88rpx，并覆盖加载、空、错误、禁用和长文本状态。
 - `我的 → 组件预览` 用于检查 M1 Token 与组件状态。
 
-## 后续分包
+## 分包约定
 
-训练、用户中心等功能正式开发时再加入分包并注册到 `app.json`：
+页面增加时按业务加入分包并注册到 `app.json`：
 
 ```text
 package-food/pages/       # 食品搜索、自定义食品、餐次详情
